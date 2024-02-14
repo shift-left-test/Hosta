@@ -3,26 +3,25 @@
 
 include_guard(GLOBAL)
 
-include(DetermineHOSTCCompiler)
-include(CMakeParseArguments)
-
-# FIXME: Use more general condition
-if(WITH_TEST)
+# Assume that enable_testing is called
+if(CMAKE_TESTING_ENABLED)
   message(STATUS "Unit testing: ENABLED")
   add_custom_target(build-test)
+
+  include(DetermineHOSTCCompiler)
+  include(CMakeParseArguments)
+
+  function(convert_to_absolute_paths PATHS)
+    foreach(path ${${PATHS}})
+      get_filename_component(abs_path ${path} ABSOLUTE)
+      list(APPEND ABS_PATHS ${abs_path})
+    endforeach()
+    set(${PATHS} ${ABS_PATHS} PARENT_SCOPE)
+  endfunction()
 endif()
 
-function(convert_to_absolute_paths PATHS)
-  foreach(path ${${PATHS}})
-    get_filename_component(abs_path ${path} ABSOLUTE)
-    list(APPEND ABS_PATHS ${abs_path})
-  endforeach()
-  set(${PATHS} ${ABS_PATHS} PARENT_SCOPE)
-endfunction()
-
 function(add_unittest BUILD_NAME)
-  # FIXME: Use more general condition
-  if(NOT WITH_TEST)
+  if(NOT CMAKE_TESTING_ENABLED)
     return()
   endif()
 
