@@ -9,14 +9,24 @@ import pytest
 import shutil
 import subprocess
 
-def test_ctest(request, tmpdir_factory):
-    build_dir = str(tmpdir_factory.mktemp("build"))
-
+@pytest.fixture(scope="session")
+def build_dir(request, tmpdir_factory):
+    directory = str(tmpdir_factory.mktemp("build"))
     def cleanup():
-        shutil.rmtree(build_dir)
-
+        shutil.rmtree(directory)
     request.addfinalizer(cleanup)
+    subprocess.check_call(f"cmake -S . -B {directory}", shell=True)
+    subprocess.check_call(f"cmake --build {directory}", shell=True)
+    return directory
 
-    assert 0 == subprocess.check_call(f"cmake -S . -B {build_dir}", shell=True)
-    assert 0 == subprocess.check_call(f"cmake --build {build_dir}", shell=True)
+@pytest.fixture(scope="session")
+def compiler_info(build_dir):
+    with open(f"{build_dir}/CMakeFiles/3.16.3/CMakeHOSTCCompiler.cmake", "r") as f:
+        return f.read()
+
+
+def test_ctest(build_dir):
     assert 0 == subprocess.check_call(f"cmake --build {build_dir} --target test", shell=True)
+
+def test_compiler_info(compiler_info):
+    assert 'set(CMAKE_HOSTC_COMPILER "/usr/bin/cc")' in compiler_info
