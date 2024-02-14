@@ -29,5 +29,10 @@ def test_ctest(build_dir):
     output = subprocess.check_output(f"cmake --build {build_dir} --target test", shell=True, encoding="UTF-8")
     assert "unittest_unittest ................   Passed" in output
 
+def test_gcovr(build_dir):
+    subprocess.check_call(f"cmake --build {build_dir} --target test", shell=True)
+    output = subprocess.check_output(f"gcovr .", shell=True, encoding="UTF-8")
+    assert "src/test_main.c                               19      19   100%" in output
+
 def test_compiler_info(compiler_info):
     assert 'set(CMAKE_HOSTC_COMPILER "/usr/bin/cc")' in compiler_info
