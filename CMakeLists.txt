@@ -3,7 +3,7 @@
 
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
-project(host-unittest LANGUAGES C)
+project(host-unittest LANGUAGES NONE)
 
 set(CMAKE_EXECUTABLE_SUFFIX .out)
 
