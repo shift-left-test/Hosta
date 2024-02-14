@@ -15,8 +15,8 @@ def build_dir(request, tmpdir_factory):
     def cleanup():
         shutil.rmtree(directory)
     request.addfinalizer(cleanup)
-    subprocess.check_call(f"cmake -S . -B {directory}", shell=True)
-    subprocess.check_call(f"cmake --build {directory}", shell=True)
+    subprocess.check_call(f"cmake -S . -B {directory} -DWITH_TEST=ON", shell=True)
+    subprocess.check_call(f"cmake --build {directory} --target build-test", shell=True)
     return directory
 
 @pytest.fixture(scope="session")
@@ -26,7 +26,8 @@ def compiler_info(build_dir):
 
 
 def test_ctest(build_dir):
-    assert 0 == subprocess.check_call(f"cmake --build {build_dir} --target test", shell=True)
+    output = subprocess.check_output(f"cmake --build {build_dir} --target test", shell=True, encoding="UTF-8")
+    assert "unittest_unittest ................   Passed" in output
 
 def test_compiler_info(compiler_info):
     assert 'set(CMAKE_HOSTC_COMPILER "/usr/bin/cc")' in compiler_info

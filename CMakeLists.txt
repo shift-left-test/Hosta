@@ -12,5 +12,4 @@ set(CMAKE_EXECUTABLE_SUFFIX .out)
 
 enable_testing()
 
-add_subdirectory(external/unity)
 add_subdirectory(src)

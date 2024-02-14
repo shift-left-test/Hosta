@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/c,c++,python,cmake,vim,emacs
-# Edit at https://www.toptal.com/developers/gitignore?templates=c,c++,python,cmake,vim,emacs
+# Created by https://www.toptal.com/developers/gitignore/api/c,c++,python,cmake,gcov,vim,emacs
+# Edit at https://www.toptal.com/developers/gitignore?templates=c,c++,python,cmake,gcov,vim,emacs
 
 ### C ###
 # Prerequisites
@@ -141,6 +141,13 @@ flycheck_*.el
 # network security
 /network-security.data
 
+
+### Gcov ###
+# gcc coverage testing tool files
+
+*.gcno
+*.gcda
+*.gcov
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -332,4 +339,4 @@ tags
 # Persistent undo
 [._]*.un~
 
-# End of https://www.toptal.com/developers/gitignore/api/c,c++,python,cmake,vim,emacs
+# End of https://www.toptal.com/developers/gitignore/api/c,c++,python,cmake,gcov,vim,emacs
