@@ -15,7 +15,7 @@ def build_dir(request, tmpdir_factory):
     def cleanup():
         shutil.rmtree(directory)
     request.addfinalizer(cleanup)
-    subprocess.check_call(f"cmake -S . -B {directory} -DWITH_TEST=ON", shell=True)
+    subprocess.check_call(f"cmake -S . -B {directory}", shell=True)
     subprocess.check_call(f"cmake --build {directory} --target build-test", shell=True)
     return directory
 
