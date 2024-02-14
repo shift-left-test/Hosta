@@ -3,7 +3,7 @@
 
 include_guard(GLOBAL)
 
-# Assume that enable_testing is called
+# Assume that enable_testing() is called
 if(CMAKE_TESTING_ENABLED)
   message(STATUS "Unit testing: ENABLED")
   add_custom_target(build-test)

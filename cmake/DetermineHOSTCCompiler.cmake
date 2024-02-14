@@ -12,7 +12,6 @@ endif()
 include(${CMAKE_PLATFORM_INFO_DIR}/CMakeHOSTCCompiler.cmake OPTIONAL)
 
 if(NOT CMAKE_HOSTC_COMPILER_WORKS)
-
   # List compilers to try
   include(CMakeDetermineCompiler)
   set(CMAKE_HOSTC_COMPILER_LIST cc gcc clang)
@@ -20,9 +19,13 @@ if(NOT CMAKE_HOSTC_COMPILER_WORKS)
 
   mark_as_advanced(CMAKE_HOSTC_COMPILER)
 
+  include(TestHOSTCCompiler)
+
   # Configure variables set in this file for fast reload later on
   file(WRITE ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOSTCCompiler.cmake.in
-    "set(CMAKE_HOSTC_COMPILER \"@CMAKE_HOSTC_COMPILER@\")")
+    "set(CMAKE_HOSTC_COMPILER \"@CMAKE_HOSTC_COMPILER@\")\n"
+    "set(CMAKE_HOSTC_COMPILER_WORKS @CMAKE_HOSTC_COMPILER_WORKS@)\n"
+  )
 
   configure_file(
     ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOSTCCompiler.cmake.in
