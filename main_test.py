@@ -37,3 +37,4 @@ def test_gcovr(build_dir):
 def test_compiler_info(compiler_info):
     assert 'set(CMAKE_HOSTC_COMPILER "/usr/bin/cc")' in compiler_info
     assert 'set(CMAKE_HOSTC_COMPILER_WORKS TRUE)' in compiler_info
+    assert 'set(CMAKE_HOSTC_COMPILER_ABI "ELF")' in compiler_info
