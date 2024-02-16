@@ -38,3 +38,4 @@ def test_compiler_info(compiler_info):
     assert 'set(CMAKE_HOSTC_COMPILER "/usr/bin/cc")' in compiler_info
     assert 'set(CMAKE_HOSTC_COMPILER_WORKS TRUE)' in compiler_info
     assert 'set(CMAKE_HOSTC_COMPILER_ABI "ELF")' in compiler_info
+    assert 'set(CMAKE_HOSTC_IMPLICIT_INCLUDE_DIRECTORIES "/usr/lib/gcc/x86_64-linux-gnu/9/include;/usr/local/include;/usr/include/x86_64-linux-gnu;/usr/include")' in compiler_info

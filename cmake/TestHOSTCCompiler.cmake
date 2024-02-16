@@ -74,6 +74,14 @@ else()
       endif()
     endforeach()
 
+    # Parse implicit include directories
+    include(CMakeParseImplicitIncludeInfo)
+    set(implicit_incdirs "")
+    cmake_parse_implicit_include_info("${__CMAKE_HOSTC_COMPILER_ABI_OUTPUT}" HOSTC implicit_incdirs log rv)
+    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
+      "Parsed HOSTC implicit include dir info from above output: rv=${rv}\n${log}\n\n")
+    set(CMAKE_HOSTC_IMPLICIT_INCLUDE_DIRECTORIES "${implicit_incdirs}")
+
   else()
     message(STATUS "Detecting HOSTC compiler ABI info - failed")
     file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}CMakeError.log
