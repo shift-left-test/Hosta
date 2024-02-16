@@ -51,21 +51,33 @@ else()
     "the following output:\n${__CMAKE_HOSTC_COMPILER_OUTPUT}\n\n")
 
   # Try to identify the ABI
-  execute_process(COMMAND ${CMAKE_HOSTC_COMPILER} -E ${CMAKE_ROOT}/Modules/CMakeCompilerABI.h
+  set(BIN "${CMAKE_PLATFORM_INFO_DIR}/CMakeDetermineCompilerABI_HOSTC.bin")
+  file(REMOVE "${BIN}")
+  execute_process(
+    COMMAND ${CMAKE_HOSTC_COMPILER} -v -o "${BIN}" ${CMAKE_ROOT}/Modules/CMakeCCompilerABI.c
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp
     RESULT_VARIABLE __CMAKE_HOSTC_COMPILER_ABI_STATUS
     OUTPUT_VARIABLE __CMAKE_HOSTC_COMPILER_ABI_OUTPUT
+    ERROR_VARIABLE __CMAKE_HOSTC_COMPILER_ABI_OUTPUT
     ERROR_QUIET
   )
   if(__CMAKE_HOSTC_COMPILER_ABI_STATUS EQUAL 0)
     message(STATUS "Detecting HOSTC compiler ABI info - done")
+    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
+      "Detecting HOSTC compiler ABI info compiled with the following output:\n${__CMAKE_HOSTC_COMPILER_ABI_OUTPUT}\n\n")
 
-    string(REGEX MATCHALL "INFO:[A-Za-z0-9_]+\\[[^]]*\\]" ABI_STRINGS "${__CMAKE_HOSTC_COMPILER_ABI_OUTPUT}")
+    file(STRINGS "${BIN}" ABI_STRINGS LIMIT_COUNT 2 REGEX "INFO:[A-Za-z0-9_]+\\[[^]]*\\]")
     foreach(info ${ABI_STRINGS})
-      if("${info}" MATCHES "INFO:abi\\[\" \"([^]]*)\" \"\\]")
+      if("${info}" MATCHES "INFO:abi\\[([^]]*)\\]")
         set(CMAKE_HOSTC_COMPILER_ABI "${CMAKE_MATCH_1}")
         break()
       endif()
     endforeach()
+
+  else()
+    message(STATUS "Detecting HOSTC compiler ABI info - failed")
+    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}CMakeError.log
+      "Detecting HOSTC compiler ABI info failed to compile with the following output:\n${__CMAKE_HOSTC_COMPILER_ABI_OUTPUT}\n\n")
   endif()
 
 endif()
