@@ -25,7 +25,7 @@ function(add_unittest BUILD_NAME)
     return()
   endif()
 
-  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES CFLAGS COMPILE_OPTIONS LIBRARIES)
+  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES CFLAGS COMPILE_OPTIONS)
   cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
   set(TEST_NAME unittest_${BUILD_NAME})
