@@ -82,6 +82,19 @@ else()
       "Parsed HOSTC implicit include dir info from above output: rv=${rv}\n${log}\n\n")
     set(CMAKE_HOSTC_IMPLICIT_INCLUDE_DIRECTORIES "${implicit_incdirs}")
 
+    # Parse implicit linker information
+    include(CMakeParseImplicitLinkInfo)
+    set(implicit_libs "")
+    set(implicit_dirs "")
+    set(implicit_fwks "")
+    CMAKE_PARSE_IMPLICIT_LINK_INFO("${__CMAKE_HOSTC_COMPILER_ABI_OUTPUT}" implicit_libs implicit_dirs implict_fwks log
+      "${CMAKE_HOSTC_IMPLICIT_OBJECT_REGEX}")
+    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
+      "Parsed HOSTC implicit link information from above output:\n${log}\n\n")
+    set(CMAKE_HOSTC_IMPLICIT_LINK_LIBRARIES "${implicit_libs}")
+    set(CMAKE_HOSTC_IMPLICIT_LINK_DIRECTORIES "${implicit_dirs}")
+    set(CMAKE_HOSTC_IMPLICIT_FRAMEWORK_DIRECTORIES "${implicit_fwks}")
+
   else()
     message(STATUS "Detecting HOSTC compiler ABI info - failed")
     file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}CMakeError.log
