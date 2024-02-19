@@ -66,7 +66,7 @@ else()
     file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
       "Detecting HOSTC compiler ABI info compiled with the following output:\n${__CMAKE_HOSTC_COMPILER_ABI_OUTPUT}\n\n")
 
-    file(STRINGS "${BIN}" ABI_STRINGS LIMIT_COUNT 2 REGEX "INFO:[A-Za-z0-9_]+\\[[^]]*\\]")
+    file(STRINGS "${BIN}" ABI_STRINGS REGEX "INFO:[A-Za-z0-9_]+\\[[^]]*\\]")
     foreach(info ${ABI_STRINGS})
       if("${info}" MATCHES "INFO:abi\\[([^]]*)\\]")
         set(CMAKE_HOSTC_COMPILER_ABI "${CMAKE_MATCH_1}")
