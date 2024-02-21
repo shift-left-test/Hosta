@@ -7,7 +7,11 @@ project(host-unittest LANGUAGES NONE)
 
 set(CMAKE_EXECUTABLE_SUFFIX .out)
 
-enable_testing()
+option(WITH_TEST "Enable unit testing" OFF)
+
+if(WITH_TEST)
+  enable_testing()
+endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(unittest)
