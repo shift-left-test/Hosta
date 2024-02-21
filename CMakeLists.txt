@@ -7,7 +7,7 @@ project(host-unittest LANGUAGES NONE)
 
 set(CMAKE_EXECUTABLE_SUFFIX .out)
 
-option(WITH_TEST "Enable unit testing" OFF)
+option(WITH_TEST "Enable unit testing" ON)
 
 if(WITH_TEST)
   enable_testing()

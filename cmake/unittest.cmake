@@ -3,28 +3,29 @@
 
 include_guard(GLOBAL)
 
-# Assume that enable_testing() is called
-if(CMAKE_TESTING_ENABLED)
-  message(STATUS "Unit testing: ENABLED")
-  add_custom_target(build-test)
-
-  include(DetermineHOSTCCompiler)
-  include(CMakeParseArguments)
-
-  function(convert_to_absolute_paths PATHS)
-    foreach(path ${${PATHS}})
-      get_filename_component(abs_path ${path} ABSOLUTE)
-      list(APPEND ABS_PATHS ${abs_path})
-    endforeach()
-    set(${PATHS} ${ABS_PATHS} PARENT_SCOPE)
+# Assum that enable_testing() is called
+if(NOT CMAKE_TESTING_ENABLED)
+  function(add_unittest)
   endfunction()
+  return()
 endif()
 
-function(add_unittest BUILD_NAME)
-  if(NOT CMAKE_TESTING_ENABLED)
-    return()
-  endif()
 
+message(STATUS "Unit testing: ENABLED")
+add_custom_target(build-test)
+
+include(DetermineHOSTCCompiler)
+include(CMakeParseArguments)
+
+function(convert_to_absolute_paths PATHS)
+  foreach(path ${${PATHS}})
+    get_filename_component(abs_path ${path} ABSOLUTE)
+    list(APPEND ABS_PATHS ${abs_path})
+  endforeach()
+  set(${PATHS} ${ABS_PATHS} PARENT_SCOPE)
+endfunction()
+
+function(add_unittest BUILD_NAME)
   set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS)
   cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
