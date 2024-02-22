@@ -20,8 +20,8 @@ You may use the following command to install required packages on your Ubuntu ma
 
     $ sudo apt-get update
     $ sudo apt-get install -y cmake gcc gcc-multilib g++ g++-multilib python3 python3-pytest
-    $ python3 -m pipi install -U pip
-    $ python3 -m pipi install -U pytest gcovr
+    $ python3 -m pip install -U pip
+    $ python3 -m pip install -U pytest gcovr
 
 
 ## How to use
