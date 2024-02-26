@@ -3,8 +3,9 @@
 
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
-project(host-unittest LANGUAGES NONE)
+project(host-unittest LANGUAGES C)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_EXECUTABLE_SUFFIX .out)
 
 option(WITH_TEST "Enable unit testing" ON)

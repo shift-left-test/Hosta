@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/c,c++,python,cmake,gcov,vim,emacs
-# Edit at https://www.toptal.com/developers/gitignore?templates=c,c++,python,cmake,gcov,vim,emacs
+# Created by https://www.toptal.com/developers/gitignore/api/c,c++,python,cmake,gcov,ninja,vim,emacs
+# Edit at https://www.toptal.com/developers/gitignore?templates=c,c++,python,cmake,gcov,ninja,vim,emacs
 
 ### C ###
 # Prerequisites
@@ -148,6 +148,11 @@ flycheck_*.el
 *.gcno
 *.gcda
 *.gcov
+
+### Ninja ###
+.ninja_deps
+.ninja_log
+*.ninja
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -339,4 +344,4 @@ tags
 # Persistent undo
 [._]*.un~
 
-# End of https://www.toptal.com/developers/gitignore/api/c,c++,python,cmake,gcov,vim,emacs
+# End of https://www.toptal.com/developers/gitignore/api/c,c++,python,cmake,gcov,ninja,vim,emacs
