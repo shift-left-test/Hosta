@@ -13,6 +13,8 @@ The following packages must be installed on your host environment
 - G++
 - GCC
 - gcovr
+- Make
+- ninja-build
 - pytest3
 - python3
 

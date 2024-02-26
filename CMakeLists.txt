@@ -1,7 +1,7 @@
 # Copyright (c) 2024 LG Electronics Inc.
 # SPDX-License-Identifier: MIT
 
-cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project(host-unittest LANGUAGES NONE)
 
@@ -16,4 +16,4 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(unittest)
 
-add_subdirectory(src)
+add_subdirectory(sample)
