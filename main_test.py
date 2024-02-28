@@ -19,9 +19,8 @@ def cmake_fixture(request, tmpdir_factory):
     def cleanup():
         shutil.rmtree(directory)
     request.addfinalizer(cleanup)
-    def _execute_fixture(testing_enabled=True, generator="Unix Makefiles"):
-        WITH_TEST="ON" if testing_enabled else "OFF"
-        execute(f'cmake -S . -B {directory} -DWITH_TEST={WITH_TEST} -G "{generator}"').check_returncode()
+    def _execute_fixture(testing_enabled=True, mingw_enabled=True, generator="Unix Makefiles"):
+        execute(f'cmake -S . -B {directory} -DWITH_TEST={testing_enabled} -DWITH_MINGW={mingw_enabled} -G "{generator}"').check_returncode()
         return lambda target: execute(f"cmake --build {directory} --target {target}"), directory
     return _execute_fixture
 
