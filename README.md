@@ -7,18 +7,27 @@ This project provides CMake scripts designed to build unit test programs using t
 
 ## Prerequisite
 
-The following packages must be installed on your host environment
+The following packages should be installed on your host environment
 
 - CMake (3.10 or above)
-- G++
-- GCC
-- gcovr
+- GCC toolchain
 - Make
-- ninja-build
-- pytest3
-- python3
 
-You may use the following command to install required packages on your Ubuntu machine
+The following packages may be required for extra purposes
+
+- Docker (to build and run a Docker image)
+- gcovr (for code coverage)
+- ninja-build (to use the Ninja generator)
+- pytest3 (for selftesting)
+- python3 (for selftesting)
+
+You may use the following commands to build a Docker image which the required packages are installed
+
+    $ docker build -t host-test-dev .
+    $ docker run --rm -it -v `pwd`:/test host-test-dev
+    $ cd /test
+
+Or you may use the following commands to install required packages on your Ubuntu machine
 
     $ sudo apt-get update
     $ sudo apt-get install -y cmake gcc gcc-multilib g++ g++-multilib python3 python3-pytest ninja-build
