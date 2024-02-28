@@ -21,7 +21,7 @@ The following packages must be installed on your host environment
 You may use the following command to install required packages on your Ubuntu machine
 
     $ sudo apt-get update
-    $ sudo apt-get install -y cmake gcc gcc-multilib g++ g++-multilib python3 python3-pytest
+    $ sudo apt-get install -y cmake gcc gcc-multilib g++ g++-multilib python3 python3-pytest ninja-build
     $ python3 -m pip install -U pip
     $ python3 -m pip install -U pytest gcovr
 
