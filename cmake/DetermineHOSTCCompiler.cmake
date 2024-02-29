@@ -21,7 +21,10 @@ endif()
 include(CMakeTestCompilerCommon)
 
 # List compilers to try
-find_host_compiler(C COMPILER_LIST cc gcc clang)
+if(NOT CMAKE_HOSTC_COMPILER_LIST)
+  set(CMAKE_HOSTC_COMPILER_LIST cc gcc clang)
+endif()
+find_host_compiler(C)
 
 # Test if the host compiler can compile the most basic of programs.
 # If not, a fatal error is set and stops processing commands.

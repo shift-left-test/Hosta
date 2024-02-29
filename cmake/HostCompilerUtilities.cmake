@@ -38,13 +38,7 @@ endfunction()
 
 function(find_host_compiler lang)
   include(CMakeDetermineCompiler)
-
-  set(multiValueArgs COMPILER_LIST)
-  cmake_parse_arguments(HOST "" "" "${multiValueArgs}" ${ARGN})
-
-  set(CMAKE_HOST${lang}_COMPILER_LIST ${HOST_COMPILER_LIST})
   _cmake_find_compiler(HOST${lang})
-
   mark_as_advanced(CMAKE_HOST${lang}_COMPILER)
 endfunction()
 
