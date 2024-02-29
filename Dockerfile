@@ -14,14 +14,12 @@ RUN apt-get install -y --no-install-recommends locales software-properties-commo
 RUN locale-gen en_US.UTF-8
 
 RUN apt-get install -y --no-install-recommends \
-    ack-grep \
     build-essential \
     clang \
     cmake \
     gcc \
     gcc-mingw-w64 \
     gcc-multilib \
-    gdb \
     ninja-build \
     python3 \
     python3-pip \
