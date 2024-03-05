@@ -15,7 +15,7 @@ def test_build_compiler_info_available(testing_disabled):
 
 def test_test_targets_not_available(testing_disabled):
     assert "make: *** No rule to make target 'build-test'" in testing_disabled.cmake("build-test").stderr
-    assert "make: *** No rule to make target 'test'" in testing_disabled.cmake("test").stderr
+    assert "make: *** No rule to make target 'test'" in testing_disabled.ctest().stderr
 
 def test_test_compiler_info_not_available(testing_disabled):
     assert not testing_disabled.exists("CMakeFiles/3.16.3/CMakeHOSTCCompiler.cmake")

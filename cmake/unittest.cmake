@@ -3,71 +3,42 @@
 
 include_guard(GLOBAL)
 
-# Assum that enable_testing() is called
-if(NOT CMAKE_TESTING_ENABLED)
-  function(add_unittest)
-  endfunction()
-  return()
-endif()
+# Assume that enable_testing() is called
+if(CMAKE_TESTING_ENABLED)
+  message(STATUS "Unit testing: ENABLED")
+  add_custom_target(build-test)
+endif(CMAKE_TESTING_ENABLED)
 
+function(add_unittest TARGET)
+  # Assume that enable_testing() is called
+  if(CMAKE_TESTING_ENABLED)
+    include(HostTestUtilities)
+    include(CMakeParseArguments)
 
-message(STATUS "Unit testing: ENABLED")
-add_custom_target(build-test)
+    set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS)
+    cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
-include(DetermineHOSTCCompiler)
-include(CMakeParseArguments)
+    # Compile source files
+    foreach(_source IN LISTS BUILD_SOURCES)
+      do_host_compile(C _output
+        SOURCE "${_source}"
+        TARGET "${TARGET}"
+        INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
+        COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" --coverage
+      )
+      list(APPEND _objects ${_output})
+    endforeach()
 
-function(convert_to_absolute_paths PATHS)
-  foreach(path ${${PATHS}})
-    get_filename_component(abs_path ${path} ABSOLUTE)
-    list(APPEND ABS_PATHS ${abs_path})
-  endforeach()
-  set(${PATHS} ${ABS_PATHS} PARENT_SCOPE)
-endfunction()
+    # Link object files
+    do_host_link(C ${TARGET} _output
+      OBJECTS "${_objects}"
+      LINK_OPTIONS --coverage
+      LINK_LIBRARIES gcov
+    )
 
-function(add_unittest BUILD_NAME)
-  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS)
-  cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
+    add_custom_target(${TARGET} DEPENDS ${_output})
+    add_dependencies(build-test ${TARGET})
+    add_test(NAME ${TARGET} COMMAND ${_output})
 
-  set(TEST_NAME unittest_${BUILD_NAME})
-
-  set(BUILD_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_HOSTC_IMPLICIT_INCLUDE_DIRECTORIES})
-  list(TRANSFORM BUILD_IMPLICIT_INCLUDE_DIRECTORIES PREPEND "-isystem ")
-  separate_arguments(BUILD_IMPLICIT_INCLUDE_DIRECTORIES UNIX_COMMAND "${BUILD_IMPLICIT_INCLUDE_DIRECTORIES}")
-  list(TRANSFORM BUILD_INCLUDE_DIRECTORIES PREPEND "${CMAKE_INCLUDE_FLAG_C}")
-  separate_arguments(BUILD_INCLUDE_DIRECTORIES UNIX_COMMAND "${BUILD_INCLUDE_DIRECTORIES}")
-  convert_to_absolute_paths(BUILD_SOURCES)
-  separate_arguments(BUILD_SOURCES UNIX_COMMAND "${BUILD_SOURCES}")
-  separate_arguments(BUILD_COMPILE_OPTIONS UNIX_COMMAND "${BUILD_COMPILE_OPTIONS}")
-  set(BUILD_IMPLICIT_LINK_DIRECTORIES ${CMAKE_HOSTC_IMPLICIT_LINK_DIRECTORIES})
-  list(TRANSFORM BUILD_IMPLICIT_LINK_DIRECTORIES PREPEND "${CMAKE_LIBRARY_PATH_FLAG}")
-  separate_arguments(BUILD_IMPLICIT_LINK_DIRECTORIES UNIX_COMMAND "${BUILD_IMPLICIT_LINK_DIRECTORIES}")
-  set(BUILD_IMPLICIT_LINK_LIBRARIES ${CMAKE_HOSTC_IMPLICIT_LINK_LIBRARIES})
-  list(TRANSFORM BUILD_IMPLICIT_LINK_LIBRARIES PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
-  separate_arguments(BUILD_IMPLICIT_LINK_LIBRARIES UNIX_COMMAND "${BUILD_IMPLICIT_LINK_LIBRARIES}")
-
-  set(COMMAND
-    ${CMAKE_HOSTC_COMPILER}
-    -o ${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}${CMAKE_EXECUTABLE_SUFFIX}
-    ${BUILD_SOURCES}
-    ${BUILD_IMPLICIT_INCLUDE_DIRECTORIES}
-    ${BUILD_INCLUDE_DIRECTORIES}
-    ${BUILD_COMPILE_OPTIONS}
-    --coverage
-    ${BUILD_IMPLICIT_LINK_DIRECTORIES}
-    ${BUILD_IMPLICIT_LINK_LIBRARIES}
-    -lgcov
-  )
-
-  add_custom_target(${TEST_NAME}
-    COMMAND ${COMMAND}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Building a unit test executable: ${TEST_NAME}"
-    VERBATIM
-  )
-
-  add_dependencies(build-test ${TEST_NAME})
-
-  add_test(NAME ${TEST_NAME} COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}${CMAKE_EXECUTABLE_SUFFIX})
-
+  endif(CMAKE_TESTING_ENABLED)
 endfunction(add_unittest)

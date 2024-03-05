@@ -1,6 +1,8 @@
 # Copyright (c) 2024 LG Electronics Inc.
 # SPDX-License-Identifier: MIT
 
+include_guard(GLOBAL)
+
 # The compiler configuration was forced by the user.
 # Assume the user has configured all compiler information
 if(CMAKE_HOSTC_COMPILER_FORCED)

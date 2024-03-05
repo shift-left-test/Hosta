@@ -14,7 +14,24 @@ import subprocess
 class CMakeFixture(object):
     def __init__(self, workspace, testing_enabled=True, mingw_enabled=True, generator="Unix Makefiles", compiler_list=None):
         self.workspace = workspace
-        self.build = os.path.join(workspace, "build")
+        self.testing_enabled = testing_enabled
+        self.mingw_enabled = mingw_enabled
+        self.generator = generator
+        self.compiler_list = compiler_list
+        self.prepare()
+
+    def execute(self, command):
+        if isinstance(command, list):
+            command = " ".join(command)
+        return subprocess.run(command, capture_output=True, shell=True, encoding="UTF-8")
+
+    def prepare(self, build="build"):
+        self.build = os.path.join(self.workspace, build)
+
+        # Remove existing files
+        shutil.rmtree(f'{self.workspace}/CMakeLists.txt', ignore_errors=True)
+        shutil.rmtree(f'{self.workspace}/cmake', ignore_errors=True)
+        shutil.rmtree(f'{self.workspace}/sample', ignore_errors=True)
 
         # Copy source files to workspace
         shutil.copy2("CMakeLists.txt", f'{self.workspace}/CMakeLists.txt')
@@ -23,17 +40,12 @@ class CMakeFixture(object):
 
         command = [
             f'cmake -S {self.workspace} -B {self.build}',
-            f'-G "{generator}"',
-            f'-DWITH_TEST={testing_enabled}',
-            f'-DWITH_MINGW={mingw_enabled}',
-            f'-DCMAKE_HOSTC_COMPILER_LIST="{compiler_list}"' if compiler_list else ''
+            f'-G "{self.generator}"',
+            f'-DWITH_TEST={self.testing_enabled}',
+            f'-DWITH_MINGW={self.mingw_enabled}',
+            f'-DCMAKE_HOSTC_COMPILER_LIST="{self.compiler_list}"' if self.compiler_list else ''
         ]
         self.execute(command).check_returncode()
-
-    def execute(self, command):
-        if isinstance(command, list):
-            command = " ".join(command)
-        return subprocess.run(command, capture_output=True, shell=True, encoding="UTF-8")
 
     def cmake(self, name=None):
         command = [f'cmake --build {self.build}', f'--target {name}' if name else '']

@@ -7,13 +7,31 @@ SPDX-License-Identifier: MIT
 
 import pytest
 
+def test_build_target_works(testing_clang):
+    testing_clang.cmake("all").check_returncode()
+
 def test_test_targets_work(testing_clang):
     testing_clang.cmake("build-test").check_returncode()
-    testing_clang.cmake("test").check_returncode()
+    testing_clang.ctest().check_returncode()
+
+def test_compile_works(testing_clang):
+    testing_clang.cmake("build-test").check_returncode()
+    assert testing_clang.exists("sample/CMakeFiles/unittest.dir/src/calc.c.o")
+    assert testing_clang.exists("sample/CMakeFiles/unittest.dir/test/test_main.c.o")
+
+def test_link_works(testing_clang):
+    testing_clang.cmake("build-test").check_returncode()
+    assert testing_clang.exists("sample/unittest.out")
+
+def test_no_output_interference(testing_clang):
+    testing_clang.prepare("")
+    testing_clang.cmake("build-test").check_returncode()
+    testing_clang.prepare("temp")
+    testing_clang.cmake("build-test").check_returncode()
 
 def test_ctest_works(testing_clang):
     testing_clang.cmake("build-test")
-    assert "unittest_unittest ................   Passed" in testing_clang.ctest().stdout
+    assert "unittest .........................   Passed" in testing_clang.ctest().stdout
 
 @pytest.mark.skip(reason="gcovr not working properly")
 def test_gcovr_works(testing_clang):

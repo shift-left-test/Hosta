@@ -1,6 +1,8 @@
 # Copyright (c) 2024 LG Electronics Inc.
 # SPDX-License-Identifier: MIT
 
+include_guard(GLOBAL)
+
 include(CMakeParseArguments)
 
 function(load_host_compiler_preferences lang)
