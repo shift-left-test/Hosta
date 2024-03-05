@@ -12,8 +12,8 @@ endif(CMAKE_TESTING_ENABLED)
 function(add_unittest TARGET)
   # Assume that enable_testing() is called
   if(CMAKE_TESTING_ENABLED)
-    include(HostTestUtilities)
     include(CMakeParseArguments)
+    include(HostTestUtilities)
 
     set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS)
     cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})

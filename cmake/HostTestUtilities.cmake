@@ -10,22 +10,22 @@ function(join_list OUTPUT)
   cmake_parse_arguments(ARG "" "${oneValueArgs}" "" ${ARGN})
 
   if(ARG_INPUT)
-    set(ELEMS ${INPUT})
+    set(ITEMS ${INPUT})
   else()
-    set(ELEMS ${${OUTPUT}})
+    set(ITEMS ${${OUTPUT}})
   endif()
 
   if(ARG_PREPEND)
-    list(TRANSFORM ELEMS PREPEND ${ARG_PREPEND})
+    list(TRANSFORM ITEMS PREPEND ${ARG_PREPEND})
   endif()
 
   if(ARG_APPEND)
-    list(TRANSFORM ELEMS APPEND ${ARG_APPEND})
+    list(TRANSFORM ITEMS APPEND ${ARG_APPEND})
   endif()
 
-  separate_arguments(ELEMS UNIX_COMMAND "${ELEMS}")
+  separate_arguments(ITEMS UNIX_COMMAND "${ITEMS}")
 
-  set(${OUTPUT} ${ELEMS} PARENT_SCOPE)
+  set(${OUTPUT} ${ITEMS} PARENT_SCOPE)
 endfunction()
 
 function(do_host_compile lang OUTPUT)
