@@ -51,6 +51,32 @@ function(do_host_compile lang OUTPUT)
   # Resolve absolute path
   get_filename_component(BUILD_SOURCE ${BUILD_SOURCE} ABSOLUTE)
 
+  # Resolve file dependencies
+  set(BUILD_COMMAND
+    ${CMAKE_HOSTC_COMPILER}
+    -MM
+    ${BUILD_SOURCE}
+    ${BUILD_IMPLICIT_INCLUDE_DIRECTORIES}
+    ${BUILD_INCLUDE_DIRECTORIES}
+    ${BUILD_COMPILE_OPTIONS}
+  )
+  execute_process(
+    COMMAND ${BUILD_COMMAND}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    RESULT_VARIABLE _result
+    OUTPUT_VARIABLE _output
+    ERROR_QUIET
+  )
+
+  if(_result EQUAL 0)
+    string(REPLACE "\\" "" _output "${_output}")
+    string(REPLACE "\n" "" _output "${_output}")
+    separate_arguments(BUILD_FILE_DEPENDENCIES UNIX_COMMAND "${_output}")
+    list(REMOVE_AT BUILD_FILE_DEPENDENCIES 0)
+  else()
+    set(BUILD_FILE_DEPENDENCIES ${BUILD_SOURCE})
+  endif()
+
   set(BUILD_COMMAND
     ${CMAKE_HOST${lang}_COMPILER}
     ${BUILD_IMPLICIT_INCLUDE_DIRECTORIES}
@@ -63,7 +89,7 @@ function(do_host_compile lang OUTPUT)
   add_custom_command(
     OUTPUT ${_relative_output}
     COMMAND ${BUILD_COMMAND}
-    DEPENDS ${BUILD_SOURCE}
+    DEPENDS ${BUILD_FILE_DEPENDENCIES}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Building HOST${lang} object ${_relative_output}"
     VERBATIM

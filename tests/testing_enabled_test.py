@@ -71,3 +71,29 @@ def test_gcovr_works(testing, mingw_enabled, generator, compiler_list):
     if compiler_list not in ["clang", "i686-w64-mingw32-gcc"]:
         testing.ctest()
         assert "sample/test/test_main.c                       15      15   100%" in testing.gcovr().stdout
+
+@PARAM_MINGW
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_no_changes_no_rebuilds(testing, mingw_enabled, generator, compiler_list):
+    testing.prepare(mingw_enabled=mingw_enabled, generator=generator, compiler_list=compiler_list)
+    testing.cmake("build-test").stdout
+    assert "Linking HOSTC executable unittest.out" not in testing.cmake("build-test").stdout
+
+@PARAM_MINGW
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_updating_source_file_rebuilds(testing, mingw_enabled, generator, compiler_list):
+    testing.prepare(mingw_enabled=mingw_enabled, generator=generator, compiler_list=compiler_list)
+    testing.cmake("build-test").stdout
+    testing.touch("sample/src/calc.c")
+    assert "Linking HOSTC executable unittest.out" in testing.cmake("build-test").stdout
+
+@PARAM_MINGW
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_updating_header_file_rebuilds(testing, mingw_enabled, generator, compiler_list):
+    testing.prepare(mingw_enabled=mingw_enabled, generator=generator, compiler_list=compiler_list)
+    testing.cmake("build-test").stdout
+    testing.touch("sample/src/calc.h")
+    assert "Linking HOSTC executable unittest.out" in testing.cmake("build-test").stdout

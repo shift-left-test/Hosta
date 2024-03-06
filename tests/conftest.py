@@ -5,11 +5,11 @@ Copyright (c) 2024 LG Electronics Inc.
 SPDX-License-Identifier: MIT
 """
 
+from pathlib import Path
 import os
 import pytest
 import shutil
 import subprocess
-
 
 class CMakeFixture(object):
     def __init__(self, workspace):
@@ -63,6 +63,9 @@ class CMakeFixture(object):
     def read(self, path):
         with open(os.path.join(self.build, path), "r") as f:
             return f.read()
+
+    def touch(self, path):
+        Path(os.path.join(self.workspace, path)).touch()
 
 @pytest.fixture
 def testing(request, tmpdir_factory):
