@@ -32,7 +32,8 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN python3 -m pip install -U pip
 RUN python3 -m pip install -U \
     gcovr \
-    pytest
+    pytest \
+    pytest-xdist
 
 FROM ubuntu:20.04
 
