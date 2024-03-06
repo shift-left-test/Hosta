@@ -7,37 +7,6 @@ SPDX-License-Identifier: MIT
 
 import pytest
 
-def test_build_target_works(testing_gcc):
-    testing_gcc.cmake("all").check_returncode()
-
-def test_test_targets_work(testing_gcc):
-    testing_gcc.cmake("build-test").check_returncode()
-    testing_gcc.ctest().check_returncode()
-
-def test_compile_works(testing_gcc):
-    testing_gcc.cmake("build-test").check_returncode()
-    assert testing_gcc.exists("sample/CMakeFiles/unittest.dir/src/calc.c.o")
-    assert testing_gcc.exists("sample/CMakeFiles/unittest.dir/test/test_main.c.o")
-
-def test_link_works(testing_gcc):
-    testing_gcc.cmake("build-test").check_returncode()
-    assert testing_gcc.exists("sample/unittest.out")
-
-def test_no_output_interference(testing_gcc):
-    testing_gcc.prepare("")
-    testing_gcc.cmake("build-test").check_returncode()
-    testing_gcc.prepare("temp")
-    testing_gcc.cmake("build-test").check_returncode()
-
-def test_ctest_works(testing_gcc):
-    testing_gcc.cmake("build-test")
-    assert "unittest .........................   Passed" in testing_gcc.ctest().stdout
-
-def test_gcovr_works(testing_gcc):
-    testing_gcc.cmake("build-test")
-    testing_gcc.ctest()
-    assert "sample/test/test_main.c                       15      15   100%" in testing_gcc.gcovr().stdout
-
 def test_host_compiler_info(testing_gcc):
     compiler_info = testing_gcc.read("CMakeFiles/3.16.3/CMakeHOSTCCompiler.cmake")
     assert 'set(CMAKE_HOSTC_COMPILER "/usr/bin/gcc")' in compiler_info

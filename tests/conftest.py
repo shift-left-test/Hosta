@@ -12,21 +12,20 @@ import subprocess
 
 
 class CMakeFixture(object):
-    def __init__(self, workspace, testing_enabled=True, mingw_enabled=True, generator="Unix Makefiles", compiler_list=None):
+    def __init__(self, workspace):
         self.workspace = workspace
-        self.testing_enabled = testing_enabled
-        self.mingw_enabled = mingw_enabled
-        self.generator = generator
-        self.compiler_list = compiler_list
-        self.prepare()
 
     def execute(self, command):
         if isinstance(command, list):
             command = " ".join(command)
         return subprocess.run(command, capture_output=True, shell=True, encoding="UTF-8")
 
-    def prepare(self, build="build"):
+    def prepare(self, build="build", testing_enabled=True, mingw_enabled=True, generator="Unix Makefiles", compiler_list=None):
         self.build = os.path.join(self.workspace, build)
+        self.testing_enabled = testing_enabled
+        self.mingw_enabled = mingw_enabled
+        self.generator = generator
+        self.compiler_list = compiler_list
 
         # Remove existing files
         shutil.rmtree(f'{self.workspace}/CMakeLists.txt', ignore_errors=True)
@@ -65,43 +64,35 @@ class CMakeFixture(object):
         with open(os.path.join(self.build, path), "r") as f:
             return f.read()
 
-
 @pytest.fixture
-def testing_disabled(request, tmpdir_factory):
-    directory = str(tmpdir_factory.mktemp("testing_disabled"))
-    def cleanup():
-        shutil.rmtree(directory)
-    request.addfinalizer(cleanup)
-    return CMakeFixture(directory, testing_enabled=False)
-
-@pytest.fixture
-def testing_cc(request, tmpdir_factory):
+def testing(request, tmpdir_factory):
     directory = str(tmpdir_factory.mktemp("workspace"))
     def cleanup():
         shutil.rmtree(directory)
     request.addfinalizer(cleanup)
-    return CMakeFixture(directory, testing_enabled=True)
+    return CMakeFixture(directory)
 
 @pytest.fixture
-def testing_gcc(request, tmpdir_factory):
-    directory = str(tmpdir_factory.mktemp("workspace"))
-    def cleanup():
-        shutil.rmtree(directory)
-    request.addfinalizer(cleanup)
-    return CMakeFixture(directory, testing_enabled=True, compiler_list="gcc")
+def testing_disabled(testing):
+    testing.prepare(testing_enabled=False)
+    return testing
 
 @pytest.fixture
-def testing_clang(request, tmpdir_factory):
-    directory = str(tmpdir_factory.mktemp("workspace"))
-    def cleanup():
-        shutil.rmtree(directory)
-    request.addfinalizer(cleanup)
-    return CMakeFixture(directory, testing_enabled=True, compiler_list="clang")
+def testing_cc(testing):
+    testing.prepare()
+    return testing
 
 @pytest.fixture
-def testing_mingw(request, tmpdir_factory):
-    directory = str(tmpdir_factory.mktemp("workspace"))
-    def cleanup():
-        shutil.rmtree(directory)
-    request.addfinalizer(cleanup)
-    return CMakeFixture(directory, testing_enabled=True, compiler_list="i686-w64-mingw32-gcc")
+def testing_gcc(testing):
+    testing.prepare(compiler_list="gcc")
+    return testing
+
+@pytest.fixture
+def testing_clang(testing):
+    testing.prepare(compiler_list="clang")
+    return testing
+
+@pytest.fixture
+def testing_mingw(testing):
+    testing.prepare(compiler_list="i686-w64-mingw32-gcc")
+    return testing
