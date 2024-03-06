@@ -7,15 +7,39 @@ SPDX-License-Identifier: MIT
 
 import pytest
 
-def test_build_target_works(testing_disabled):
-    testing_disabled.cmake("all").check_returncode()
+PARAM_MINGW = pytest.mark.parametrize("mingw_enabled", [True, False])
+PARAM_GENERATORS = pytest.mark.parametrize("generator", ["Unix Makefiles", "Ninja"])
+PARAM_COMPILERS = pytest.mark.parametrize("compiler_list", ["cc", "gcc", "clang", "i686-w64-mingw32-gcc"])
 
-def test_build_compiler_info_available(testing_disabled):
-    assert testing_disabled.exists("CMakeFiles/3.16.3/CMakeCCompiler.cmake")
+@PARAM_MINGW
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_build_target_works(testing, mingw_enabled, generator, compiler_list):
+    testing.prepare(testing_enabled=False, mingw_enabled=mingw_enabled, generator=generator, compiler_list=compiler_list)
+    testing.cmake("all").check_returncode()
 
-def test_test_targets_not_available(testing_disabled):
-    assert "make: *** No rule to make target 'build-test'" in testing_disabled.cmake("build-test").stderr
-    assert "make: *** No rule to make target 'test'" in testing_disabled.ctest().stderr
+@PARAM_MINGW
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_build_compiler_info_available(testing, mingw_enabled, generator, compiler_list):
+    testing.prepare(testing_enabled=False, mingw_enabled=mingw_enabled, generator=generator, compiler_list=compiler_list)
+    assert testing.exists("CMakeFiles/3.16.3/CMakeCCompiler.cmake")
 
-def test_test_compiler_info_not_available(testing_disabled):
-    assert not testing_disabled.exists("CMakeFiles/3.16.3/CMakeHOSTCCompiler.cmake")
+@PARAM_MINGW
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_test_targets_not_available(testing, mingw_enabled, generator, compiler_list):
+    testing.prepare(testing_enabled=False, mingw_enabled=mingw_enabled, generator=generator, compiler_list=compiler_list)
+    if generator in ["Ninja"]:
+        assert "ninja: error: unknown target 'build-test'" in testing.cmake("build-test").stderr
+        assert "ninja: error: unknown target 'test'" in testing.ctest().stderr
+    else:
+        assert "make: *** No rule to make target 'build-test'" in testing.cmake("build-test").stderr
+        assert "make: *** No rule to make target 'test'" in testing.ctest().stderr
+
+@PARAM_MINGW
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_test_compiler_info_not_available(testing, mingw_enabled, generator, compiler_list):
+    testing.prepare(testing_enabled=False, mingw_enabled=mingw_enabled, generator=generator, compiler_list=compiler_list)
+    assert not testing.exists("CMakeFiles/3.16.3/CMakeHOSTCCompiler.cmake")
