@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage("Test") {
             steps {
-                sh "pytest -xvv --junitxml result.xml"
+                sh "pytest -xvv -n auto --junitxml result.xml"
             }
         }
         stage("Report") {
