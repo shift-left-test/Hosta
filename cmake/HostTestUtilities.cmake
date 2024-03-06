@@ -37,7 +37,7 @@ function(do_host_compile lang OUTPUT)
 
   # FIXME: "-isystem" needs to be set properly
   join_list(BUILD_IMPLICIT_INCLUDE_DIRECTORIES INPUT "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}" PREPEND "-isystem")
-  join_list(BUILD_INCLUDE_DIRECTORIES PREPEND "${CMAKE_INCLUDE_FLAG_C}") # FIXME: CMAKE_INCLUDE_FLAGS_HOST${lang} ?
+  join_list(BUILD_INCLUDE_DIRECTORIES PREPEND "${CMAKE_INCLUDE_FLAG_C}")
   join_list(BUILD_COMPILE_OPTIONS)
 
   # Set path to the output file
