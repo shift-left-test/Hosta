@@ -21,6 +21,7 @@ The following packages are necessary to test this project
 - gcovr
 - ninja-build
 - pytest3
+- pytest3-xdist
 - python3
 
 You may use the following commands to build a Docker image which the required packages are installed
@@ -43,7 +44,7 @@ You may use the following commands to build and execute sample tests
 
 You may use the following commands to test CMake scripts
 
-    $ pytest
+    $ pytest -n auto
 
 
 ## License
