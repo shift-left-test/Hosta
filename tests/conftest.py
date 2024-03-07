@@ -40,7 +40,7 @@ class CMakeFixture(object):
         command = [
             f'cmake -S {self.workspace} -B {self.build}',
             f'-G "{self.generator}"',
-            f'-DWITH_TEST={self.testing_enabled}',
+            f'-DWITH_HOST_TEST={self.testing_enabled}',
             f'-DWITH_CROSS_TOOLCHAIN={self.cross_toolchain}',
             f'-DCMAKE_HOSTC_COMPILER_LIST="{self.compiler_list}"' if self.compiler_list else ''
         ]

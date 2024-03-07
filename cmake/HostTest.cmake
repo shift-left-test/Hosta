@@ -5,11 +5,11 @@ include_guard(GLOBAL)
 
 # Assume that enable_testing() is called
 if(CMAKE_TESTING_ENABLED)
-  message(STATUS "Unit testing: ENABLED")
+  message(STATUS "Host based testing: ENABLED")
   add_custom_target(build-test)
 endif(CMAKE_TESTING_ENABLED)
 
-function(add_unittest TARGET)
+function(add_host_test TARGET)
   # Assume that enable_testing() is called
   if(CMAKE_TESTING_ENABLED)
     include(CMakeParseArguments)
@@ -41,4 +41,4 @@ function(add_unittest TARGET)
     add_test(NAME ${TARGET} COMMAND ${_output})
 
   endif(CMAKE_TESTING_ENABLED)
-endfunction(add_unittest)
+endfunction(add_host_test)
