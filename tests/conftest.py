@@ -20,10 +20,10 @@ class CMakeFixture(object):
             command = " ".join(command)
         return subprocess.run(command, capture_output=True, shell=True, encoding="UTF-8")
 
-    def prepare(self, build="build", testing_enabled=True, mingw_enabled=True, generator="Unix Makefiles", compiler_list=None):
+    def prepare(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", compiler_list=None):
         self.build = os.path.join(self.workspace, build)
         self.testing_enabled = testing_enabled
-        self.mingw_enabled = mingw_enabled
+        self.cross_toolchain = cross_toolchain
         self.generator = generator
         self.compiler_list = compiler_list
 
@@ -41,7 +41,7 @@ class CMakeFixture(object):
             f'cmake -S {self.workspace} -B {self.build}',
             f'-G "{self.generator}"',
             f'-DWITH_TEST={self.testing_enabled}',
-            f'-DWITH_MINGW={self.mingw_enabled}',
+            f'-DWITH_CROSS_TOOLCHAIN={self.cross_toolchain}',
             f'-DCMAKE_HOSTC_COMPILER_LIST="{self.compiler_list}"' if self.compiler_list else ''
         ]
         self.execute(command).check_returncode()

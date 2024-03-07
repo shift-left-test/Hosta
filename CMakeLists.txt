@@ -3,10 +3,10 @@
 
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
-option(WITH_MINGW "Enable mingw cross toolchain" ON)
+option(WITH_CROSS_TOOLCHAIN "Enable mingw cross toolchain" ON)
 option(WITH_TEST "Enable unit testing" ON)
 
-if(WITH_MINGW)
+if(WITH_CROSS_TOOLCHAIN)
   # the name of the target operating system
   set(CMAKE_SYSTEM_NAME Windows)
 
