@@ -53,7 +53,7 @@ function(do_host_compile lang OUTPUT)
 
   # Resolve file dependencies
   set(BUILD_COMMAND
-    ${CMAKE_HOSTC_COMPILER}
+    ${CMAKE_HOST${lang}_COMPILER}
     -MM
     ${BUILD_SOURCE}
     ${BUILD_IMPLICIT_INCLUDE_DIRECTORIES}
