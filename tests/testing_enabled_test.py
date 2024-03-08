@@ -77,7 +77,16 @@ def test_gcovr_works(testing, cross_toolchain, generator, compiler_list):
 @PARAM_COMPILERS
 def test_no_changes_no_rebuilds(testing, cross_toolchain, generator, compiler_list):
     testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
-    testing.cmake("build-test").stdout
+    testing.cmake("build-test")
+    assert "Linking HOSTC executable unittest.out" not in testing.cmake("build-test").stdout
+
+@PARAM_MINGW
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_no_configuration_changes_no_rebuilds(testing, cross_toolchain, generator, compiler_list):
+    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.cmake("build-test")
+    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     assert "Linking HOSTC executable unittest.out" not in testing.cmake("build-test").stdout
 
 @PARAM_MINGW
@@ -85,7 +94,7 @@ def test_no_changes_no_rebuilds(testing, cross_toolchain, generator, compiler_li
 @PARAM_COMPILERS
 def test_updating_source_file_rebuilds(testing, cross_toolchain, generator, compiler_list):
     testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
-    testing.cmake("build-test").stdout
+    testing.cmake("build-test")
     testing.touch("sample/src/calc.c")
     assert "Linking HOSTC executable unittest.out" in testing.cmake("build-test").stdout
 
@@ -94,6 +103,6 @@ def test_updating_source_file_rebuilds(testing, cross_toolchain, generator, comp
 @PARAM_COMPILERS
 def test_updating_header_file_rebuilds(testing, cross_toolchain, generator, compiler_list):
     testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
-    testing.cmake("build-test").stdout
+    testing.cmake("build-test")
     testing.touch("sample/src/calc.h")
     assert "Linking HOSTC executable unittest.out" in testing.cmake("build-test").stdout
