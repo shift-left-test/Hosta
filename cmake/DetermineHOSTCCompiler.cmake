@@ -10,7 +10,7 @@ if(CMAKE_HOSTC_COMPILER_FORCED)
     return()
 endif()
 
-include(HostCompilerUtilities)
+include(HostTestUtilities)
 
 # Load host compiler preferences
 load_host_compiler_preferences(C)

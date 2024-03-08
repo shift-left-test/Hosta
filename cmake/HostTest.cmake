@@ -3,9 +3,8 @@
 
 include_guard(GLOBAL)
 
-# Assume that enable_testing() is called
 if(CMAKE_TESTING_ENABLED)
-  message(STATUS "Host based testing: ENABLED")
+  include(DetermineHOSTCCompiler)
   add_custom_target(build-test)
 endif(CMAKE_TESTING_ENABLED)
 
