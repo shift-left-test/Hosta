@@ -6,26 +6,27 @@ include_guard(GLOBAL)
 include(CMakeParseArguments)
 
 function(join_list OUTPUT)
-  set(oneValueArgs INPUT PREPEND APPEND)
-  cmake_parse_arguments(ARG "" "${oneValueArgs}" "" ${ARGN})
+  set(oneValueArgs PREPEND APPEND)
+  set(multiValueArgs INPUT)
+  cmake_parse_arguments(ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if(ARG_INPUT)
-    set(ITEMS ${INPUT})
+    set(ITEMS "${ARG_INPUT}")
   else()
-    set(ITEMS ${${OUTPUT}})
+    set(ITEMS "${${OUTPUT}}")
   endif()
 
   if(ARG_PREPEND)
-    list(TRANSFORM ITEMS PREPEND ${ARG_PREPEND})
+    list(TRANSFORM ITEMS PREPEND "${ARG_PREPEND}")
   endif()
 
   if(ARG_APPEND)
-    list(TRANSFORM ITEMS APPEND ${ARG_APPEND})
+    list(TRANSFORM ITEMS APPEND "${ARG_APPEND}")
   endif()
 
   separate_arguments(ITEMS UNIX_COMMAND "${ITEMS}")
 
-  set(${OUTPUT} ${ITEMS} PARENT_SCOPE)
+  set(${OUTPUT} "${ITEMS}" PARENT_SCOPE)
 endfunction()
 
 function(do_host_compile lang OUTPUT)
