@@ -92,6 +92,15 @@ def test_no_configuration_changes_no_rebuilds(testing, cross_toolchain, generato
 @PARAM_MINGW
 @PARAM_GENERATORS
 @PARAM_COMPILERS
+def test_reconfiguration_rebuilds(testing, cross_toolchain, generator, compiler_list):
+    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, debug_enabled=True)
+    testing.cmake("build-test")
+    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, debug_enabled=False)
+    assert "Linking HOSTC executable unittest.out" in testing.cmake("build-test").stdout
+
+@PARAM_MINGW
+@PARAM_GENERATORS
+@PARAM_COMPILERS
 def test_updating_source_file_rebuilds(testing, cross_toolchain, generator, compiler_list):
     testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test")

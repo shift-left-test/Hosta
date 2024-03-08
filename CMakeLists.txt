@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 option(WITH_CROSS_TOOLCHAIN "Enable cross toolchain" ON)
 option(WITH_HOST_TEST "Enable host based testing" ON)
+option(WITH_DEBUG_SYMBOL "Enable debug symbol" ON)
 
 if(WITH_CROSS_TOOLCHAIN)
   # the name of the target operating system

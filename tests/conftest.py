@@ -20,12 +20,13 @@ class CMakeFixture(object):
             command = " ".join(command)
         return subprocess.run(command, capture_output=True, shell=True, encoding="UTF-8")
 
-    def prepare(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", compiler_list=None):
+    def prepare(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", compiler_list=None, debug_enabled=True):
         self.build = os.path.join(self.workspace, build)
         self.testing_enabled = testing_enabled
         self.cross_toolchain = cross_toolchain
         self.generator = generator
         self.compiler_list = compiler_list
+        self.debug_enabled = debug_enabled
 
         # Remove existing files
         shutil.rmtree(f'{self.workspace}/CMakeLists.txt', ignore_errors=True)
@@ -42,7 +43,8 @@ class CMakeFixture(object):
             f'-G "{self.generator}"',
             f'-DWITH_HOST_TEST={self.testing_enabled}',
             f'-DWITH_CROSS_TOOLCHAIN={self.cross_toolchain}',
-            f'-DCMAKE_HOSTC_COMPILER_LIST="{self.compiler_list}"' if self.compiler_list else ''
+            f'-DCMAKE_HOSTC_COMPILER_LIST="{self.compiler_list}"' if self.compiler_list else '',
+            f'-DWITH_DEBUG_SYMBOL={self.debug_enabled}',
         ]
         self.execute(command).check_returncode()
 
