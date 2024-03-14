@@ -1,8 +1,10 @@
-# cmake-host-unittest
+# lute
+
+> Lightweight unit test environment on host machines for CMake
 
 ## About
 
-This project provides CMake scripts designed to build unit test programs using the host build toolchain and execute them via CTest while a cross-build toolchain environment is configured.
+This project provides CMake scripts designed to build unit test programs using the host build toolchain and execute them on the host machine via CTest while a cross-build toolchain environment is configured.
 
 
 ## Prerequisite
