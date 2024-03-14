@@ -135,6 +135,15 @@ function(do_host_compile lang OUTPUT)
   set(multiValueArgs INCLUDE_DIRECTORIES COMPILE_OPTIONS)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
+  # FIXME: compute the standard option properly
+  if(DEFINED CMAKE_HOST${lang}_STANDARD)
+    if(NOT DEFINED CMAKE_HOST${lang}_EXTENSIONS OR CMAKE_HOST${lang}_EXTENSIONS)
+      list(PREPEND BUILD_COMPILE_OPTIONS "-std=gnu${CMAKE_HOST${lang}_STANDARD}")
+    else()
+      list(PREPEND BUILD_COMPILE_OPTIONS "-std=c${CMAKE_HOST${lang}_STANDARD}")
+    endif()
+  endif()
+
   # FIXME: "-isystem" needs to be set properly
   join_list(BUILD_IMPLICIT_INCLUDE_DIRECTORIES INPUT "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}" PREPEND "-isystem")
   join_list(BUILD_INCLUDE_DIRECTORIES PREPEND "${CMAKE_INCLUDE_FLAG_C}")
