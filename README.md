@@ -1,6 +1,6 @@
-# lute
+# hosta
 
-> Lightweight unit test environment on host machines for CMake
+> Host based test automation for CMake
 
 ## About
 
@@ -17,7 +17,8 @@ The following packages should be installed to use on your host environment
 
 The following packages are necessary to test this project
 
-- Docker
+- build-essential
+- docker
 - clang
 - gcc-mingw-w64
 - gcovr
