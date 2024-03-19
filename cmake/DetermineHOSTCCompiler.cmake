@@ -95,7 +95,7 @@ else()
     parse_host_implicit_link_info(C "${__CMAKE_HOSTC_ABI_COMPILED_OUTPUT}")
   else()
     message(STATUS "Detecting HOSTC compiler ABI info - failed")
-    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}CMakeError.log
+    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
       "Detecting HOSTC compiler ABI info failed to compile with the following output:\n${__CMAKE_HOSTC_ABI_COMPILED_OUTPUT}\n\n"
     )
   endif()
