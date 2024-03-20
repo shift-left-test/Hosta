@@ -45,7 +45,6 @@ function(try_host_compile lang)
 
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  file(MAKE_DIRECTORY ${BUILD_WORKING_DIRECTORY})
   file(REMOVE ${BUILD_TARGET})
 
   execute_process(
