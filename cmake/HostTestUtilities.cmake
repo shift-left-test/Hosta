@@ -93,8 +93,6 @@ function(find_host_compiler_id lang)
   set(CMAKE_HOST${lang}_PLATFORM_ID "${CMAKE_${lang}_PLATFORM_ID}" PARENT_SCOPE)
   set(CMAKE_HOST${lang}_STANDARD_COMPUTED_DEFAULT "${CMAKE_${lang}_STANDARD_COMPUTED_DEFAULT}" PARENT_SCOPE)
 
-  include(CMakePrintHelpers)
-
   # set standard compile options
   foreach(version IN LISTS TEST_STANDARDS)
     if(CMAKE_${lang}${version}_STANDARD_COMPILE_OPTION)
