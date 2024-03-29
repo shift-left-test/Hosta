@@ -73,8 +73,8 @@ function(find_host_compiler_id lang)
   set(CMAKE_${lang}_FLAGS)
   set(CMAKE_${lang}_COMPILER_ID)
   set(CMAKE_${lang}_PLATFORM_ID)
-  file(READ ${CMAKE_ROOT}/Modules/CMakePlatformId.h.in
-    CMAKE_${lang}_COMPILER_ID_PLATFORM_CONTENT)
+
+  file(READ ${CMAKE_ROOT}/Modules/CMakePlatformId.h.in CMAKE_${lang}_COMPILER_ID_PLATFORM_CONTENT)
 
   set(CMAKE_${lang}_COMPILER_ID_TOOL_MATCH_REGEX "\nLd[^\n]*(\n[ \t]+[^\n]*)*\n[ \t]+([^ \t\r\n]+)[^\r\n]*-o[^\r\n]*CompilerId${lang}/(\\./)?(CompilerId${lang}.(framework|xctest)/)?CompilerId${lang}[ \t\n\\\"]")
   set(CMAKE_${lang}_COMPILER_ID_TOOL_MATCH_INDEX 2)
@@ -99,10 +99,15 @@ function(find_host_compiler_id lang)
   include(CMakeDetermineCompilerId)
   CMAKE_DETERMINE_COMPILER_ID(${lang} HOST${lang}FLAGS CMakeHOST${lang}CompilerId.c)
 
-  # Restore the module path
+  # Restore the original module path
   set(CMAKE_MODULE_PATH ${_cmake_module_path})
 
-  # Set the host compiler details
+  # Load compiler-specific information
+  if(CMAKE_${lang}_COMPILER_ID)
+    include(Compiler/${CMAKE_${lang}_COMPILER_ID}-${lang} OPTIONAL)
+  endif()
+
+  # Set host compiler-specific information
   set(CMAKE_HOST${lang}_COMPILER_ID "${CMAKE_${lang}_COMPILER_ID}" PARENT_SCOPE)
   set(CMAKE_HOST${lang}_COMPILER_VERSION "${CMAKE_${lang}_COMPILER_VERSION}" PARENT_SCOPE)
   set(CMAKE_HOST${lang}_PLATFORM_ID "${CMAKE_${lang}_PLATFORM_ID}" PARENT_SCOPE)
