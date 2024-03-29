@@ -31,7 +31,6 @@ find_host_compiler(C)
 # Build a small source file to identify the compiler.
 find_host_compiler_id(C
   FLAGS "-c" "-Aa" "-D__CLASSIC_C__" "--target=arm-arm-none-eabi -mcpu=cortex-m3"
-  STANDARDS 90 99 11 17 23  # List of candidate C standard versions
 )
 
 # Test if the host compiler can compile the most basic of programs.

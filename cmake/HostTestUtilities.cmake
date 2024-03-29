@@ -30,6 +30,22 @@ function(save_host_compiler_preferences lang)
     "set(CMAKE_HOST${lang}_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES \"@CMAKE_HOST${lang}_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES@\")\n"
   )
 
+  # Guess the supported language standard versions based on C and CXX
+  list(APPEND versions 90 98 99 03 11 14 17 20 23 26)
+
+  foreach(version IN LISTS versions)
+    if(CMAKE_${lang}${version}_STANDARD_COMPILE_OPTION)
+      file(APPEND ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}Compiler.cmake.in
+        "set(CMAKE_HOST${lang}${version}_STANDARD_COMPILE_OPTION \"@CMAKE_HOST${lang}${version}_STANDARD_COMPILE_OPTION@\")\n"
+      )
+    endif()
+    if(CMAKE_${lang}${version}_EXTENSION_COMPILE_OPTION)
+      file(APPEND ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}Compiler.cmake.in
+        "set(CMAKE_HOST${lang}${version}_EXTENSION_COMPILE_OPTION \"@CMAKE_HOST${lang}${version}_EXTENSION_COMPILE_OPTION@\")\n"
+      )
+    endif()
+  endforeach()
+
   configure_file(
     ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}Compiler.cmake.in
     ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}Compiler.cmake
@@ -44,8 +60,7 @@ function(find_host_compiler lang)
 endfunction(find_host_compiler)
 
 function(find_host_compiler_id lang)
-  set(multiValueArgs FLAGS STANDARDS)
-
+  set(multiValueArgs FLAGS)
   cmake_parse_arguments(TEST "" "" "${multiValueArgs}" ${ARGN})
 
   # Try to use the CMake internal compiler detection routines.
@@ -93,8 +108,11 @@ function(find_host_compiler_id lang)
   set(CMAKE_HOST${lang}_PLATFORM_ID "${CMAKE_${lang}_PLATFORM_ID}" PARENT_SCOPE)
   set(CMAKE_HOST${lang}_STANDARD_COMPUTED_DEFAULT "${CMAKE_${lang}_STANDARD_COMPUTED_DEFAULT}" PARENT_SCOPE)
 
-  # set standard compile options
-  foreach(version IN LISTS TEST_STANDARDS)
+  # Guess the supported language standard versions based on C and CXX
+  list(APPEND versions 90 98 99 03 11 14 17 20 23 26)
+
+  # Set standard compile options
+  foreach(version IN LISTS versions)
     if(CMAKE_${lang}${version}_STANDARD_COMPILE_OPTION)
       set(CMAKE_HOST${lang}${version}_STANDARD_COMPILE_OPTION "${CMAKE_${lang}${version}_STANDARD_COMPILE_OPTION}" PARENT_SCOPE)
     endif()
