@@ -28,6 +28,8 @@ function(save_host_compiler_preferences lang)
     "set(CMAKE_HOST${lang}_IMPLICIT_LINK_LIBRARIES \"@CMAKE_HOST${lang}_IMPLICIT_LINK_LIBRARIES@\")\n"
     "set(CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES \"@CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES@\")\n"
     "set(CMAKE_HOST${lang}_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES \"@CMAKE_HOST${lang}_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES@\")\n"
+    "set(CMAKE_HOST${lang}_VERBOSE_FLAG \"@CMAKE_HOST${lang}_VERBOSE_FLAG@\")\n"
+    "set(CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang} \"@CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}@\")\n"
   )
 
   # Guess the supported language standard versions based on C and CXX
@@ -112,6 +114,8 @@ function(find_host_compiler_id lang)
   set(CMAKE_HOST${lang}_COMPILER_VERSION "${CMAKE_${lang}_COMPILER_VERSION}" PARENT_SCOPE)
   set(CMAKE_HOST${lang}_PLATFORM_ID "${CMAKE_${lang}_PLATFORM_ID}" PARENT_SCOPE)
   set(CMAKE_HOST${lang}_STANDARD_COMPUTED_DEFAULT "${CMAKE_${lang}_STANDARD_COMPUTED_DEFAULT}" PARENT_SCOPE)
+  set(CMAKE_HOST${lang}_VERBOSE_FLAG "${CMAKE_${lang}_VERBOSE_FLAG}" PARENT_SCOPE)
+  set(CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang} "${CMAKE_INCLUDE_SYSTEM_FLAG_${lang}}" PARENT_SCOPE)
 
   # Guess the supported language standard versions based on C and CXX
   list(APPEND versions 90 98 99 03 11 14 17 20 23 26)
@@ -236,8 +240,7 @@ function(do_host_compile lang OUTPUT)
     endif()
   endif()
 
-  # FIXME: "-isystem" needs to be set properly
-  join_list(BUILD_IMPLICIT_INCLUDE_DIRECTORIES INPUT "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}" PREPEND "-isystem")
+  join_list(BUILD_IMPLICIT_INCLUDE_DIRECTORIES INPUT "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}")
   join_list(BUILD_INCLUDE_DIRECTORIES PREPEND "${CMAKE_INCLUDE_FLAG_C}")
   join_list(BUILD_COMPILE_OPTIONS)
 

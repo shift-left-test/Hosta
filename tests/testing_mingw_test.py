@@ -21,5 +21,7 @@ def test_host_compiler_info(testing_mingw):
     assert 'set(CMAKE_HOSTC_IMPLICIT_LINK_LIBRARIES "mingw32;gcc;moldname;mingwex;advapi32;shell32;user32;kernel32;mingw32;gcc;moldname;mingwex")' in compiler_info
     assert 'set(CMAKE_HOSTC_IMPLICIT_LINK_DIRECTORIES "/usr/lib/gcc/i686-w64-mingw32/9.3-win32;/usr/i686-w64-mingw32/lib")' in compiler_info
     assert 'set(CMAKE_HOSTC_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES "")' in compiler_info
+    assert 'set(CMAKE_HOSTC_VERBOSE_FLAG "-v")' in compiler_info
+    assert 'set(CMAKE_INCLUDE_SYSTEM_FLAG_HOSTC "-isystem ")' in compiler_info
     assert 'set(CMAKE_HOSTC11_STANDARD_COMPILE_OPTION "-std=c11")' in compiler_info
     assert 'set(CMAKE_HOSTC11_EXTENSION_COMPILE_OPTION "-std=gnu11")' in compiler_info
