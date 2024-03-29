@@ -10,7 +10,11 @@ import pytest
 def test_host_compiler_info(testing_clang):
     compiler_info = testing_clang.read("CMakeFiles/3.16.3/CMakeHOSTCCompiler.cmake")
     assert 'set(CMAKE_HOSTC_COMPILER "/usr/bin/clang")' in compiler_info
+    assert 'set(CMAKE_HOSTC_COMPILER_ID "Clang")' in compiler_info
+    assert 'set(CMAKE_HOSTC_COMPILER_VERSION "10.0.0")' in compiler_info
     assert 'set(CMAKE_HOSTC_COMPILER_WORKS TRUE)' in compiler_info
+    assert 'set(CMAKE_HOSTC_STANDARD_COMPUTED_DEFAULT "11")' in compiler_info
+    assert 'set(CMAKE_HOSTC_PLATFORM_ID "Linux")' in compiler_info
     assert 'set(CMAKE_HOSTC_ABI_COMPILED TRUE)' in compiler_info
     assert 'set(CMAKE_HOSTC_COMPILER_ABI "ELF")' in compiler_info
     assert 'set(CMAKE_HOSTC_IMPLICIT_INCLUDE_DIRECTORIES "/usr/local/include;/usr/lib/llvm-10/lib/clang/10.0.0/include;/usr/include/x86_64-linux-gnu;/usr/include")' in compiler_info

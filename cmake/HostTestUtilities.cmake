@@ -17,7 +17,11 @@ function(save_host_compiler_preferences lang)
 
   file(WRITE ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}Compiler.cmake.in
     "set(CMAKE_HOST${lang}_COMPILER \"@CMAKE_HOST${lang}_COMPILER@\")\n"
+    "set(CMAKE_HOST${lang}_COMPILER_ID \"@CMAKE_HOST${lang}_COMPILER_ID@\")\n"
+    "set(CMAKE_HOST${lang}_COMPILER_VERSION \"@CMAKE_HOST${lang}_COMPILER_VERSION@\")\n"
     "set(CMAKE_HOST${lang}_COMPILER_WORKS @CMAKE_HOST${lang}_COMPILER_WORKS@)\n"
+    "set(CMAKE_HOST${lang}_STANDARD_COMPUTED_DEFAULT \"@CMAKE_HOST${lang}_STANDARD_COMPUTED_DEFAULT@\")\n"
+    "set(CMAKE_HOST${lang}_PLATFORM_ID \"@CMAKE_HOST${lang}_PLATFORM_ID@\")\n"
     "set(CMAKE_HOST${lang}_ABI_COMPILED @CMAKE_HOST${lang}_ABI_COMPILED@)\n"
     "set(CMAKE_HOST${lang}_COMPILER_ABI \"@CMAKE_HOST${lang}_COMPILER_ABI@\")\n"
     "set(CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES \"@CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES@\")\n"
@@ -38,6 +42,69 @@ function(find_host_compiler lang)
   _cmake_find_compiler(HOST${lang})
   mark_as_advanced(CMAKE_HOST${lang}_COMPILER)
 endfunction(find_host_compiler)
+
+function(find_host_compiler_id lang)
+  set(multiValueArgs FLAGS STANDARDS)
+
+  cmake_parse_arguments(TEST "" "" "${multiValueArgs}" ${ARGN})
+
+  # Try to use the CMake internal compiler detection routines.
+  # Use the CMake_${lang}_* variables to make the routines work.
+  set(CMAKE_${lang}_COMPILER "${CMAKE_HOST${lang}_COMPILER}")
+  set(CMAKE_${lang}_COMPILER_ID_TEST_FLAGS_FIRST)
+  set(CMAKE_${lang}_COMPILER_ID_TEST_FLAGS "${TEST_FLAGS}")
+
+  # Try to identify the compiler.
+  set(CMAKE_${lang}_FLAGS)
+  set(CMAKE_${lang}_COMPILER_ID)
+  set(CMAKE_${lang}_PLATFORM_ID)
+  file(READ ${CMAKE_ROOT}/Modules/CMakePlatformId.h.in
+    CMAKE_${lang}_COMPILER_ID_PLATFORM_CONTENT)
+
+  set(CMAKE_${lang}_COMPILER_ID_TOOL_MATCH_REGEX "\nLd[^\n]*(\n[ \t]+[^\n]*)*\n[ \t]+([^ \t\r\n]+)[^\r\n]*-o[^\r\n]*CompilerId${lang}/(\\./)?(CompilerId${lang}.(framework|xctest)/)?CompilerId${lang}[ \t\n\\\"]")
+  set(CMAKE_${lang}_COMPILER_ID_TOOL_MATCH_INDEX 2)
+
+  # Set internal directory path if missing
+  if(NOT CMAKE_PLATFORM_INFO_DIR)
+    set(CMAKE_PLATFORM_INFO_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION})
+  endif()
+
+  # Copy the original file to temporary directory
+  configure_file(
+    ${CMAKE_ROOT}/Modules/CMake${lang}CompilerId.c.in
+    ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}CompilerId.c.in
+    COPYONLY
+  )
+
+  # Add the location of the above file to the module path
+  set(_cmake_module_path ${CMAKE_MODULE_PATH})
+  list(APPEND CMAKE_MODULE_PATH ${CMAKE_PLATFORM_INFO_DIR})
+
+  # Try to identify the compiler information
+  include(CMakeDetermineCompilerId)
+  CMAKE_DETERMINE_COMPILER_ID(${lang} HOST${lang}FLAGS CMakeHOST${lang}CompilerId.c)
+
+  # Restore the module path
+  set(CMAKE_MODULE_PATH ${_cmake_module_path})
+
+  # Set the host compiler details
+  set(CMAKE_HOST${lang}_COMPILER_ID "${CMAKE_${lang}_COMPILER_ID}" PARENT_SCOPE)
+  set(CMAKE_HOST${lang}_COMPILER_VERSION "${CMAKE_${lang}_COMPILER_VERSION}" PARENT_SCOPE)
+  set(CMAKE_HOST${lang}_PLATFORM_ID "${CMAKE_${lang}_PLATFORM_ID}" PARENT_SCOPE)
+  set(CMAKE_HOST${lang}_STANDARD_COMPUTED_DEFAULT "${CMAKE_${lang}_STANDARD_COMPUTED_DEFAULT}" PARENT_SCOPE)
+
+  include(CMakePrintHelpers)
+
+  # set standard compile options
+  foreach(version IN LISTS TEST_STANDARDS)
+    if(CMAKE_${lang}${version}_STANDARD_COMPILE_OPTION)
+      set(CMAKE_HOST${lang}${version}_STANDARD_COMPILE_OPTION "${CMAKE_${lang}${version}_STANDARD_COMPILE_OPTION}" PARENT_SCOPE)
+    endif()
+    if(CMAKE_${lang}${version}_EXTENSION_COMPILE_OPTION)
+      set(CMAKE_HOST${lang}${version}_EXTENSION_COMPILE_OPTION "${CMAKE_${lang}${version}_EXTENSION_COMPILE_OPTION}" PARENT_SCOPE)
+    endif()
+  endforeach()
+endfunction(find_host_compiler_id)
 
 function(try_host_compile lang)
   set(oneValueArgs SOURCE TARGET WORKING_DIRECTORY RESULT_VARIABLE OUTPUT_VARIABLE)
@@ -135,12 +202,16 @@ function(do_host_compile lang OUTPUT)
   set(multiValueArgs INCLUDE_DIRECTORIES COMPILE_OPTIONS)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  # FIXME: compute the standard option properly
+  # Set standard compile option
   if(DEFINED CMAKE_HOST${lang}_STANDARD)
+    if(NOT DEFINED CMAKE_HOST${lang}${CMAKE_HOST${lang}_STANDARD}_STANDARD_COMPILE_OPTION)
+      message(FATAL_ERROR "HOST${lang}_STANDARD is set to invalid value '${CMAKE_HOST${lang}_STANDARD}'")
+    endif()
+
     if(NOT DEFINED CMAKE_HOST${lang}_EXTENSIONS OR CMAKE_HOST${lang}_EXTENSIONS)
-      list(PREPEND BUILD_COMPILE_OPTIONS "-std=gnu${CMAKE_HOST${lang}_STANDARD}")
+      list(PREPEND BUILD_COMPILE_OPTIONS "${CMAKE_HOST${lang}${CMAKE_HOST${lang}_STANDARD}_EXTENSION_COMPILE_OPTION}")
     else()
-      list(PREPEND BUILD_COMPILE_OPTIONS "-std=c${CMAKE_HOST${lang}_STANDARD}")
+      list(PREPEND BUILD_COMPILE_OPTIONS "${CMAKE_HOST${lang}${CMAKE_HOST${lang}_STANDARD}_STANDARD_COMPILE_OPTION}")
     endif()
   endif()
 

@@ -135,6 +135,13 @@ def testing_standard_option(testing, cross_toolchain, generator, compiler_list):
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
+def testing_invalid_standard_option(testing, cross_toolchain, generator, compiler_list):
+    stderr = testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, standard="12345").stderr
+    assert "HOSTC_STANDARD is set to invalid value '12345'" in stderr
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@PARAM_COMPILERS
 def testing_standard_and_extension_options(testing, cross_toolchain, generator, compiler_list):
     testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, standard="11", extensions=True)
     assert '-std=gnu11' in testing.cmake("build-test", verbose=True).stdout

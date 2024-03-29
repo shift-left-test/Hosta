@@ -50,7 +50,7 @@ class CMakeFixture(object):
             f'-DCMAKE_HOSTC_STANDARD={self.standard}' if self.standard is not None else '',
             f'-DCMAKE_HOSTC_EXTENSIONS={self.extensions}' if self.extensions is not None else '',
         ]
-        self.execute(command).check_returncode()
+        return self.execute(command)
 
     def cmake(self, name=None, verbose=False):
         command = [f'cmake --build {self.build}', f'--target {name}' if name else '', f'--verbose' if verbose else '']
