@@ -1,0 +1,6 @@
+Open Source Software Package:
+- name: CMake
+  version: 3.29.0
+  source: https://gitlab.kitware.com/cmake/cmake
+  license: BSD-3-Clause
+  copyright: Copyright 2000-2024 Kitware, Inc. and Contributors
