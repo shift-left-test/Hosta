@@ -10,7 +10,7 @@ if(WITH_DEBUG_SYMBOL)
 endif()
 
 add_host_test(unittest
-  SOURCES src/calc.c test/test_main.c test/unity.c
-  INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/test
+  SOURCES src/calc.c test/test_main.c ${CMAKE_CURRENT_LIST_DIR}/unity/unity.c
+  INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/test ./unity
   COMPILE_OPTIONS ${HOST_COMPILE_OPTIONS}
 )

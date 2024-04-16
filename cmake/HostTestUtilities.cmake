@@ -197,14 +197,25 @@ function(parse_host_implicit_link_info lang text)
 endfunction(parse_host_implicit_link_info)
 
 function(stringify_list OUTPUT)
+  set(options ABSOLUTE)
   set(oneValueArgs PREPEND APPEND)
   set(multiValueArgs INPUT)
-  cmake_parse_arguments(ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if(ARG_INPUT)
     set(ITEMS "${ARG_INPUT}")
   else()
     set(ITEMS "${${OUTPUT}}")
+  endif()
+
+  if(ARG_ABSOLUTE)
+    foreach(_item ${ITEMS})
+      if(NOT IS_ABSOLUTE "${_item}")
+        get_filename_component(_item "${_item}" ABSOLUTE)
+      endif()
+      list(APPEND _items "${_item}")
+    endforeach()
+    set(ITEMS "${_items}")
   endif()
 
   if(ARG_PREPEND)
@@ -241,10 +252,13 @@ function(do_host_compile lang OUTPUT)
   endif()
 
   stringify_list(BUILD_IMPLICIT_INCLUDE_DIRECTORIES INPUT "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}")
-  stringify_list(BUILD_INCLUDE_DIRECTORIES PREPEND "${CMAKE_INCLUDE_FLAG_C}")
+  stringify_list(BUILD_INCLUDE_DIRECTORIES PREPEND "${CMAKE_INCLUDE_FLAG_C}" ABSOLUTE)
   stringify_list(BUILD_COMPILE_OPTIONS)
 
   # Set path to the output file
+  if(IS_ABSOLUTE "${BUILD_SOURCE}")
+    file(RELATIVE_PATH BUILD_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} "${BUILD_SOURCE}")
+  endif()
   set(_absolute_output "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${BUILD_TARGET}.dir/${BUILD_SOURCE}.o")
   file(RELATIVE_PATH _relative_output ${CMAKE_CURRENT_BINARY_DIR} "${_absolute_output}")
 
