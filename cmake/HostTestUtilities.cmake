@@ -256,7 +256,7 @@ function(do_host_compile lang OUTPUT)
   stringify_list(BUILD_COMPILE_OPTIONS)
 
   # Set path to the output file
-  if(IS_ABSOLUTE "${BUILD_SOURCE}")
+  if(IS_ABSOLUTE "${BUILD_SOURCE}" AND BUILD_SOURCE MATCHES "${CMAKE_CURRENT_SOURCE_DIR}.*")
     file(RELATIVE_PATH BUILD_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} "${BUILD_SOURCE}")
   endif()
   set(_absolute_output "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${BUILD_TARGET}.dir/${BUILD_SOURCE}.o")
