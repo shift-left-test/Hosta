@@ -14,7 +14,7 @@ function(add_host_test TARGET)
     include(CMakeParseArguments)
     include(HostTestUtilities)
 
-    set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS)
+    set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS DEPENDS)
     cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
     # Compile source files
@@ -24,6 +24,7 @@ function(add_host_test TARGET)
         TARGET "${TARGET}"
         INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
         COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" --coverage
+        DEPENDS "${BUILD_DEPENDS}"
       )
       list(APPEND _objects ${_output})
     endforeach()
@@ -33,6 +34,7 @@ function(add_host_test TARGET)
       OBJECTS "${_objects}"
       LINK_OPTIONS --coverage
       LINK_LIBRARIES gcov
+      DEPENDS "${BUILD_DEPENDS}"
     )
 
     add_custom_target(${TARGET} DEPENDS ${_output})

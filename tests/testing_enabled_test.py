@@ -161,3 +161,10 @@ def testing_paths_of_compile_option(testing, cross_toolchain, generator, compile
     stdout = testing.cmake("build-test", verbose=True).stdout
     assert '-o CMakeFiles/unittest.dir/unity/unity.c.o' in stdout  # Check absolute source path
     assert './unity' not in stdout  # Check relative include path
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def testing_paths_of_compile_option(testing, cross_toolchain, generator, compiler_list):
+    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    assert "hello" in testing.cmake("build-test").stdout

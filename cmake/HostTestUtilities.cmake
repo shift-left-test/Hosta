@@ -235,7 +235,7 @@ function(do_host_compile lang OUTPUT)
   include(DetermineHOST${lang}Compiler)
 
   set(oneValueArgs SOURCE TARGET)
-  set(multiValueArgs INCLUDE_DIRECTORIES COMPILE_OPTIONS)
+  set(multiValueArgs INCLUDE_DIRECTORIES COMPILE_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   # Set standard compile option
@@ -307,7 +307,7 @@ function(do_host_compile lang OUTPUT)
   add_custom_command(
     OUTPUT ${_relative_output}
     COMMAND ${BUILD_COMMAND}
-    DEPENDS ${BUILD_FILE_DEPENDENCIES}
+    DEPENDS ${BUILD_FILE_DEPENDENCIES} ${BUILD_DEPENDS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Building HOST${lang} object ${_relative_output}"
     VERBATIM
@@ -320,7 +320,7 @@ function(do_host_link lang TARGET OUTPUT)
   include(DetermineHOST${lang}Compiler)
 
   set(oneValueArgs SUFFIX)
-  set(multiValueArgs OBJECTS LINK_DIRECTORIES LINK_LIBRARIES LINK_OPTIONS)
+  set(multiValueArgs OBJECTS LINK_DIRECTORIES LINK_LIBRARIES LINK_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if(NOT BUILD_SUFFIX)
@@ -350,7 +350,7 @@ function(do_host_link lang TARGET OUTPUT)
   add_custom_command(
     OUTPUT ${_output}
     COMMAND ${BUILD_COMMAND}
-    DEPENDS ${BUILD_OBJECTS}
+    DEPENDS ${BUILD_OBJECTS} ${BUILD_DEPENDS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Linking HOST${lang} executable ${_output}"
     VERBATIM
