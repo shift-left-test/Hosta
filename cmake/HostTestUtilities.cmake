@@ -259,7 +259,8 @@ function(do_host_compile lang OUTPUT)
   if(IS_ABSOLUTE "${BUILD_SOURCE}" AND BUILD_SOURCE MATCHES "${CMAKE_CURRENT_SOURCE_DIR}.*")
     file(RELATIVE_PATH BUILD_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} "${BUILD_SOURCE}")
   endif()
-  set(_absolute_output "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${BUILD_TARGET}.dir/${BUILD_SOURCE}.o")
+  string(REPLACE ".." "__" _build_source "${BUILD_SOURCE}")
+  set(_absolute_output "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${BUILD_TARGET}.dir/${_build_source}.o")
   file(RELATIVE_PATH _relative_output ${CMAKE_CURRENT_BINARY_DIR} "${_absolute_output}")
 
   # Make sure that the base directory of the object file exists

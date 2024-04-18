@@ -19,3 +19,5 @@ add_host_test(unittest
   COMPILE_OPTIONS ${HOST_COMPILE_OPTIONS}
   DEPENDS hello
 )
+
+add_subdirectory(test2)

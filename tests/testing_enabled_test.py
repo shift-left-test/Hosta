@@ -156,15 +156,16 @@ def testing_standard_and_no_extension_options(testing, cross_toolchain, generato
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
-def testing_paths_of_compile_option(testing, cross_toolchain, generator, compiler_list):
+def testing_depends_option(testing, cross_toolchain, generator, compiler_list):
     testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
-    stdout = testing.cmake("build-test", verbose=True).stdout
-    assert '-o CMakeFiles/unittest.dir/unity/unity.c.o' in stdout  # Check absolute source path
-    assert './unity' not in stdout  # Check relative include path
+    assert "hello" in testing.cmake("build-test").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
-def testing_paths_of_compile_option(testing, cross_toolchain, generator, compiler_list):
+def testing_paths(testing, cross_toolchain, generator, compiler_list):
     testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
-    assert "hello" in testing.cmake("build-test").stdout
+    stdout = testing.cmake("build-test", verbose=True).stdout
+    assert '-o CMakeFiles/unittest.dir/unity/unity.c.o' in stdout  # absolute source path
+    assert './unity' not in stdout  # relative include path
+    assert testing.exists("sample/test2/CMakeFiles/unittest2.dir/__/src/calc.c.o")  # .. to __
