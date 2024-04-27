@@ -23,7 +23,7 @@ function(add_host_test TARGET)
         SOURCE "${_source}"
         TARGET "${TARGET}"
         INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
-        COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" --coverage
+        COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" -ftest-coverage -fprofile-arcs -O0 -g
         DEPENDS "${BUILD_DEPENDS}"
       )
       list(APPEND _objects ${_output})
@@ -32,8 +32,7 @@ function(add_host_test TARGET)
     # Link object files
     do_host_link(C ${TARGET} _output
       OBJECTS "${_objects}"
-      LINK_OPTIONS --coverage
-      LINK_LIBRARIES gcov
+      LINK_OPTIONS -fprofile-arcs
       DEPENDS "${BUILD_DEPENDS}"
     )
 
