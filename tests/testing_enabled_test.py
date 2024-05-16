@@ -26,17 +26,10 @@ def test_build_target_works(testing, cross_toolchain, generator, compiler_list):
 def test_test_targets_work(testing, cross_toolchain, generator, compiler_list):
     testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test").check_returncode()
-    if compiler_list not in ["i686-w64-mingw32-gcc"]:
-        testing.ctest().check_returncode()
-
-@PARAM_CROSS_TOOLCHAIN
-@PARAM_GENERATORS
-@PARAM_COMPILERS
-def test_test_targets_work(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
-    testing.cmake("build-test").check_returncode()
     assert testing.exists("sample/CMakeFiles/unittest.dir/src/calc.c.o")
     assert testing.exists("sample/CMakeFiles/unittest.dir/test/test_main.c.o")
+    if compiler_list not in ["i686-w64-mingw32-gcc"]:
+        testing.ctest().check_returncode()
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
