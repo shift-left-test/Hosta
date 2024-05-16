@@ -15,7 +15,7 @@ function(add_host_test TARGET)
     include(HostTestUtilities)
 
     set(options DISABLED)
-    set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS DEPENDS)
+    set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
     cmake_parse_arguments(BUILD "${options}" "" "${multiValueArgs}" ${ARGN})
 
     if(BUILD_DISABLED)
@@ -37,7 +37,7 @@ function(add_host_test TARGET)
     # Link object files
     do_host_link(C ${TARGET} _output
       OBJECTS "${_objects}"
-      LINK_OPTIONS -fprofile-arcs
+      LINK_OPTIONS "${BUILD_LINK_OPTIONS}" -fprofile-arcs
       DEPENDS "${BUILD_DEPENDS}"
     )
 

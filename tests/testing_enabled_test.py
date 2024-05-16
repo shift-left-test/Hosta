@@ -169,3 +169,17 @@ def testing_paths(testing, cross_toolchain, generator, compiler_list):
 def testing_disabled_test(testing, cross_toolchain, generator, compiler_list):
     testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     assert "disabled_test" not in testing.cmake("build-test", verbose=True).stdout
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def testing_compile_options(testing, cross_toolchain, generator, compiler_list):
+    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, debug_enabled=True)
+    assert ' -g ' in testing.cmake("build-test", verbose=True).stdout
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def testing_link_options(testing, cross_toolchain, generator, compiler_list):
+    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, libm_enabled=True)
+    assert ' -lm ' in testing.cmake("build-test", verbose=True).stdout

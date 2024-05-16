@@ -20,13 +20,14 @@ class CMakeFixture(object):
             command = " ".join(command)
         return subprocess.run(command, capture_output=True, shell=True, encoding="UTF-8")
 
-    def prepare(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", compiler_list=None, debug_enabled=True, standard=None, extensions=None):
+    def prepare(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", compiler_list=None, debug_enabled=False, libm_enabled=False, standard=None, extensions=None):
         self.build = os.path.join(self.workspace, build)
         self.testing_enabled = testing_enabled
         self.cross_toolchain = cross_toolchain
         self.generator = generator
         self.compiler_list = compiler_list
         self.debug_enabled = debug_enabled
+        self.libm_enabled = libm_enabled
         self.standard = standard
         self.extensions = extensions
 
@@ -47,6 +48,7 @@ class CMakeFixture(object):
             f'-DWITH_CROSS_TOOLCHAIN={self.cross_toolchain}',
             f'-DCMAKE_HOSTC_COMPILER_LIST="{self.compiler_list}"' if self.compiler_list else '',
             f'-DWITH_DEBUG_SYMBOL={self.debug_enabled}',
+            f'-DWITH_LIBM={self.libm_enabled}',
             f'-DCMAKE_HOSTC_STANDARD={self.standard}' if self.standard is not None else '',
             f'-DCMAKE_HOSTC_EXTENSIONS={self.extensions}' if self.extensions is not None else '',
         ]
