@@ -28,27 +28,46 @@ The following packages are necessary to test this project
 - python3
 
 You may use the following commands to build a Docker image which the required packages are installed
+```bash
+$ docker build -t host-test-dev .
+$ docker run --rm -it -v `pwd`:/test host-test-dev
+$ cd /test
+```
 
-    $ docker build -t host-test-dev .
-    $ docker run --rm -it -v `pwd`:/test host-test-dev
-    $ cd /test
+## How to set up
 
+You may copy the files under cmake directory to your project, then add the following command to your top-level CMakeLists.txt
+
+```cmake
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+include(HostTest)
+```
 
 ## How to use
+```cmake
+add_host_test(<Name>
+  SOURCES <list of source files>
+  INCLUDE_DIRECTORIES <list of header paths>
+  COMPILE_OPTIONS <list of compile options>
+  DEPENDS <list of dependencies>
+)
+```
+
+## How to build
 
 You may use the following commands to build and execute sample tests
-
-    $ cmake .
-    $ make build-test
-    $ ctest
-
+```bash
+$ cmake .
+$ make build-test
+$ ctest
+```
 
 ## How to test
 
 You may use the following commands to test CMake scripts
-
-    $ pytest -n auto
-
+```bash
+$ pytest -n auto
+```
 
 ## License
 
