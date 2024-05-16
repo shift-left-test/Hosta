@@ -14,8 +14,13 @@ function(add_host_test TARGET)
     include(CMakeParseArguments)
     include(HostTestUtilities)
 
+    set(options DISABLED)
     set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS DEPENDS)
-    cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
+    cmake_parse_arguments(BUILD "${options}" "" "${multiValueArgs}" ${ARGN})
+
+    if(BUILD_DISABLED)
+      return()
+    endif()
 
     # Compile source files
     foreach(_source IN LISTS BUILD_SOURCES)

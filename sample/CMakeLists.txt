@@ -21,3 +21,4 @@ add_host_test(unittest
 )
 
 add_subdirectory(test2)
+add_subdirectory(disabled_test)
