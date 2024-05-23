@@ -76,6 +76,8 @@ function(unity_fixture_add_tests TARGET)
         # Make sure ignored unity tests get disabled in CTest
         if(hit MATCHES "(^|\\.)IGNORE_")
           set_tests_properties(${ctest_test_name} PROPERTIES DISABLED TRUE)
+        else()
+          set_tests_properties(${ctest_test_name} PROPERTIES SKIP_REGULAR_EXPRESSION "0 Tests")
         endif()
       endforeach()
     endforeach()

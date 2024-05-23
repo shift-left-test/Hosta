@@ -53,7 +53,7 @@ TEST(SecondGroup, test_divide) {
 
 TEST_GROUP_RUNNER(SecondGroup) {
   RUN_TEST_CASE(SecondGroup, test_multiply);
-  RUN_TEST_CASE(SecondGroup, test_divide);
+  // RUN_TEST_CASE(SecondGroup, test_divide);  // This line is intentionally removed for testing
 }
 
 static void runAllTests(void) {

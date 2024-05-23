@@ -194,6 +194,24 @@ def test_unity_fixture_add_tests_with_unity_fixture_framework(testing, cross_too
         stdout = testing.ctest().stdout
         assert 'no_unity_fixture_test' not in stdout
         assert 'unity_fixture_test.FirstGroup.test_plus' in stdout
-        assert 'unity_fixture_test.FirstGroup.test_minus .......***Not Run (Disabled)' in stdout
+        assert 'unity_fixture_test.FirstGroup.test_minus' in stdout
         assert 'unity_fixture_test.SecondGroup.test_multiply' in stdout
         assert 'unity_fixture_test.SecondGroup.test_divide' in stdout
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_unity_fixture_add_tests_with_disabled_test(testing, cross_toolchain, generator, compiler_list):
+    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.cmake("build-test").check_returncode()
+    if compiler_list not in ["i686-w64-mingw32-gcc"]:
+        assert 'unity_fixture_test.FirstGroup.test_minus .......***Not Run (Disabled)' in testing.ctest().stdout
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_unity_fixture_add_tests_with_unused_test(testing, cross_toolchain, generator, compiler_list):
+    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.cmake("build-test").check_returncode()
+    if compiler_list not in ["i686-w64-mingw32-gcc"]:
+        assert 'unity_fixture_test.SecondGroup.test_divide .....***Skipped' in testing.ctest().stdout
