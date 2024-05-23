@@ -50,7 +50,19 @@ add_host_test(<Name>
   SOURCES <list of source files>
   INCLUDE_DIRECTORIES <list of header paths>
   COMPILE_OPTIONS <list of compile options>
+  LINK_OPTIONS <list of link options>
   DEPENDS <list of dependencies>
+  EXTRA_ARGS <arguments for test executable>
+)
+
+unity_fixture_add_tests(<Name>
+  DISABLED  # When set, this test will not be run
+  SOURCES <list of source files>
+  INCLUDE_DIRECTORIES <list of header paths>
+  COMPILE_OPTIONS <list of compile options>
+  LINK_OPTIONS <list of link options>
+  DEPENDS <list of dependencies>
+  EXTRA_ARGS <arguments for test executable>
 )
 ```
 

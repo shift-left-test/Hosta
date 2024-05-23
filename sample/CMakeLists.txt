@@ -25,5 +25,6 @@ add_host_test(unittest
   DEPENDS hello
 )
 
-add_subdirectory(test2)
 add_subdirectory(disabled_test)
+add_subdirectory(fixture_tests)
+add_subdirectory(relative_path_test)

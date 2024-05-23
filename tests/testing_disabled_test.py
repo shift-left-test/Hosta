@@ -32,10 +32,10 @@ def test_test_targets_not_available(testing, cross_toolchain, generator, compile
     testing.prepare(testing_enabled=False, cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     if generator in ["Ninja"]:
         assert "ninja: error: unknown target 'build-test'" in testing.cmake("build-test").stderr
-        assert "ninja: error: unknown target 'test'" in testing.ctest().stderr
+        assert "No test configuration file found!" in testing.ctest().stderr
     else:
         assert "make: *** No rule to make target 'build-test'" in testing.cmake("build-test").stderr
-        assert "make: *** No rule to make target 'test'" in testing.ctest().stderr
+        assert "No test configuration file found!" in testing.ctest().stderr
 
 @PARAM_MINGW
 @PARAM_GENERATORS

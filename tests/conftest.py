@@ -59,8 +59,14 @@ class CMakeFixture(object):
         return self.execute(command)
 
     def ctest(self, args=None):
-        command = [f'cmake --build {self.build}', f'--target test', f'-- ARGS="{args}"' if args else '']
-        return self.execute(command)
+        pwd = os.getcwd()
+        os.chdir(self.build)
+        try:
+            command = ['ctest', args if args else '']
+            output = self.execute(command)
+        finally:
+            os.chdir(pwd)
+        return output
 
     def gcovr(self):
         return self.execute(f'gcovr --root {self.workspace}')

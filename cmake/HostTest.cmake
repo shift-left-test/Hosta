@@ -4,46 +4,78 @@
 include_guard(GLOBAL)
 
 if(CMAKE_TESTING_ENABLED)
+  include(CMakeParseArguments)
   include(DetermineHOSTCCompiler)
+  include(HostTestUtilities)
+
   add_custom_target(build-test)
 endif(CMAKE_TESTING_ENABLED)
 
 function(add_host_test TARGET)
   # Assume that enable_testing() is called
   if(CMAKE_TESTING_ENABLED)
-    include(CMakeParseArguments)
-    include(HostTestUtilities)
-
     set(options DISABLED)
-    set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
+    set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS EXTRA_ARGS)
     cmake_parse_arguments(BUILD "${options}" "" "${multiValueArgs}" ${ARGN})
 
     if(BUILD_DISABLED)
       return()
     endif()
 
-    # Compile source files
-    foreach(_source IN LISTS BUILD_SOURCES)
-      do_host_compile(C _output
-        SOURCE "${_source}"
-        TARGET "${TARGET}"
-        INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
-        COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" -ftest-coverage -fprofile-arcs -O0 -g
-        DEPENDS "${BUILD_DEPENDS}"
-      )
-      list(APPEND _objects ${_output})
-    endforeach()
-
-    # Link object files
-    do_host_link(C ${TARGET} _output
-      OBJECTS "${_objects}"
+    add_host_executable(C ${TARGET} _output
+      SOURCES "${BUILD_SOURCES}"
+      INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
+      COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" -ftest-coverage -fprofile-arcs -O0 -g
       LINK_OPTIONS "${BUILD_LINK_OPTIONS}" -fprofile-arcs
       DEPENDS "${BUILD_DEPENDS}"
     )
 
-    add_custom_target(${TARGET} DEPENDS ${_output})
     add_dependencies(build-test ${TARGET})
-    add_test(NAME ${TARGET} COMMAND ${_output})
-
+    add_test(NAME ${TARGET} COMMAND ${_output} ${BUILD_EXTRA_ARGS})
   endif(CMAKE_TESTING_ENABLED)
 endfunction(add_host_test)
+
+function(unity_fixture_add_tests TARGET)
+  # Assume that enable_testing() is called
+  if(CMAKE_TESTING_ENABLED)
+    set(options DISABLED)
+    set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS EXTRA_ARGS)
+    cmake_parse_arguments(BUILD "${options}" "" "${multiValueArgs}" ${ARGN})
+
+    if(BUILD_DISABLED)
+      return()
+    endif()
+
+    add_host_executable(C ${TARGET} _output
+      SOURCES "${BUILD_SOURCES}"
+      INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
+      COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" -ftest-coverage -fprofile-arcs -O0 -g
+      LINK_OPTIONS "${BUILD_LINK_OPTIONS}" -fprofile-arcs
+      DEPENDS "${BUILD_DEPENDS}"
+    )
+
+    add_dependencies(build-test ${TARGET})
+
+    set(unity_test_name_regex ".*\\([ \r\n\t]*([A-Za-z_0-9]+)[ \r\n\t]*,[ \r\n\t]*([A-Za-z_0-9]+)[ \r\n\t]*\\).*")
+    set(unity_test_type_regex "([^A-Za-z_0-9](IGNORE_)?TEST)")
+
+    foreach(source IN LISTS BUILD_SOURCES)
+      file(READ "${source}" contents)
+      string(REGEX MATCHALL "${unity_test_type_regex}[ \r\n\t]*\\(([A-Za-z_0-9 ,\r\n\t]+)\\)" found_tests "${contents}")
+      foreach(hit ${found_tests})
+        string(STRIP ${hit} hit)
+        string(REGEX REPLACE ${unity_test_name_regex} "\\1.\\2" unity_test_name ${hit})
+        string(REGEX REPLACE ${unity_test_name_regex} "\\1" unity_test_group ${hit})
+        string(REGEX REPLACE ${unity_test_name_regex} "\\2" unity_test_case ${hit})
+
+        set(ctest_test_name ${TARGET}.${unity_test_name})
+        add_test(NAME ${ctest_test_name} COMMAND ${_output} -g ${unity_test_group} -n ${unity_test_case} -v ${BUILD_EXTRA_ARGS})
+
+        # Make sure ignored unity tests get disabled in CTest
+        if(hit MATCHES "(^|\\.)IGNORE_")
+          set_tests_properties(${ctest_test_name} PROPERTIES DISABLED TRUE)
+        endif()
+      endforeach()
+    endforeach()
+  endif(CMAKE_TESTING_ENABLED)
+endfunction(unity_fixture_add_tests)

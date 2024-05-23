@@ -1,42 +1,11 @@
 /* =========================================================================
-    Unity Project - A Test Framework for C
-    Copyright (c) 2007-21 Mike Karlesky, Mark VanderVoord, Greg Williams
-    [Released under MIT License. Please refer to license.txt for details]
-============================================================================ */
+    Unity - A Test Framework for C
+    ThrowTheSwitch.org
+    Copyright (c) 2007-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+    SPDX-License-Identifier: MIT
+========================================================================= */
 
 #include "unity.h"
-
-#ifdef UNITY_OUTPUT_XML_FILE
-#include <unistd.h>
-#include <fcntl.h>
-
-static int reportFileDescriptor;
-
-static void openXmlFile() {
-  reportFileDescriptor = open(UNITY_OUTPUT_XML_FILE, O_WRONLY | O_APPEND | O_CREAT | O_TRUNC, 0644);
-}
-
-static void closeXmlFile() {
-  close(reportFileDescriptor);
-}
-
-static void writeChar(const char pch) {
-  write(reportFileDescriptor, &pch, sizeof(char));
-}
-
-static void writeChars(const char* chars) {
-  const char* pch = chars;
-  while (*pch) {
-    writeChar(*pch);
-    pch++;
-  }
-}
-#else  // UNITY_OUTPUT_XML_FILE
-#define openXmlFile()
-#define closeXmlFile()
-#define writeChar(a)
-#define writeChars(a)
-#endif  // UNITY_OUTPUT_XML_FILE
 
 #ifndef UNITY_PROGMEM
 #define UNITY_PROGMEM
@@ -48,8 +17,8 @@ void UNITY_OUTPUT_CHAR(int);
 #endif
 
 /* Helpful macros for us to use here in Assert functions */
-#define UNITY_FAIL_AND_BAIL         do { Unity.CurrentTestFailed  = 1; Unity.CurrentReportMessage = 0; writeChars("\n</failure>\n</testcase>\n"); UNITY_OUTPUT_FLUSH(); TEST_ABORT(); } while (0)
-#define UNITY_IGNORE_AND_BAIL       do { Unity.CurrentTestIgnored = 1; Unity.CurrentReportMessage = 0; writeChars("\n</skipped>\n</testcase>\n"); UNITY_OUTPUT_FLUSH(); TEST_ABORT(); } while (0)
+#define UNITY_FAIL_AND_BAIL         do { Unity.CurrentTestFailed  = 1; UNITY_OUTPUT_FLUSH(); TEST_ABORT(); } while (0)
+#define UNITY_IGNORE_AND_BAIL       do { Unity.CurrentTestIgnored = 1; UNITY_OUTPUT_FLUSH(); TEST_ABORT(); } while (0)
 #define RETURN_IF_FAIL_OR_IGNORE    do { if (Unity.CurrentTestFailed || Unity.CurrentTestIgnored) { TEST_ABORT(); } } while (0)
 
 struct UNITY_STORAGE_T Unity;
@@ -489,8 +458,7 @@ void UnityPrintFloat(const UNITY_DOUBLE input_number)
             {
                 UNITY_OUTPUT_CHAR('.');
             }
-            digits--;
-            UNITY_OUTPUT_CHAR(buf[digits]);
+            UNITY_OUTPUT_CHAR(buf[--digits]);
         }
 
         /* print exponent if needed */
@@ -516,8 +484,7 @@ void UnityPrintFloat(const UNITY_DOUBLE input_number)
             }
             while (digits > 0)
             {
-                digits--;
-                UNITY_OUTPUT_CHAR(buf[digits]);
+                UNITY_OUTPUT_CHAR(buf[--digits]);
             }
         }
     }
@@ -573,14 +540,6 @@ static void UnityTestResultsFailBegin(const UNITY_LINE_TYPE line)
     UnityTestResultsBegin(Unity.TestFile, line);
     UnityPrint(UnityStrFail);
     UNITY_OUTPUT_CHAR(':');
-
-    Unity.CurrentReportMessage = 1;
-    writeChars("<testcase classname=\"");
-    writeChars(Unity.TestFile);
-    writeChars("\" name=\"");
-    writeChars(Unity.CurrentTestName);
-    writeChars("\">\n");
-    writeChars("<failure>\n");
 }
 
 /*-----------------------------------------------*/
@@ -594,12 +553,6 @@ void UnityConcludeTest(void)
     {
         UnityTestResultsBegin(Unity.TestFile, Unity.CurrentTestLineNumber);
         UnityPrint(UnityStrPass);
-
-        writeChars("<testcase classname=\"");
-        writeChars(Unity.TestFile);
-        writeChars("\" name=\"");
-        writeChars(Unity.CurrentTestName);
-        writeChars("\" />\n");
     }
     else
     {
@@ -2174,18 +2127,9 @@ void UnityFail(const char* msg, const UNITY_LINE_TYPE line)
 
     UnityTestResultsBegin(Unity.TestFile, line);
     UnityPrint(UnityStrFail);
-
-    writeChars("<testcase classname=\"");
-    writeChars(Unity.TestFile);
-    writeChars("\" name=\"");
-    writeChars(Unity.CurrentTestName);
-    writeChars("\">\n");
-    writeChars("<failure>\n");
-
     if (msg != NULL)
     {
         UNITY_OUTPUT_CHAR(':');
-        Unity.CurrentReportMessage = 1;
 
 #ifdef UNITY_PRINT_TEST_CONTEXT
         UNITY_PRINT_TEST_CONTEXT();
@@ -2218,19 +2162,11 @@ void UnityIgnore(const char* msg, const UNITY_LINE_TYPE line)
 {
     RETURN_IF_FAIL_OR_IGNORE;
 
-    writeChars("<testcase classname=\"");
-    writeChars(Unity.TestFile);
-    writeChars("\" name=\"");
-    writeChars(Unity.CurrentTestName);
-    writeChars("\">\n");
-    writeChars("<skipped>\n");
-
     UnityTestResultsBegin(Unity.TestFile, line);
     UnityPrint(UnityStrIgnore);
     if (msg != NULL)
     {
         UNITY_OUTPUT_CHAR(':');
-        Unity.CurrentReportMessage = 1;
         UNITY_OUTPUT_CHAR(' ');
         UnityPrint(msg);
     }
@@ -2292,25 +2228,14 @@ void UnityBegin(const char* filename)
     Unity.TestIgnores = 0;
     Unity.CurrentTestFailed = 0;
     Unity.CurrentTestIgnored = 0;
-    Unity.CurrentReportMessage = 0;
 
     UNITY_CLR_DETAILS();
     UNITY_OUTPUT_START();
-
-    openXmlFile();
-
-    writeChars("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    writeChars("<testsuites>\n");
-    writeChars("<testsuite>\n");
 }
 
 /*-----------------------------------------------*/
 int UnityEnd(void)
 {
-    writeChars("</testsuite>\n");
-    writeChars("</testsuites>\n");
-    closeXmlFile();
-
     UNITY_PRINT_EOL();
     UnityPrint(UnityStrBreaker);
     UNITY_PRINT_EOL();
@@ -2405,6 +2330,18 @@ int UnityParseOptions(int argc, char** argv)
                     UnityPrint("ERROR: Unknown Option ");
                     UNITY_OUTPUT_CHAR(argv[i][1]);
                     UNITY_PRINT_EOL();
+                    /* Now display help */
+                    /* FALLTHRU */
+                case 'h':
+                    UnityPrint("Options: "); UNITY_PRINT_EOL();
+                    UnityPrint("-l        List all tests and exit"); UNITY_PRINT_EOL();
+                    UnityPrint("-f NAME   Filter to run only tests whose name includes NAME"); UNITY_PRINT_EOL();
+                    UnityPrint("-n NAME   (deprecated) alias of -f"); UNITY_PRINT_EOL();
+                    UnityPrint("-h        show this Help menu"); UNITY_PRINT_EOL();
+                    UnityPrint("-q        Quiet/decrease verbosity"); UNITY_PRINT_EOL();
+                    UnityPrint("-v        increase Verbosity"); UNITY_PRINT_EOL();
+                    UnityPrint("-x NAME   eXclude tests whose name includes NAME"); UNITY_PRINT_EOL();
+                    UNITY_OUTPUT_FLUSH();
                     return 1;
             }
         }

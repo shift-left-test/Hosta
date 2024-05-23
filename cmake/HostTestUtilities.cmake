@@ -359,3 +359,30 @@ function(do_host_link lang TARGET OUTPUT)
 
   set(${OUTPUT} ${_output} PARENT_SCOPE)
 endfunction(do_host_link)
+
+function(add_host_executable lang TARGET OUTPUT)
+  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
+  cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
+
+  # Compile source files
+  foreach(_source IN LISTS BUILD_SOURCES)
+    do_host_compile(${lang} _output
+      SOURCE "${_source}"
+      TARGET "${TARGET}"
+      INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
+      COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}"
+      DEPENDS "${BUILD_DEPENDS}"
+    )
+    list(APPEND _objects ${_output})
+  endforeach()
+
+  # Link object files
+  do_host_link(${lang} ${TARGET} _output
+    OBJECTS "${_objects}"
+    LINK_OPTIONS "${BUILD_LINK_OPTIONS}"
+    DEPENDS "${BUILD_DEPENDS}"
+  )
+
+  add_custom_target(${TARGET} DEPENDS ${_output})
+  set(${OUTPUT} ${_output} PARENT_SCOPE)
+endfunction(add_host_executable)
