@@ -11,4 +11,5 @@ add_host_test(relative_path_test
   OBJECTS "${unity_o}"
   INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/../src ../unity
   COMPILE_OPTIONS ${HOST_COMPILE_OPTIONS}
+  LINK_OPTIONS ${HOST_LINK_OPTIONS}
 )
