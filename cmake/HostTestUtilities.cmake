@@ -361,7 +361,7 @@ function(do_host_link lang TARGET OUTPUT)
 endfunction(do_host_link)
 
 function(add_host_executable lang TARGET OUTPUT)
-  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
+  set(multiValueArgs SOURCES OBJECTS INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
   # Compile source files
@@ -378,7 +378,7 @@ function(add_host_executable lang TARGET OUTPUT)
 
   # Link object files
   do_host_link(${lang} ${TARGET} _output
-    OBJECTS "${_objects}"
+    OBJECTS "${_objects}" "${BUILD_OBJECTS}"
     LINK_OPTIONS "${BUILD_LINK_OPTIONS}"
     DEPENDS "${BUILD_DEPENDS}"
   )

@@ -15,7 +15,7 @@ function(add_host_test TARGET)
   # Assume that enable_testing() is called
   if(CMAKE_TESTING_ENABLED)
     set(options DISABLED)
-    set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS EXTRA_ARGS)
+    set(multiValueArgs SOURCES OBJECTS INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS EXTRA_ARGS)
     cmake_parse_arguments(BUILD "${options}" "" "${multiValueArgs}" ${ARGN})
 
     if(BUILD_DISABLED)
@@ -24,6 +24,7 @@ function(add_host_test TARGET)
 
     add_host_executable(C ${TARGET} _output
       SOURCES "${BUILD_SOURCES}"
+      OBJECTS "${BUILD_OBJECTS}"
       INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
       COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" -ftest-coverage -fprofile-arcs -O0 -g
       LINK_OPTIONS "${BUILD_LINK_OPTIONS}" -fprofile-arcs
@@ -39,7 +40,7 @@ function(unity_fixture_add_tests TARGET)
   # Assume that enable_testing() is called
   if(CMAKE_TESTING_ENABLED)
     set(options DISABLED)
-    set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS EXTRA_ARGS)
+    set(multiValueArgs SOURCES OBJECTS INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS EXTRA_ARGS)
     cmake_parse_arguments(BUILD "${options}" "" "${multiValueArgs}" ${ARGN})
 
     if(BUILD_DISABLED)
@@ -48,6 +49,7 @@ function(unity_fixture_add_tests TARGET)
 
     add_host_executable(C ${TARGET} _output
       SOURCES "${BUILD_SOURCES}"
+      OBJECTS "${BUILD_OBJECTS}"
       INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
       COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" -ftest-coverage -fprofile-arcs -O0 -g
       LINK_OPTIONS "${BUILD_LINK_OPTIONS}" -fprofile-arcs
