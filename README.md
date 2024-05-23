@@ -11,7 +11,7 @@ This project provides CMake scripts designed to build unit test programs using t
 
 The following packages should be installed to use on your host environment
 
-- CMake (3.10 or above)
+- CMake (3.16 or above)
 - GCC toolchain
 - Make
 
