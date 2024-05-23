@@ -209,6 +209,7 @@ function(stringify_list OUTPUT)
   endif()
 
   if(ARG_ABSOLUTE)
+    unset(_items)
     foreach(_item ${ITEMS})
       if(NOT IS_ABSOLUTE "${_item}")
         get_filename_component(_item "${_item}" ABSOLUTE)
@@ -363,6 +364,8 @@ endfunction(do_host_link)
 function(add_host_executable lang TARGET OUTPUT)
   set(multiValueArgs SOURCES OBJECTS INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
+
+  unset(_objects)
 
   # Compile source files
   foreach(_source IN LISTS BUILD_SOURCES)
