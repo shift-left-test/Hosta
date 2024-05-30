@@ -233,7 +233,7 @@ function(stringify_list OUTPUT)
 endfunction(stringify_list)
 
 function(do_host_compile lang OUTPUT)
-  include(DetermineHOST${lang}Compiler)
+  include(${_HOSTA_BASE_DIR}/DetermineHOST${lang}Compiler.cmake)
 
   set(oneValueArgs SOURCE TARGET)
   set(multiValueArgs INCLUDE_DIRECTORIES COMPILE_OPTIONS DEPENDS)
@@ -319,7 +319,7 @@ function(do_host_compile lang OUTPUT)
 endfunction(do_host_compile)
 
 function(do_host_link lang TARGET OUTPUT)
-  include(DetermineHOST${lang}Compiler)
+  include(${_HOSTA_BASE_DIR}/DetermineHOST${lang}Compiler.cmake)
 
   set(oneValueArgs SUFFIX)
   set(multiValueArgs OBJECTS LINK_DIRECTORIES LINK_LIBRARIES LINK_OPTIONS DEPENDS)

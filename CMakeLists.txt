@@ -37,7 +37,6 @@ if(WITH_HOST_TEST)
   enable_testing()
 endif()
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-include(HostTest)
+include(cmake/HostTest.cmake)
 
 add_subdirectory(sample)
