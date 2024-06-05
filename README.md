@@ -12,8 +12,7 @@ This project provides CMake scripts designed to build unit test programs using t
 The following packages should be installed to use on your host environment
 
 - CMake (3.16 or above)
-- GCC toolchain
-- Make
+- C compiler toolchain (GCC, clang, etc)
 
 The following packages are necessary to test this project
 
@@ -36,11 +35,10 @@ $ cd /test
 
 ## How to set up
 
-You may copy the files under cmake directory to your project, then add the following command to your top-level CMakeLists.txt
+You may copy the files under cmake directory to CMake script directory of your project, then add the following command to your top-level CMakeLists.txt
 
 ```cmake
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
-include(HostTest)
+include(cmake/HostTest.cmake)
 ```
 
 ## How to use
@@ -70,6 +68,7 @@ unity_fixture_add_tests(<Name>
 
 You may use the following commands to build and execute sample tests
 ```bash
+$ cd sample
 $ cmake .
 $ make build-test
 $ ctest

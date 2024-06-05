@@ -3,11 +3,12 @@ if(CMAKE_TESTING_ENABLED)
     SOURCE ${PROJECT_SOURCE_DIR}/sample/unity/unity.c
     TARGET "unity"
     INCLUDE_DIRECTORIES ../unity
+    COMPILE_OPTIONS ${HOST_COMPILE_OPTIONS}
   )
 endif()
 
 add_host_test(relative_path_test
-  SOURCES ../src/calc.c test2_main.c
+  SOURCES ../src/calc.c ../test/unity_test_main.c
   OBJECTS "${unity_o}"
   INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/../src ../unity
   COMPILE_OPTIONS ${HOST_COMPILE_OPTIONS}

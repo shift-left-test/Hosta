@@ -15,9 +15,19 @@ void test_minus() {
   TEST_ASSERT_EQUAL(-1, minus(1, 2));
 }
 
+void test_multiply() {
+  TEST_ASSERT_EQUAL(2, multiply(1, 2));
+}
+
+void test_divide() {
+  TEST_ASSERT_EQUAL_DOUBLE(0.5, divide(1, 2));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_plus);
   RUN_TEST(test_minus);
+  RUN_TEST(test_multiply);
+  RUN_TEST(test_divide);
   return UNITY_END();
 }

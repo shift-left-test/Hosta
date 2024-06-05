@@ -3,28 +3,24 @@
 
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
-add_executable(calc src/calc.c src/main.c)
+# Set the cross compiler toolchain configuration
+set(CMAKE_SYSTEM_NAME Windows)
+set(CMAKE_C_COMPILER i686-w64-mingw32-gcc)
+set(CMAKE_CXX_COMPILER i686-w64-mingw32-g++)
+set(CMAKE_FIND_ROOT_PATH /usr/i686-w64-mingw32)
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-if(WITH_DEBUG_SYMBOL)
-  list(APPEND HOST_COMPILE_OPTIONS -g)
-endif()
+project(sample LANGUAGES C)
 
-if(WITH_LIBM)
-  list(APPEND HOST_LINK_OPTIONS -lm)
-endif()
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_EXECUTABLE_SUFFIX .out)
 
-add_custom_target(hello
-  COMMAND echo "hello"
-)
+# Enable CTest
+enable_testing()
 
-add_host_test(unittest
-  SOURCES src/calc.c test/test_main.c ${CMAKE_CURRENT_LIST_DIR}/unity/unity.c
-  INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/test ./unity
-  COMPILE_OPTIONS ${HOST_COMPILE_OPTIONS}
-  LINK_OPTIONS ${HOST_LINK_OPTIONS}
-  DEPENDS hello
-)
+include(../cmake/HostTest.cmake)
 
-add_subdirectory(disabled_test)
-add_subdirectory(fixture_tests)
-add_subdirectory(relative_path_test)
+add_subdirectory(src)
+add_subdirectory(test)

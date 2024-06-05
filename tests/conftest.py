@@ -37,9 +37,9 @@ class CMakeFixture(object):
         shutil.rmtree(f'{self.workspace}/sample', ignore_errors=True)
 
         # Copy source files to workspace
-        shutil.copy2("CMakeLists.txt", f'{self.workspace}/CMakeLists.txt')
+        shutil.copy2("tests/CMakeLists.txt", f'{self.workspace}/CMakeLists.txt')
         shutil.copytree("cmake", f'{self.workspace}/cmake')
-        shutil.copytree("sample", f'{self.workspace}/sample')
+        shutil.copytree("tests/sample", f'{self.workspace}/sample')
 
         command = [
             f'cmake -S {self.workspace} -B {self.build}',
