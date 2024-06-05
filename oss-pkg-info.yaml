@@ -4,3 +4,7 @@ Open Source Software Package:
   source: https://gitlab.kitware.com/cmake/cmake
   license: BSD-3-Clause
   copyright: Copyright 2000-2024 Kitware, Inc. and Contributors
+- name: Unity
+  source: https://github.com/ThrowTheSwitch/Unity
+  license: MIT
+  copyright: Copyright (c) <year> 2007-23 Mike Karlesky, Mark VanderVoord, Greg Williams
