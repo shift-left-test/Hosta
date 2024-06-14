@@ -8,7 +8,7 @@ set(_HOSTA_BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 if(CMAKE_TESTING_ENABLED)
   include(CMakeParseArguments)
   include(${_HOSTA_BASE_DIR}/DetermineHOSTCCompiler.cmake)
-  include(${_HOSTA_BASE_DIR}/HostTestUtilities.cmake)
+  include(${_HOSTA_BASE_DIR}/HostBuild.cmake)
 
   add_custom_target(build-test)
 endif(CMAKE_TESTING_ENABLED)

@@ -17,17 +17,17 @@ PARAM_EXTENSIONS = pytest.mark.parametrize("extensions", [True, False])
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_build_target_works(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("all").check_returncode()
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_test_targets_work(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test").check_returncode()
-    assert testing.exists("sample/CMakeFiles/unittest.dir/src/calc.c.o")
-    assert testing.exists("sample/CMakeFiles/unittest.dir/test/unity_test_main.c.o")
+    assert testing.exists("CMakeFiles/unittest.dir/src/calc.c.o")
+    assert testing.exists("CMakeFiles/unittest.dir/test/unity_test_main.c.o")
     if compiler_list not in ["i686-w64-mingw32-gcc"]:
         testing.ctest().check_returncode()
 
@@ -35,24 +35,24 @@ def test_test_targets_work(testing, cross_toolchain, generator, compiler_list):
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_link_works(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test").check_returncode()
-    assert testing.exists("sample/unittest.out")
+    assert testing.exists("unittest.out")
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_no_output_interference(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(build="first", cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(build="first", cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test").check_returncode()
-    testing.prepare(build="second", cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(build="second", cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test").check_returncode()
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_ctest_works(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test")
     if compiler_list not in ["i686-w64-mingw32-gcc"]:
         assert "unittest .......................................   Passed" in testing.ctest().stdout
@@ -61,17 +61,17 @@ def test_ctest_works(testing, cross_toolchain, generator, compiler_list):
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_gcovr_works(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test")
     if compiler_list not in ["clang", "i686-w64-mingw32-gcc"]:
         testing.ctest()
-        assert "sample/src/calc.c                              8       8   100%" in testing.gcovr().stdout
+        assert "src/calc.c                                     8       8   100%" in testing.gcovr().stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_no_changes_no_rebuilds(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test")
     assert "Linking HOSTC executable unittest.out" not in testing.cmake("build-test").stdout
 
@@ -79,116 +79,116 @@ def test_no_changes_no_rebuilds(testing, cross_toolchain, generator, compiler_li
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_no_configuration_changes_no_rebuilds(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test")
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     assert "Linking HOSTC executable unittest.out" not in testing.cmake("build-test").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_reconfiguration_rebuilds(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, debug_enabled=True)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, debug_enabled=True)
     testing.cmake("build-test")
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, debug_enabled=False)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, debug_enabled=False)
     assert "Linking HOSTC executable unittest.out" in testing.cmake("build-test").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_updating_source_file_rebuilds(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test")
-    testing.touch("sample/src/calc.c")
+    testing.touch("src/calc.c")
     assert "Linking HOSTC executable unittest.out" in testing.cmake("build-test").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_updating_header_file_rebuilds(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test")
-    testing.touch("sample/src/calc.h")
+    testing.touch("src/calc.h")
     assert "Linking HOSTC executable unittest.out" in testing.cmake("build-test").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_no_standard_option(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, standard=None)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, standard=None)
     assert '-std=' not in testing.cmake("build-test", verbose=True).stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_standard_option(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, standard="11")
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, standard="11")
     assert '-std=gnu11' in testing.cmake("build-test", verbose=True).stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_invalid_standard_option(testing, cross_toolchain, generator, compiler_list):
-    stderr = testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, standard="12345").stderr
+    stderr = testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, standard="12345").stderr
     assert "HOSTC_STANDARD is set to invalid value '12345'" in stderr
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_standard_and_extension_options(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, standard="11", extensions=True)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, standard="11", extensions=True)
     assert '-std=gnu11' in testing.cmake("build-test", verbose=True).stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_standard_and_no_extension_options(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, standard="11", extensions=False)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, standard="11", extensions=False)
     assert '-std=c11' in testing.cmake("build-test", verbose=True).stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_depends_option(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     assert "hello" in testing.cmake("build-test").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_paths(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     stdout = testing.cmake("build-test", verbose=True).stdout
     assert '-o CMakeFiles/unittest.dir/unity/unity.c.o' in stdout  # absolute source path
     assert './unity' not in stdout  # relative include path
-    assert testing.exists("sample/relative_path_test/CMakeFiles/relative_path_test.dir/__/src/calc.c.o")  # .. to __
+    assert testing.exists("relative_path_test/CMakeFiles/relative_path_test.dir/__/src/calc.c.o")  # .. to __
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_disabled_test(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     assert "disabled_test" not in testing.cmake("build-test", verbose=True).stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_compile_options(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, debug_enabled=True)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, debug_enabled=True)
     assert ' -g ' in testing.cmake("build-test", verbose=True).stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_link_options(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, libm_enabled=True)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, libm_enabled=True)
     assert ' -lm ' in testing.cmake("build-test", verbose=True).stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_unity_fixture_add_tests_with_unity_fixture_framework(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test").check_returncode()
     if compiler_list not in ["i686-w64-mingw32-gcc"]:
         stdout = testing.ctest().stdout
@@ -202,7 +202,7 @@ def test_unity_fixture_add_tests_with_unity_fixture_framework(testing, cross_too
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_unity_fixture_add_tests_with_disabled_test(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test").check_returncode()
     if compiler_list not in ["i686-w64-mingw32-gcc"]:
         assert 'unity_fixture_test.FirstGroup.test_minus .......***Not Run (Disabled)' in testing.ctest().stdout
@@ -211,7 +211,7 @@ def test_unity_fixture_add_tests_with_disabled_test(testing, cross_toolchain, ge
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_unity_fixture_add_tests_with_unused_test(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test").check_returncode()
     if compiler_list not in ["i686-w64-mingw32-gcc"]:
         assert 'unity_fixture_test.SecondGroup.test_divide .....***Skipped' in testing.ctest().stdout

@@ -1,6 +1,6 @@
 if(CMAKE_TESTING_ENABLED)
   do_host_compile(C unity_o
-    SOURCE ${PROJECT_SOURCE_DIR}/sample/unity/unity.c
+    SOURCE ${PROJECT_SOURCE_DIR}/unity/unity.c
     TARGET "unity"
     INCLUDE_DIRECTORIES ../unity
     COMPILE_OPTIONS ${HOST_COMPILE_OPTIONS}

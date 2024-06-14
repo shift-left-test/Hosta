@@ -12,15 +12,22 @@ import shutil
 import subprocess
 
 class CMakeFixture(object):
-    def __init__(self, workspace):
+    def __init__(self, rootdir, workspace):
+        self.rootdir = rootdir
         self.workspace = workspace
+        self.build = os.path.join(workspace, "build")
 
     def execute(self, command):
         if isinstance(command, list):
             command = " ".join(command)
         return subprocess.run(command, capture_output=True, shell=True, encoding="UTF-8")
 
-    def prepare(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", compiler_list=None, debug_enabled=False, libm_enabled=False, standard=None, extensions=None):
+    def configure_internal(self, options=[]):
+        self.copytree("cmake", "cmake")
+        command = [f'cmake -S {self.workspace} -B {self.build}']
+        return self.execute(command + options)
+
+    def configure(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", compiler_list=None, debug_enabled=False, libm_enabled=False, standard=None, extensions=None):
         self.build = os.path.join(self.workspace, build)
         self.testing_enabled = testing_enabled
         self.cross_toolchain = cross_toolchain
@@ -31,18 +38,10 @@ class CMakeFixture(object):
         self.standard = standard
         self.extensions = extensions
 
-        # Remove existing files
-        shutil.rmtree(f'{self.workspace}/CMakeLists.txt', ignore_errors=True)
-        shutil.rmtree(f'{self.workspace}/cmake', ignore_errors=True)
-        shutil.rmtree(f'{self.workspace}/sample', ignore_errors=True)
-
         # Copy source files to workspace
-        shutil.copy2("tests/CMakeLists.txt", f'{self.workspace}/CMakeLists.txt')
-        shutil.copytree("cmake", f'{self.workspace}/cmake')
-        shutil.copytree("tests/sample", f'{self.workspace}/sample')
+        self.copytree("tests/project", "")
 
-        command = [
-            f'cmake -S {self.workspace} -B {self.build}',
+        options = [
             f'-G "{self.generator}"',
             f'-DWITH_HOST_TEST={self.testing_enabled}',
             f'-DWITH_CROSS_TOOLCHAIN={self.cross_toolchain}',
@@ -52,7 +51,7 @@ class CMakeFixture(object):
             f'-DCMAKE_HOSTC_STANDARD={self.standard}' if self.standard is not None else '',
             f'-DCMAKE_HOSTC_EXTENSIONS={self.extensions}' if self.extensions is not None else '',
         ]
-        return self.execute(command)
+        return self.configure_internal(options)
 
     def cmake(self, name=None, verbose=False):
         command = [f'cmake --build {self.build}', f'--target {name}' if name else '', f'--verbose' if verbose else '']
@@ -78,8 +77,30 @@ class CMakeFixture(object):
         with open(os.path.join(self.build, path), "r") as f:
             return f.read()
 
+    def write(self, path, content):
+        filePath = os.path.join(self.workspace, path)
+        os.makedirs(os.path.dirname(filePath), exist_ok=True)
+        with open(filePath, "w") as f:
+            if isinstance(content, list):
+                f.writelines(content)
+            else:
+                f.write(content)
+
     def touch(self, path):
         Path(os.path.join(self.workspace, path)).touch()
+
+    def copy(self, source, destination):
+        shutil.copy2(f'{self.root}/{source}', f'{self.workspace}/{destination}')
+
+    def copytree(self, source, destination):
+        shutil.copytree(f'{self.rootdir}/{source}', f'{self.workspace}/{destination}', dirs_exist_ok=True)
+
+    def mkdirs(self, path):
+        os.makedirs(f'{self.workspace}/{path}', exist_ok=True)
+
+    def rmtree(self, path):
+
+        shutil.rmtree(f'{self.workspace}/{path}', ignore_errors=True)
 
 @pytest.fixture
 def testing(request, tmpdir_factory):
@@ -87,29 +108,29 @@ def testing(request, tmpdir_factory):
     def cleanup():
         shutil.rmtree(directory)
     request.addfinalizer(cleanup)
-    return CMakeFixture(directory)
+    return CMakeFixture(request.config.rootdir, directory)
 
 @pytest.fixture
 def testing_disabled(testing):
-    testing.prepare(testing_enabled=False)
+    testing.configure(testing_enabled=False)
     return testing
 
 @pytest.fixture
 def testing_cc(testing):
-    testing.prepare()
+    testing.configure()
     return testing
 
 @pytest.fixture
 def testing_gcc(testing):
-    testing.prepare(compiler_list="gcc")
+    testing.configure(compiler_list="gcc")
     return testing
 
 @pytest.fixture
 def testing_clang(testing):
-    testing.prepare(compiler_list="clang")
+    testing.configure(compiler_list="clang")
     return testing
 
 @pytest.fixture
 def testing_mingw(testing):
-    testing.prepare(compiler_list="i686-w64-mingw32-gcc")
+    testing.configure(compiler_list="i686-w64-mingw32-gcc")
     return testing

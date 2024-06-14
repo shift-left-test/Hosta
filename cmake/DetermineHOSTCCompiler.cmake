@@ -10,7 +10,7 @@ if(CMAKE_HOSTC_COMPILER_FORCED)
     return()
 endif()
 
-include(${_HOSTA_BASE_DIR}/HostTestUtilities.cmake)
+include(${_HOSTA_BASE_DIR}/HostCompilerUtilities.cmake)
 
 # Load host compiler preferences
 load_host_compiler_preferences(C)

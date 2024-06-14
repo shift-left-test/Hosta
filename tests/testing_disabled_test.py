@@ -15,21 +15,21 @@ PARAM_COMPILERS = pytest.mark.parametrize("compiler_list", ["cc", "gcc", "clang"
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_build_target_works(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(testing_enabled=False, cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(testing_enabled=False, cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("all").check_returncode()
 
 @PARAM_MINGW
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_build_compiler_info_available(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(testing_enabled=False, cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(testing_enabled=False, cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     assert testing.exists("CMakeFiles/3.16.3/CMakeCCompiler.cmake")
 
 @PARAM_MINGW
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_test_targets_not_available(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(testing_enabled=False, cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(testing_enabled=False, cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     if generator in ["Ninja"]:
         assert "ninja: error: unknown target 'build-test'" in testing.cmake("build-test").stderr
         assert "No test configuration file found!" in testing.ctest().stderr
@@ -41,5 +41,5 @@ def test_test_targets_not_available(testing, cross_toolchain, generator, compile
 @PARAM_GENERATORS
 @PARAM_COMPILERS
 def test_test_compiler_info_not_available(testing, cross_toolchain, generator, compiler_list):
-    testing.prepare(testing_enabled=False, cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.configure(testing_enabled=False, cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     assert not testing.exists("CMakeFiles/3.16.3/CMakeHOSTCCompiler.cmake")
