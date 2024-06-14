@@ -36,12 +36,12 @@ function(save_host_compiler_preferences lang)
   list(APPEND versions 90 98 99 03 11 14 17 20 23 26)
 
   foreach(version IN LISTS versions)
-    if(CMAKE_${lang}${version}_STANDARD_COMPILE_OPTION)
+    if(CMAKE_HOST${lang}${version}_STANDARD_COMPILE_OPTION)
       file(APPEND ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}Compiler.cmake.in
         "set(CMAKE_HOST${lang}${version}_STANDARD_COMPILE_OPTION \"@CMAKE_HOST${lang}${version}_STANDARD_COMPILE_OPTION@\")\n"
       )
     endif()
-    if(CMAKE_${lang}${version}_EXTENSION_COMPILE_OPTION)
+    if(CMAKE_HOST${lang}${version}_EXTENSION_COMPILE_OPTION)
       file(APPEND ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}Compiler.cmake.in
         "set(CMAKE_HOST${lang}${version}_EXTENSION_COMPILE_OPTION \"@CMAKE_HOST${lang}${version}_EXTENSION_COMPILE_OPTION@\")\n"
       )
