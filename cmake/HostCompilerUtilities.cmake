@@ -62,6 +62,13 @@ function(find_host_compiler lang)
 endfunction(find_host_compiler)
 
 function(find_host_compiler_id lang)
+  if(NOT CMAKE_HOST${lang}_COMPILER)
+    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
+      "CMake Error: CMAKE_HOST${lang}_COMPILER not set\n\n"
+    )
+    message(FATAL_ERROR "CMake Error: CMAKE_HOST${lang}_COMPILER not set")
+  endif()
+
   set(multiValueArgs FLAGS)
   cmake_parse_arguments(TEST "" "" "${multiValueArgs}" ${ARGN})
 
@@ -150,8 +157,9 @@ function(try_host_compile lang)
 
   if(RESULT EQUAL 0)
     set(${BUILD_RESULT_VARIABLE} TRUE PARENT_SCOPE)
+  else()
+    set(${BUILD_RESULT_VARIABLE} FALSE PARENT_SCOPE)
   endif()
-
   set(${BUILD_OUTPUT_VARIABLE} ${OUTPUT} PARENT_SCOPE)
 endfunction(try_host_compile)
 

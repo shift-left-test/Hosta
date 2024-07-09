@@ -10,7 +10,7 @@ import pytest
 content = '''
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
-project(CMakeTest)
+project(CMakeTest LANGUAGES NONE)
 
 include(cmake/HostCompilerUtilities.cmake)
 
