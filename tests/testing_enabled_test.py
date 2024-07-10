@@ -187,6 +187,21 @@ def test_link_options(testing, cross_toolchain, generator, compiler_list):
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
+def test_custom_build_target_conflict_existing_name(testing, cross_toolchain, generator, compiler_list):
+    stderr = testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, extra_options=["-D_HOSTA_BUILD_TARGET=all"]).stderr
+    assert 'The target name "all" is reserved' in stderr
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_custom_build_target(testing, cross_toolchain, generator, compiler_list):
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, extra_options=["-D_HOSTA_BUILD_TARGET=abc"])
+    testing.cmake("abc").check_returncode()
+    assert testing.exists("unittest.out")
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@PARAM_COMPILERS
 def test_unity_fixture_add_tests_with_unity_fixture_framework(testing, cross_toolchain, generator, compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test").check_returncode()

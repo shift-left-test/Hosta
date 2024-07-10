@@ -27,7 +27,7 @@ class CMakeFixture(object):
         command = [f'cmake -S {self.workspace} -B {self.build}']
         return self.execute(command + options)
 
-    def configure(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", compiler_list=None, debug_enabled=False, libm_enabled=False, standard=None, extensions=None):
+    def configure(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", compiler_list=None, debug_enabled=False, libm_enabled=False, standard=None, extensions=None, extra_options=[]):
         self.build = os.path.join(self.workspace, build)
         self.testing_enabled = testing_enabled
         self.cross_toolchain = cross_toolchain
@@ -50,7 +50,7 @@ class CMakeFixture(object):
             f'-DWITH_LIBM={self.libm_enabled}',
             f'-DCMAKE_HOSTC_STANDARD={self.standard}' if self.standard is not None else '',
             f'-DCMAKE_HOSTC_EXTENSIONS={self.extensions}' if self.extensions is not None else '',
-        ]
+        ] + extra_options
         return self.configure_internal(options)
 
     def cmake(self, name=None, verbose=False):

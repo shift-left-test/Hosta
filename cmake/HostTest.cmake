@@ -4,13 +4,16 @@
 include_guard(GLOBAL)
 
 set(_HOSTA_BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
+if(NOT _HOSTA_BUILD_TARGET)
+  set(_HOSTA_BUILD_TARGET build-test)
+endif()
 
 if(CMAKE_TESTING_ENABLED)
   include(CMakeParseArguments)
   include(${_HOSTA_BASE_DIR}/DetermineHOSTCCompiler.cmake)
   include(${_HOSTA_BASE_DIR}/HostBuild.cmake)
 
-  add_custom_target(build-test)
+  add_custom_target(${_HOSTA_BUILD_TARGET})
 endif(CMAKE_TESTING_ENABLED)
 
 function(add_host_test TARGET)
@@ -33,7 +36,7 @@ function(add_host_test TARGET)
       DEPENDS "${BUILD_DEPENDS}"
     )
 
-    add_dependencies(build-test ${TARGET})
+    add_dependencies(${_HOSTA_BUILD_TARGET} ${TARGET})
     add_test(NAME ${TARGET} COMMAND ${_output} ${BUILD_EXTRA_ARGS})
   endif(CMAKE_TESTING_ENABLED)
 endfunction(add_host_test)
@@ -58,7 +61,7 @@ function(unity_fixture_add_tests TARGET)
       DEPENDS "${BUILD_DEPENDS}"
     )
 
-    add_dependencies(build-test ${TARGET})
+    add_dependencies(${_HOSTA_BUILD_TARGET} ${TARGET})
 
     set(unity_test_name_regex ".*\\([ \r\n\t]*([A-Za-z_0-9]+)[ \r\n\t]*,[ \r\n\t]*([A-Za-z_0-9]+)[ \r\n\t]*\\).*")
     set(unity_test_type_regex "([^A-Za-z_0-9](IGNORE_)?TEST)")
