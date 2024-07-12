@@ -204,6 +204,7 @@ function(parse_host_implicit_link_info lang text)
   set(implicit_libs "")
   set(implicit_dirs "")
   set(implicit_fwks "")
+  set(CMAKE_HOST${lang}_IMPLICIT_OBJECT_REGEX "")
 
   CMAKE_PARSE_IMPLICIT_LINK_INFO("${text}" implicit_libs implicit_dirs implicit_fwks log "${CMAKE_HOST${lang}_IMPLICIT_OBJECT_REGEX}")
 
@@ -213,5 +214,5 @@ function(parse_host_implicit_link_info lang text)
 
   set(CMAKE_HOST${lang}_IMPLICIT_LINK_LIBRARIES "${implicit_libs}" PARENT_SCOPE)
   set(CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES "${implicit_dirs}" PARENT_SCOPE)
-  set(CMAKE_HOST${lang}_IMPLICIT_FRAMEWORK_DIRECTORIES "${implicit_fwks}" PARENT_SCOPE)
+  set(CMAKE_HOST${lang}_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES "${implicit_fwks}" PARENT_SCOPE)
 endfunction(parse_host_implicit_link_info)

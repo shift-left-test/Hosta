@@ -77,7 +77,7 @@ else()
 
   file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
     "Determining if the HOSTC compiler works passed with "
-    "the following output:\n${__CMAKE_HOSTC_COMPILER_OUTPUT}\n\n"
+    "the following output:\n${__CMAKE_HOSTC_COMPILER_WORKS_OUTPUT}\n\n"
   )
 
   # Try to identify the ABI
