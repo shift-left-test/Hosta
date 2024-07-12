@@ -15,7 +15,6 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 project(sample LANGUAGES C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_EXECUTABLE_SUFFIX .out)
 
 # Enable CTest
 enable_testing()

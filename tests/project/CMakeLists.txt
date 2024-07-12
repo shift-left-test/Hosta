@@ -31,7 +31,6 @@ endif()
 project(host-test LANGUAGES C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_EXECUTABLE_SUFFIX .out)
 
 if(WITH_HOST_TEST)
   enable_testing()

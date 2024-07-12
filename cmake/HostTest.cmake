@@ -20,14 +20,17 @@ function(add_host_test TARGET)
   # Assume that enable_testing() is called
   if(CMAKE_TESTING_ENABLED)
     set(options DISABLED)
+    set(oneValueArgs PREFIX SUFFIX)
     set(multiValueArgs SOURCES OBJECTS INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS EXTRA_ARGS)
-    cmake_parse_arguments(BUILD "${options}" "" "${multiValueArgs}" ${ARGN})
+    cmake_parse_arguments(BUILD "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(BUILD_DISABLED)
       return()
     endif()
 
     add_host_executable(C ${TARGET} _output
+      PREFIX "${BUILD_PREFIX}"
+      SUFFIX "${BUILD_SUFFIX}"
       SOURCES "${BUILD_SOURCES}"
       OBJECTS "${BUILD_OBJECTS}"
       INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
@@ -45,14 +48,17 @@ function(unity_fixture_add_tests TARGET)
   # Assume that enable_testing() is called
   if(CMAKE_TESTING_ENABLED)
     set(options DISABLED)
+    set(oneValueArgs PREFIX SUFFIX)
     set(multiValueArgs SOURCES OBJECTS INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS EXTRA_ARGS)
-    cmake_parse_arguments(BUILD "${options}" "" "${multiValueArgs}" ${ARGN})
+    cmake_parse_arguments(BUILD "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(BUILD_DISABLED)
       return()
     endif()
 
     add_host_executable(C ${TARGET} _output
+      PREFIX "${BUILD_PREFIX}"
+      SUFFIX "${BUILD_SUFFIX}"
       SOURCES "${BUILD_SOURCES}"
       OBJECTS "${BUILD_OBJECTS}"
       INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"

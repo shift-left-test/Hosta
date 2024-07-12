@@ -130,13 +130,9 @@ endfunction(do_host_compile)
 function(do_host_link lang TARGET OUTPUT)
   include(${_HOSTA_BASE_DIR}/DetermineHOST${lang}Compiler.cmake)
 
-  set(oneValueArgs SUFFIX)
+  set(oneValueArgs PREFIX SUFFIX)
   set(multiValueArgs OBJECTS LINK_DIRECTORIES LINK_LIBRARIES LINK_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-
-  if(NOT BUILD_SUFFIX)
-    set(BUILD_SUFFIX ${CMAKE_EXECUTABLE_SUFFIX})
-  endif()
 
   stringify_list(BUILD_OBJECTS)
   stringify_list(BUILD_IMPLICIT_LINK_DIRECTORIES INPUT "${CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES}" PREPEND "${CMAKE_LIBRARY_PATH_FLAG}")
@@ -145,7 +141,16 @@ function(do_host_link lang TARGET OUTPUT)
   stringify_list(BUILD_LINK_LIBRARIES PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
   stringify_list(BUILD_LINK_OPTIONS)
 
-  set(_output "${TARGET}${BUILD_SUFFIX}")
+  if(NOT BUILD_SUFFIX)
+    set(BUILD_SUFFIX "${CMAKE_HOST${lang}_EXECUTABLE_SUFFIX}")
+  endif()
+
+  if("x${BUILD_PREFIX}" STREQUAL "x" AND "x${BUILD_SUFFIX}" STREQUAL "x")
+    message(FATAL_ERROR "Either PREFIX or SUFFIX must be set to avoid a cyclic reference issue")
+  endif()
+
+  set(_filename "${BUILD_PREFIX}${TARGET}${BUILD_SUFFIX}")
+  set(_output "${CMAKE_CURRENT_BINARY_DIR}/${_filename}")
 
   set(BUILD_COMMAND
     ${CMAKE_HOST${lang}_COMPILER}
@@ -163,7 +168,7 @@ function(do_host_link lang TARGET OUTPUT)
     COMMAND ${BUILD_COMMAND}
     DEPENDS ${BUILD_OBJECTS} ${BUILD_DEPENDS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Linking HOST${lang} executable ${_output}"
+    COMMENT "Linking HOST${lang} executable ${_filename}"
     VERBATIM
   )
 
@@ -171,8 +176,9 @@ function(do_host_link lang TARGET OUTPUT)
 endfunction(do_host_link)
 
 function(add_host_executable lang TARGET OUTPUT)
+  set(oneValueArgs PREFIX SUFFIX)
   set(multiValueArgs SOURCES OBJECTS INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
-  cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   unset(_objects)
 
@@ -190,6 +196,8 @@ function(add_host_executable lang TARGET OUTPUT)
 
   # Link object files
   do_host_link(${lang} ${TARGET} _output
+    PREFIX "${BUILD_PREFIX}"
+    SUFFIX "${BUILD_SUFFIX}"
     OBJECTS "${_objects}" "${BUILD_OBJECTS}"
     LINK_OPTIONS "${BUILD_LINK_OPTIONS}"
     DEPENDS "${BUILD_DEPENDS}"
