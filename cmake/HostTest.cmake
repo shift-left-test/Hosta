@@ -20,7 +20,7 @@ function(add_host_test TARGET)
   # Assume that enable_testing() is called
   if(CMAKE_TESTING_ENABLED)
     set(options DISABLED)
-    set(oneValueArgs PREFIX SUFFIX)
+    set(oneValueArgs SUFFIX)
     set(multiValueArgs SOURCES OBJECTS INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS EXTRA_ARGS)
     cmake_parse_arguments(BUILD "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -29,7 +29,6 @@ function(add_host_test TARGET)
     endif()
 
     add_host_executable(C ${TARGET} _output
-      PREFIX "${BUILD_PREFIX}"
       SUFFIX "${BUILD_SUFFIX}"
       SOURCES "${BUILD_SOURCES}"
       OBJECTS "${BUILD_OBJECTS}"
@@ -39,7 +38,8 @@ function(add_host_test TARGET)
       DEPENDS "${BUILD_DEPENDS}"
     )
 
-    add_dependencies(${_HOSTA_BUILD_TARGET} ${TARGET})
+    add_host_dependencies("${_HOSTA_BUILD_TARGET}" "Host::${TARGET}")
+
     add_test(NAME ${TARGET} COMMAND ${_output} ${BUILD_EXTRA_ARGS})
   endif(CMAKE_TESTING_ENABLED)
 endfunction(add_host_test)
@@ -48,7 +48,7 @@ function(unity_fixture_add_tests TARGET)
   # Assume that enable_testing() is called
   if(CMAKE_TESTING_ENABLED)
     set(options DISABLED)
-    set(oneValueArgs PREFIX SUFFIX)
+    set(oneValueArgs SUFFIX)
     set(multiValueArgs SOURCES OBJECTS INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS EXTRA_ARGS)
     cmake_parse_arguments(BUILD "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -57,7 +57,6 @@ function(unity_fixture_add_tests TARGET)
     endif()
 
     add_host_executable(C ${TARGET} _output
-      PREFIX "${BUILD_PREFIX}"
       SUFFIX "${BUILD_SUFFIX}"
       SOURCES "${BUILD_SOURCES}"
       OBJECTS "${BUILD_OBJECTS}"
@@ -67,7 +66,7 @@ function(unity_fixture_add_tests TARGET)
       DEPENDS "${BUILD_DEPENDS}"
     )
 
-    add_dependencies(${_HOSTA_BUILD_TARGET} ${TARGET})
+    add_host_dependencies("${_HOSTA_BUILD_TARGET}" "Host::${TARGET}")
 
     set(unity_test_name_regex ".*\\([ \r\n\t]*([A-Za-z_0-9]+)[ \r\n\t]*,[ \r\n\t]*([A-Za-z_0-9]+)[ \r\n\t]*\\).*")
     set(unity_test_type_regex "([^A-Za-z_0-9](IGNORE_)?TEST)")

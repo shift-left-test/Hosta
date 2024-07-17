@@ -344,4 +344,7 @@ tags
 # Persistent undo
 [._]*.un~
 
+unity_fixture_test
+unity_test
+
 # End of https://www.toptal.com/developers/gitignore/api/c,c++,python,cmake,gcov,ninja,vim,emacs

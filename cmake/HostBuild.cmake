@@ -5,6 +5,32 @@ include_guard(GLOBAL)
 
 include(CMakeParseArguments)
 
+# Set host target prefix
+if(NOT _HOST_TARGET_PREFIX)
+  set(_HOST_TARGET_PREFIX "HOST-")
+endif()
+
+function(add_host_dependencies TARGET)
+  # Replace the host namespace with the relevant target prefix
+  string(REGEX REPLACE "^Host::(.*)" "${_HOST_TARGET_PREFIX}\\1" TARGET "${TARGET}")
+  list(TRANSFORM ARGN REPLACE "^Host::(.*)" "${_HOST_TARGET_PREFIX}\\1" OUTPUT_VARIABLE DEPENDENCIES)
+  add_dependencies("${TARGET}" "${DEPENDENCIES}")
+endfunction(add_host_dependencies)
+
+function(add_host_custom_target TARGET)
+  set(multiValueArgs DEPENDS)
+  cmake_parse_arguments(ARG "" "" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_DEPENDS)
+    return()
+  endif()
+
+  # Replace the host namespace with the relevant target prefix
+  string(REGEX REPLACE "^Host::(.*)" "${_HOST_TARGET_PREFIX}\\1" TARGET "${TARGET}")
+  list(TRANSFORM ARG_DEPENDS REPLACE "^Host::(.*)" "${_HOST_TARGET_PREFIX}\\1" OUTPUT_VARIABLE DEPENDENCIES)
+  add_custom_target("${TARGET}" DEPENDS "${DEPENDENCIES}")
+endfunction(add_host_custom_target)
+
 function(stringify_list OUTPUT)
   set(options ABSOLUTE)
   set(oneValueArgs PREPEND APPEND)
@@ -130,7 +156,7 @@ endfunction(do_host_compile)
 function(do_host_link lang TARGET OUTPUT)
   include(${_HOSTA_BASE_DIR}/DetermineHOST${lang}Compiler.cmake)
 
-  set(oneValueArgs PREFIX SUFFIX)
+  set(oneValueArgs SUFFIX)
   set(multiValueArgs OBJECTS LINK_DIRECTORIES LINK_LIBRARIES LINK_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -145,11 +171,7 @@ function(do_host_link lang TARGET OUTPUT)
     set(BUILD_SUFFIX "${CMAKE_HOST${lang}_EXECUTABLE_SUFFIX}")
   endif()
 
-  if("x${BUILD_PREFIX}" STREQUAL "x" AND "x${BUILD_SUFFIX}" STREQUAL "x")
-    message(FATAL_ERROR "Either PREFIX or SUFFIX must be set to avoid a cyclic reference issue")
-  endif()
-
-  set(_filename "${BUILD_PREFIX}${TARGET}${BUILD_SUFFIX}")
+  set(_filename "${TARGET}${BUILD_SUFFIX}")
   set(_output "${CMAKE_CURRENT_BINARY_DIR}/${_filename}")
 
   set(BUILD_COMMAND
@@ -176,7 +198,7 @@ function(do_host_link lang TARGET OUTPUT)
 endfunction(do_host_link)
 
 function(add_host_executable lang TARGET OUTPUT)
-  set(oneValueArgs PREFIX SUFFIX)
+  set(oneValueArgs SUFFIX)
   set(multiValueArgs SOURCES OBJECTS INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -196,13 +218,13 @@ function(add_host_executable lang TARGET OUTPUT)
 
   # Link object files
   do_host_link(${lang} ${TARGET} _output
-    PREFIX "${BUILD_PREFIX}"
     SUFFIX "${BUILD_SUFFIX}"
     OBJECTS "${_objects}" "${BUILD_OBJECTS}"
     LINK_OPTIONS "${BUILD_LINK_OPTIONS}"
     DEPENDS "${BUILD_DEPENDS}"
   )
 
-  add_custom_target(${TARGET} DEPENDS ${_output})
+  add_host_custom_target("Host::${TARGET}" DEPENDS "${_output}")
+
   set(${OUTPUT} ${_output} PARENT_SCOPE)
 endfunction(add_host_executable)
