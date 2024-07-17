@@ -124,7 +124,7 @@ function(do_host_compile lang OUTPUT)
   )
 
   if(_result EQUAL 0)
-    string(REPLACE "\\" "" _output "${_output}")
+    string(REPLACE " \\" "" _output "${_output}")
     string(REPLACE "\n" "" _output "${_output}")
     separate_arguments(BUILD_FILE_DEPENDENCIES NATIVE_COMMAND "${_output}")
     list(REMOVE_AT BUILD_FILE_DEPENDENCIES 0)
