@@ -168,7 +168,7 @@ function(do_host_link lang TARGET OUTPUT)
   stringify_list(BUILD_LINK_OPTIONS)
 
   if(NOT BUILD_SUFFIX)
-    set(BUILD_SUFFIX "${CMAKE_HOST${lang}_EXECUTABLE_SUFFIX}")
+    set(BUILD_SUFFIX "${CMAKE_HOST_EXECUTABLE_SUFFIX}")
   endif()
 
   set(_filename "${TARGET}${BUILD_SUFFIX}")

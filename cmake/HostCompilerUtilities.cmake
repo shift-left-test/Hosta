@@ -30,7 +30,7 @@ function(save_host_compiler_preferences lang)
     "set(CMAKE_HOST${lang}_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES \"@CMAKE_HOST${lang}_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES@\")\n"
     "set(CMAKE_HOST${lang}_VERBOSE_FLAG \"@CMAKE_HOST${lang}_VERBOSE_FLAG@\")\n"
     "set(CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang} \"@CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}@\")\n"
-    "set(CMAKE_HOST${lang}_EXECUTABLE_SUFFIX \"@CMAKE_HOST${lang}_EXECUTABLE_SUFFIX@\")\n"
+    "set(CMAKE_HOST_EXECUTABLE_SUFFIX \"@CMAKE_HOST_EXECUTABLE_SUFFIX@\")\n"
   )
 
   # Guess the supported language standard versions based on C and CXX
@@ -126,11 +126,11 @@ function(find_host_compiler_id lang)
   set(CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang} "${CMAKE_INCLUDE_SYSTEM_FLAG_${lang}}" PARENT_SCOPE)
 
   # Identify the host platform to set the executable suffix
-  if(NOT CMAKE_HOST${lang}_EXECUTABLE_SUFFIX)
+  if(NOT CMAKE_HOST_EXECUTABLE_SUFFIX)
     if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
-      set(CMAKE_HOST${lang}_EXECUTABLE_SUFFIX ".exe" PARENT_SCOPE)
+      set(CMAKE_HOST_EXECUTABLE_SUFFIX ".exe" PARENT_SCOPE)
     elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-      set(CMAKE_HOST${lang}_EXECUTABLE_SUFFIX "" PARENT_SCOPE)
+      set(CMAKE_HOST_EXECUTABLE_SUFFIX "" PARENT_SCOPE)
     else()
       message(FATAL_ERROR "Builds hosted on '${CMAKE_HOST_SYSTEM_NAME}' not supported.")
     endif()
