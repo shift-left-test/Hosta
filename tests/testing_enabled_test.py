@@ -26,8 +26,8 @@ def test_build_target_works(testing, cross_toolchain, generator, compiler_list):
 def test_test_targets_work(testing, cross_toolchain, generator, compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("build-test").check_returncode()
-    assert testing.exists("CMakeFiles/unittest.dir/src/calc.c.o")
-    assert testing.exists("CMakeFiles/unittest.dir/test/unity_test_main.c.o")
+    assert testing.exists("CMakeFiles/HOST-unittest.dir/src/calc.c.o")
+    assert testing.exists("CMakeFiles/HOST-unittest.dir/test/unity_test_main.c.o")
     if compiler_list not in ["i686-w64-mingw32-gcc"]:
         testing.ctest().check_returncode()
 
@@ -159,9 +159,9 @@ def test_depends_option(testing, cross_toolchain, generator, compiler_list):
 def test_paths(testing, cross_toolchain, generator, compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     stdout = testing.cmake("build-test", verbose=True).stdout
-    assert '-o CMakeFiles/unittest.dir/unity/unity.c.o' in stdout  # absolute source path
+    assert '-o CMakeFiles/HOST-unittest.dir/unity/unity.c.o' in stdout  # absolute source path
     assert './unity' not in stdout  # relative include path
-    assert testing.exists("relative_path_test/CMakeFiles/relative_path_test.dir/__/src/calc.c.o")  # .. to __
+    assert testing.exists("relative_path_test/CMakeFiles/HOST-relative_path_test.dir/__/src/calc.c.o")  # .. to __
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS

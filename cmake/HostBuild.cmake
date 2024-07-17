@@ -92,7 +92,7 @@ function(do_host_compile lang OUTPUT)
   stringify_list(BUILD_COMPILE_OPTIONS)
 
   # Set path to the output file
-  if(IS_ABSOLUTE "${BUILD_SOURCE}" AND BUILD_SOURCE MATCHES "${CMAKE_CURRENT_SOURCE_DIR}.*")
+  if(IS_ABSOLUTE "${BUILD_SOURCE}")
     file(RELATIVE_PATH BUILD_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} "${BUILD_SOURCE}")
   endif()
   string(REPLACE ".." "__" _build_source "${BUILD_SOURCE}")
