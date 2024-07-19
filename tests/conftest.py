@@ -111,11 +111,6 @@ def testing(request, tmpdir_factory):
     return CMakeFixture(request.config.rootdir, directory)
 
 @pytest.fixture
-def testing_disabled(testing):
-    testing.configure(testing_enabled=False)
-    return testing
-
-@pytest.fixture
 def testing_cc(testing):
     testing.configure()
     return testing

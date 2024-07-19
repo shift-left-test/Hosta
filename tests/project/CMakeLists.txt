@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
 option(WITH_CROSS_TOOLCHAIN "Enable cross toolchain" ON)
 option(WITH_HOST_TEST "Enable host based testing" ON)
+option(WITH_COVERAGE_OPTIONS "Enable coverage options" ON)
 option(WITH_DEBUG_SYMBOL "Enable debug symbol" OFF)
 option(WITH_LIBM "Enable math library" OFF)
 
@@ -41,6 +42,11 @@ include(cmake/HostTest.cmake)
 
 list(APPEND HOST_COMPILE_OPTIONS -DUNITY_FIXTURE_NO_EXTRAS -DUNITY_INCLUDE_DOUBLE)
 
+if(WITH_COVERAGE_OPTIONS)
+  list(APPEND HOST_COMPILE_OPTIONS -ftest-coverage -fprofile-arcs -O0)
+  list(APPEND HOST_LINK_OPTIONS -fprofile-arcs)
+endif()
+
 if(WITH_DEBUG_SYMBOL)
   list(APPEND HOST_COMPILE_OPTIONS -g)
 endif()
@@ -53,7 +59,7 @@ add_custom_target(hello
   COMMAND echo "hello"
 )
 
-add_host_test(unittest
+add_host_executable(C unittest
   SOURCES src/calc.c test/unity_test_main.c ${CMAKE_CURRENT_LIST_DIR}/unity/unity.c
   INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/test ./unity
   COMPILE_OPTIONS ${HOST_COMPILE_OPTIONS}
@@ -61,7 +67,8 @@ add_host_test(unittest
   DEPENDS hello
 )
 
+add_host_test(Host::unittest)
+
 add_subdirectory(src)
-add_subdirectory(disabled_test)
 add_subdirectory(fixture_tests)
 add_subdirectory(relative_path_test)

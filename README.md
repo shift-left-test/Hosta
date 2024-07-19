@@ -1,6 +1,6 @@
-# hosta
+# Hosta
 
-> Host based test automation for CMake
+> Host based test automation for C
 
 ## About
 
@@ -42,26 +42,23 @@ include(cmake/HostTest.cmake)
 ```
 
 ## How to use
-```cmake
-add_host_test(<Name>
-  DISABLED  # When set, this test will not be run
-  SOURCES <list of source files>
-  INCLUDE_DIRECTORIES <list of header paths>
-  COMPILE_OPTIONS <list of compile options>
-  LINK_OPTIONS <list of link options>
-  DEPENDS <list of dependencies>
-  EXTRA_ARGS <arguments for test executable>
-)
 
-unity_fixture_add_tests(<Name>
-  DISABLED  # When set, this test will not be run
-  SOURCES <list of source files>
-  INCLUDE_DIRECTORIES <list of header paths>
-  COMPILE_OPTIONS <list of compile options>
-  LINK_OPTIONS <list of link options>
-  DEPENDS <list of dependencies>
-  EXTRA_ARGS <arguments for test executable>
-)
+Automatically add an executable running on the host as a test with CTest
+
+```cmake
+add_host_test(<TARGET> [EXTRA_ARGS <extra_args>])
+
+# TARGET: Specifies an executable target created with `add_host_executable`
+# EXTRA_ARGS: Any extra arguments to pass on the command line
+```
+
+Automatically add an executable running on the host as tests with CTest by scanning source code for Unity test macros
+
+```cmake
+unity_fixture_add_host_tests(<TARGET> [EXTRA_ARGS <extra_args>])
+
+# TARGET: Specifies an executable target created with `add_host_executable`
+# EXTRA_ARGS: Any extra arguments to pass on the command line
 ```
 
 ## How to build
@@ -70,7 +67,7 @@ You may use the following commands to build and execute sample tests
 ```bash
 $ cd sample
 $ cmake .
-$ make build-test
+$ make host-targets
 $ ctest
 ```
 

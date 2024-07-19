@@ -3,6 +3,11 @@
 
 include_guard(GLOBAL)
 
+# Set the directory of the current file
+if(NOT _HOSTA_BASE_DIR)
+  set(_HOSTA_BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
+endif()
+
 # The compiler configuration was forced by the user.
 # Assume the user has configured all compiler information
 if(CMAKE_HOSTC_COMPILER_FORCED)

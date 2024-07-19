@@ -5,30 +5,135 @@ include_guard(GLOBAL)
 
 include(CMakeParseArguments)
 
-# Set host target prefix
-if(NOT _HOST_TARGET_PREFIX)
-  set(_HOST_TARGET_PREFIX "HOST-")
+# Set the directory of the current file
+if(NOT _HOSTA_BASE_DIR)
+  set(_HOSTA_BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 endif()
 
-function(add_host_dependencies TARGET)
-  # Replace the host namespace with the relevant target prefix
-  string(REGEX REPLACE "^Host::(.*)" "${_HOST_TARGET_PREFIX}\\1" TARGET "${TARGET}")
-  list(TRANSFORM ARGN REPLACE "^Host::(.*)" "${_HOST_TARGET_PREFIX}\\1" OUTPUT_VARIABLE DEPENDENCIES)
+# Set default host build target name
+if(NOT CMAKE_HOST_BUILD_TARGET)
+  set(CMAKE_HOST_BUILD_TARGET "host-targets")
+endif()
+
+# Set default host build target
+add_custom_target(${CMAKE_HOST_BUILD_TARGET})
+
+# Set host namespace prefix
+set(CMAKE_HOST_NAMESPACE_PREFIX "Host::")
+
+# Set host target prefix
+set(CMAKE_HOST_TARGET_PREFIX "HOST-")
+
+# Replace the host namespace with the relevant prefix for host target
+function(get_host_target_name OUTPUT INPUT)
+  unset(_result)
+  string(REGEX REPLACE "^${CMAKE_HOST_NAMESPACE_PREFIX}(.*)" "${CMAKE_HOST_TARGET_PREFIX}\\1" _result "${INPUT}")
+  set(${OUTPUT} ${_result} PARENT_SCOPE)
+endfunction(get_host_target_name)
+
+# Define custom target properties
+define_property(TARGET PROPERTY HOST_TARGET_FILE
+  BRIEF_DOCS "Path to the host target file"
+  FULL_DOCS "Path to the host target file"
+)
+
+define_property(TARGET PROPERTY HOST_SOURCES
+  BRIEF_DOCS "List of sources files for host targets"
+  FULL_DOCS "List of source files for host targets"
+)
+
+define_property(TARGET PROPERTY HOST_INCLUDE_DIRECTORIES
+  BRIEF_DOCS "List of include directories for host targets"
+  FULL_DOCS "List of include_directories for host targets"
+)
+
+define_property(TARGET PROPERTY HOST_COMPILE_OPTIONS
+  BRIEF_DOCS "List of compile options for host targets"
+  FULL_DOCS "List of compile options for host targets"
+)
+
+define_property(TARGET PROPERTY HOST_LINK_OPTIONS
+  BRIEF_DOCS "List of link options for host targets"
+  FULL_DOCS "List of link optiosn for host targets"
+)
+
+function(get_host_target_property VARIABLE TARGET PROPERTY)
+  get_host_target_name(TARGET "${TARGET}")
+
+  if(NOT TARGET ${TARGET})
+    message(FATAL_ERROR "get_host_target_property() called with non-existent target \"${TARGET}\".")
+  endif()
+
+  # Try fetching host properties first
+  unset(_result)
+  get_target_property(_result "${TARGET}" "HOST_${PROPERTY}")
+  if(NOT _result)
+    get_target_property(_result "${TARGET}" "${PROPERTY}")
+  endif()
+  if(_result)
+    set(${VARIABLE} ${_result} PARENT_SCOPE)
+  endif()
+endfunction(get_host_target_property)
+
+function(get_host_target_properties TARGET)
+  set(oneValueArgs NAME TARGET_FILE SOURCE_DIR BINARY_DIR)
+  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS)
+  cmake_parse_arguments(ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  set(properties ${oneValueArgs} ${multiValueArgs})
+  foreach(property IN LISTS properties)
+    if(ARG_${property})
+      unset(_result)
+      get_host_target_property(_result ${TARGET} ${property})
+      set("${ARG_${property}}" ${_result} PARENT_SCOPE)
+    endif()
+  endforeach()
+endfunction(get_host_target_properties)
+
+function(set_host_target_property TARGET PROPERTY VALUE)
+  get_host_target_name(TARGET "${TARGET}")
+
+  if(NOT TARGET ${TARGET})
+    message(FATAL_ERROR "set_host_target_property() called with non-existent target \"${TARGET}\".")
+  endif()
+
+  # Try setting host properties first
+  unset(_result)
+  get_property(_result TARGET "${TARGET}" PROPERTY "HOST_${PROPERTY}" DEFINED)
+  if(_result)
+    set(PROPERTY "HOST_${PROPERTY}")
+  endif()
+  set_target_properties(${TARGET} PROPERTIES ${PROPERTY} "${VALUE}")
+endfunction(set_host_target_property)
+
+function(set_host_target_properties TARGET)
+  set(oneValueArgs TARGET_FILE)
+  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS)
+  cmake_parse_arguments(ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  set(properties ${oneValueArgs} ${multiValueArgs})
+  foreach(property IN LISTS properties)
+    if(ARG_${property})
+      set_host_target_property("${TARGET}" "${property}" "${ARG_${property}}")
+    endif()
+  endforeach()
+endfunction(set_host_target_properties)
+
+function(add_host_dependencies TARGET DEPENDENCIES)
+  get_host_target_name(TARGET "${TARGET}")
+  get_host_target_name(DEPENDENCIES "${DEPENDENCIES}")
   add_dependencies("${TARGET}" "${DEPENDENCIES}")
 endfunction(add_host_dependencies)
 
 function(add_host_custom_target TARGET)
-  set(multiValueArgs DEPENDS)
-  cmake_parse_arguments(ARG "" "" "${multiValueArgs}" ${ARGN})
+  set(oneValueArgs DEPENDS)
+  cmake_parse_arguments(ARG "" "${oneValueArgs}" "" ${ARGN})
 
-  if(NOT ARG_DEPENDS)
-    return()
+  if(ARG_DEPENDS)
+    get_host_target_name(TARGET "${TARGET}")
+    get_host_target_name(DEPENDENCIES "${ARG_DEPENDS}")
+    add_custom_target("${TARGET}" DEPENDS "${DEPENDENCIES}")
   endif()
-
-  # Replace the host namespace with the relevant target prefix
-  string(REGEX REPLACE "^Host::(.*)" "${_HOST_TARGET_PREFIX}\\1" TARGET "${TARGET}")
-  list(TRANSFORM ARG_DEPENDS REPLACE "^Host::(.*)" "${_HOST_TARGET_PREFIX}\\1" OUTPUT_VARIABLE DEPENDENCIES)
-  add_custom_target("${TARGET}" DEPENDS "${DEPENDENCIES}")
 endfunction(add_host_custom_target)
 
 function(stringify_list OUTPUT)
@@ -96,7 +201,7 @@ function(do_host_compile lang OUTPUT)
     file(RELATIVE_PATH BUILD_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} "${BUILD_SOURCE}")
   endif()
   string(REPLACE ".." "__" _build_source "${BUILD_SOURCE}")
-  set(_absolute_output "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${_HOST_TARGET_PREFIX}${BUILD_TARGET}.dir/${_build_source}.o")
+  set(_absolute_output "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_HOST_TARGET_PREFIX}${BUILD_TARGET}.dir/${_build_source}.o")
   file(RELATIVE_PATH _relative_output ${CMAKE_CURRENT_BINARY_DIR} "${_absolute_output}")
 
   # Make sure that the base directory of the object file exists
@@ -197,7 +302,7 @@ function(do_host_link lang TARGET OUTPUT)
   set(${OUTPUT} ${_output} PARENT_SCOPE)
 endfunction(do_host_link)
 
-function(add_host_executable lang TARGET OUTPUT)
+function(add_host_executable lang TARGET)
   set(oneValueArgs SUFFIX)
   set(multiValueArgs SOURCES OBJECTS INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -224,7 +329,12 @@ function(add_host_executable lang TARGET OUTPUT)
     DEPENDS "${BUILD_DEPENDS}"
   )
 
-  add_host_custom_target("Host::${TARGET}" DEPENDS "${_output}")
+  add_host_custom_target("${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}" DEPENDS "${_output}")
 
-  set(${OUTPUT} ${_output} PARENT_SCOPE)
+  add_host_dependencies("${CMAKE_HOST_BUILD_TARGET}" "${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}")
+
+  set_host_target_properties(${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}
+    TARGET_FILE "${_output}"
+    SOURCES "${BUILD_SOURCES}"
+  )
 endfunction(add_host_executable)

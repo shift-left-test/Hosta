@@ -166,6 +166,7 @@ flycheck_*.el
 ### Ninja ###
 .ninja_deps
 .ninja_log
+*.ninja
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
