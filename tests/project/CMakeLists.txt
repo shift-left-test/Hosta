@@ -59,7 +59,7 @@ add_custom_target(hello
   COMMAND echo "hello"
 )
 
-add_host_executable(C unittest
+add_host_executable(unittest
   SOURCES src/calc.c test/unity_test_main.c ${CMAKE_CURRENT_LIST_DIR}/unity/unity.c
   INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/test ./unity
   COMPILE_OPTIONS ${HOST_COMPILE_OPTIONS}

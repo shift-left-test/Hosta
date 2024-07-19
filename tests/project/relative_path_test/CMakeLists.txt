@@ -5,7 +5,7 @@ do_host_compile(C unity_o
   COMPILE_OPTIONS ${HOST_COMPILE_OPTIONS}
 )
 
-add_host_executable(C relative_path_test
+add_host_executable(relative_path_test
   SOURCES ../src/calc.c ../test/unity_test_main.c
   OBJECTS "${unity_o}"
   INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/../src ../unity

@@ -12,7 +12,7 @@ do_host_compile(C unity_fixture_o
   COMPILE_OPTIONS ${HOST_COMPILE_OPTIONS}
 )
 
-add_host_executable(C no_unity_fixture_test
+add_host_executable(no_unity_fixture_test
   SOURCES ../src/calc.c ../test/unity_test_main.c
   OBJECTS "${unity_o}"
   INCLUDE_DIRECTORIES ../src ../unity
@@ -22,7 +22,7 @@ add_host_executable(C no_unity_fixture_test
 
 unity_fixture_add_host_tests(no_unity_fixture_test)
 
-add_host_executable(C unity_fixture_test
+add_host_executable(unity_fixture_test
   SOURCES ../src/calc.c ../test/unity_fixture_test_main.c
   OBJECTS "${unity_o}" "${unity_fixture_o}"
   INCLUDE_DIRECTORIES ../src ../unity

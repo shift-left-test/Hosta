@@ -302,14 +302,16 @@ function(do_host_link lang TARGET OUTPUT)
   set(${OUTPUT} ${_output} PARENT_SCOPE)
 endfunction(do_host_link)
 
-function(add_host_executable lang TARGET)
+function(add_host_executable TARGET)
   set(oneValueArgs SUFFIX)
   set(multiValueArgs SOURCES OBJECTS INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  unset(_objects)
+  # TODO: find an appropriate language to build executables
+  set(lang C)
 
   # Compile source files
+  unset(_objects)
   foreach(_source IN LISTS BUILD_SOURCES)
     do_host_compile(${lang} _output
       SOURCE "${_source}"
