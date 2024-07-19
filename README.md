@@ -43,22 +43,45 @@ include(cmake/HostTest.cmake)
 
 ## How to use
 
+Create an executable running on the host
+
+```cmake
+add_host_executable(<target>
+  [SUFFIX <suffix>]
+  [SOURCES <sources>]
+  [OBJECTS <objects>]
+  [INCLUDE_DIRECTORIES <include_directories>]
+  [COMPILE_OPTIONS <compile_options>]
+  [LINK_OPTIONS <link_options>]
+  [DEPENDS <depends>]
+)
+
+# target: Specifies an executable target name
+# suffix: Speficies an executable suffix
+# sources: List of source files
+# objects: List of object files
+# include_directories: List of include directories
+# compile_options: List of compile options
+# link_options: List of link options
+# depends: List of dependencies
+```
+
 Automatically add an executable running on the host as a test with CTest
 
 ```cmake
-add_host_test(<TARGET> [EXTRA_ARGS <extra_args>])
+add_host_test(<target> [EXTRA_ARGS <extra_args>])
 
-# TARGET: Specifies an executable target created with `add_host_executable`
-# EXTRA_ARGS: Any extra arguments to pass on the command line
+# target: Specifies an executable target created with `add_host_executable`
+# extra_args: Any extra arguments to pass on the command line
 ```
 
 Automatically add an executable running on the host as tests with CTest by scanning source code for Unity test macros
 
 ```cmake
-unity_fixture_add_host_tests(<TARGET> [EXTRA_ARGS <extra_args>])
+unity_fixture_add_host_tests(<target> [EXTRA_ARGS <extra_args>])
 
-# TARGET: Specifies an executable target created with `add_host_executable`
-# EXTRA_ARGS: Any extra arguments to pass on the command line
+# target: Specifies an executable target created with `add_host_executable`
+# extra_args: Any extra arguments to pass on the command line
 ```
 
 ## How to build
