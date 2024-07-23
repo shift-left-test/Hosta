@@ -21,9 +21,9 @@ set_host_target_properties({target}
   TYPE "A"
   TARGET_FILE "B"
   SOURCES "C"
-  INCLUDE_DIRECTORIES "D"
-  COMPILE_OPTIONS "E"
-  LINK_OPTIONS "F"
+  INTERFACE_INCLUDE_DIRECTORIES "D"
+  INTERFACE_COMPILE_OPTIONS "E"
+  INTERFACE_LINK_OPTIONS "F"
 )
 
 get_host_target_properties(hello
@@ -31,9 +31,9 @@ get_host_target_properties(hello
   TYPE type
   TARGET_FILE target_file
   SOURCES sources
-  INCLUDE_DIRECTORIES include_directories
-  COMPILE_OPTIONS compile_options
-  LINK_OPTIONS link_options
+  INTERFACE_INCLUDE_DIRECTORIES include_directories
+  INTERFACE_COMPILE_OPTIONS compile_options
+  INTERFACE_LINK_OPTIONS link_options
 )
 
 cmake_print_variables(name type target_file sources include_directories compile_options link_options)

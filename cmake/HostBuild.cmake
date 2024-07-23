@@ -47,17 +47,17 @@ define_property(TARGET PROPERTY HOST_SOURCES
   FULL_DOCS "List of source files for host targets"
 )
 
-define_property(TARGET PROPERTY HOST_INCLUDE_DIRECTORIES
+define_property(TARGET PROPERTY HOST_INTERFACE_INCLUDE_DIRECTORIES
   BRIEF_DOCS "List of include directories for host targets"
   FULL_DOCS "List of include_directories for host targets"
 )
 
-define_property(TARGET PROPERTY HOST_COMPILE_OPTIONS
+define_property(TARGET PROPERTY HOST_INTERFACE_COMPILE_OPTIONS
   BRIEF_DOCS "List of compile options for host targets"
   FULL_DOCS "List of compile options for host targets"
 )
 
-define_property(TARGET PROPERTY HOST_LINK_OPTIONS
+define_property(TARGET PROPERTY HOST_INTERFACE_LINK_OPTIONS
   BRIEF_DOCS "List of link options for host targets"
   FULL_DOCS "List of link optiosn for host targets"
 )
@@ -82,7 +82,7 @@ endfunction(get_host_target_property)
 
 function(get_host_target_properties TARGET)
   set(oneValueArgs NAME TYPE TARGET_FILE SOURCE_DIR BINARY_DIR)
-  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS)
+  set(multiValueArgs SOURCES INTERFACE_INCLUDE_DIRECTORIES INTERFACE_COMPILE_OPTIONS INTERFACE_LINK_OPTIONS)
   cmake_parse_arguments(ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   set(properties ${oneValueArgs} ${multiValueArgs})
@@ -113,7 +113,7 @@ endfunction(set_host_target_property)
 
 function(set_host_target_properties TARGET)
   set(oneValueArgs TYPE TARGET_FILE)
-  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS)
+  set(multiValueArgs SOURCES INTERFACE_INCLUDE_DIRECTORIES INTERFACE_COMPILE_OPTIONS INTERFACE_LINK_OPTIONS)
   cmake_parse_arguments(ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   set(properties ${oneValueArgs} ${multiValueArgs})
