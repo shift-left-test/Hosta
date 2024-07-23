@@ -18,15 +18,17 @@ include(cmake/HostBuild.cmake)
 add_custom_target(hello COMMAND echo "hello")
 
 set_host_target_properties({target}
-  TARGET_FILE "A"
-  SOURCES "B"
-  INCLUDE_DIRECTORIES "C"
-  COMPILE_OPTIONS "D"
-  LINK_OPTIONS "E"
+  TYPE "A"
+  TARGET_FILE "B"
+  SOURCES "C"
+  INCLUDE_DIRECTORIES "D"
+  COMPILE_OPTIONS "E"
+  LINK_OPTIONS "F"
 )
 
 get_host_target_properties(hello
   NAME name
+  TYPE type
   TARGET_FILE target_file
   SOURCES sources
   INCLUDE_DIRECTORIES include_directories
@@ -34,7 +36,7 @@ get_host_target_properties(hello
   LINK_OPTIONS link_options
 )
 
-cmake_print_variables(name target_file sources include_directories compile_options link_options)
+cmake_print_variables(name type target_file sources include_directories compile_options link_options)
 '''
 
 def test_unknown_target_name(testing):
@@ -47,8 +49,9 @@ def test_get_set_properties(testing):
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     stdout = testing.configure_internal(options).stdout
     assert 'name="hello"' in stdout
-    assert 'target_file="A"' in stdout
-    assert 'sources="B"' in stdout
-    assert 'include_directories="C"' in stdout
-    assert 'compile_options="D"' in stdout
-    assert 'link_options="E"' in stdout
+    assert 'type="A"' in stdout
+    assert 'target_file="B"' in stdout
+    assert 'sources="C"' in stdout
+    assert 'include_directories="D"' in stdout
+    assert 'compile_options="E"' in stdout
+    assert 'link_options="F"' in stdout
