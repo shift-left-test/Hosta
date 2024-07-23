@@ -160,7 +160,7 @@ def test_paths(testing, cross_toolchain, generator, compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     stdout = testing.cmake("host-targets", verbose=True).stdout
     assert '-o CMakeFiles/HOST-unittest.dir/unity/unity.c.o' in stdout  # absolute source path
-    assert './unity' not in stdout  # relative include path
+    assert f'{testing.workspace}/unity' in stdout  # relative include path to absolute one
     assert testing.exists("relative_path_test/CMakeFiles/HOST-relative_path_test.dir/__/src/calc.c.o")  # .. to __
 
 @PARAM_CROSS_TOOLCHAIN

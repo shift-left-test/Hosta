@@ -141,42 +141,6 @@ function(add_host_custom_target TARGET)
   endif()
 endfunction(add_host_custom_target)
 
-function(stringify_list OUTPUT)
-  set(options ABSOLUTE)
-  set(oneValueArgs PREPEND APPEND)
-  set(multiValueArgs INPUT)
-  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-
-  if(ARG_INPUT)
-    set(ITEMS "${ARG_INPUT}")
-  else()
-    set(ITEMS "${${OUTPUT}}")
-  endif()
-
-  if(ARG_ABSOLUTE)
-    unset(_items)
-    foreach(_item ${ITEMS})
-      if(NOT IS_ABSOLUTE "${_item}")
-        get_filename_component(_item "${_item}" ABSOLUTE)
-      endif()
-      list(APPEND _items "${_item}")
-    endforeach()
-    set(ITEMS "${_items}")
-  endif()
-
-  if(ARG_PREPEND)
-    list(TRANSFORM ITEMS PREPEND "${ARG_PREPEND}")
-  endif()
-
-  if(ARG_APPEND)
-    list(TRANSFORM ITEMS APPEND "${ARG_APPEND}")
-  endif()
-
-  separate_arguments(ITEMS NATIVE_COMMAND "${ITEMS}")
-
-  set(${OUTPUT} "${ITEMS}" PARENT_SCOPE)
-endfunction(stringify_list)
-
 function(do_host_compile lang OUTPUT)
   include(${_HOSTA_BASE_DIR}/DetermineHOST${lang}Compiler.cmake)
 
@@ -197,9 +161,14 @@ function(do_host_compile lang OUTPUT)
     endif()
   endif()
 
-  stringify_list(BUILD_IMPLICIT_INCLUDE_DIRECTORIES INPUT "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}")
-  stringify_list(BUILD_INCLUDE_DIRECTORIES PREPEND "${CMAKE_INCLUDE_FLAG_C}" ABSOLUTE)
-  stringify_list(BUILD_COMPILE_OPTIONS)
+  # Set system include directories
+  set(BUILD_IMPLICIT_INCLUDE_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}")
+  list(TRANSFORM BUILD_IMPLICIT_INCLUDE_DIRECTORIES PREPEND "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}")
+  separate_arguments(BUILD_IMPLICIT_INCLUDE_DIRECTORIES NATIVE_COMMAND "${BUILD_IMPLICIT_INCLUDE_DIRECTORIES}")
+
+  # Set include directories
+  list(TRANSFORM BUILD_INCLUDE_DIRECTORIES PREPEND "${CMAKE_INCLUDE_FLAG_C}")
+  separate_arguments(BUILD_INCLUDE_DIRECTORIES NATIVE_COMMAND "${BUILD_INCLUDE_DIRECTORIES}")
 
   # Set path to the output file
   if(IS_ABSOLUTE "${BUILD_SOURCE}")
@@ -267,15 +236,23 @@ function(do_host_link lang TARGET OUTPUT)
   include(${_HOSTA_BASE_DIR}/DetermineHOST${lang}Compiler.cmake)
 
   set(oneValueArgs SUFFIX)
-  set(multiValueArgs OBJECTS LINK_DIRECTORIES LINK_LIBRARIES LINK_OPTIONS DEPENDS)
+  set(multiValueArgs OBJECTS LINK_LIBRARIES LINK_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  stringify_list(BUILD_OBJECTS)
-  stringify_list(BUILD_IMPLICIT_LINK_DIRECTORIES INPUT "${CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES}" PREPEND "${CMAKE_LIBRARY_PATH_FLAG}")
-  stringify_list(BUILD_LINK_DIRECTORIES PREPEND "${CMAKE_LIBRARY_PATH_FLAG}")
-  stringify_list(BUILD_IMPLICIT_LINK_LIBRARIES INPUT "${CMAKE_HOST${lang}_IMPLICIT_LINK_LIBRARIES}" PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
-  stringify_list(BUILD_LINK_LIBRARIES PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
-  stringify_list(BUILD_LINK_OPTIONS)
+  # Set object files
+  separate_arguments(BUILD_OBJECTS NATIVE_COMMAND "${BUILD_OBJECTS}")
+
+  # Set system library directories
+  set(BUILD_IMPLICIT_LINK_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES}")
+  list(TRANSFORM BUILD_IMPLICIT_LINK_DIRECTORIES PREPEND "${CMAKE_LIBRARY_PATH_FLAG}")
+  separate_arguments(BUILD_IMPLICIT_LINK_DIRECTORIES NATIVE_COMMAND "${BUILD_IMPLICIT_LINK_DIRECTORIES}")
+
+  # Set system libraries
+  set(BUILD_IMPLICIT_LINK_LIBRARIES "${CMAKE_HOST${lang}_IMPLICIT_LINK_LIBRARIES}")
+  list(TRANSFORM BUILD_IMPLICIT_LINK_LIBRARIES PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
+
+  # Set libraries
+  list(TRANSFORM BUILD_LINK_LIBRARIES PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
 
   if(NOT BUILD_SUFFIX)
     set(BUILD_SUFFIX "${CMAKE_HOST_EXECUTABLE_SUFFIX}")
@@ -289,7 +266,6 @@ function(do_host_link lang TARGET OUTPUT)
     -o ${_output}
     ${BUILD_OBJECTS}
     ${BUILD_IMPLICIT_LINK_DIRECTORIES}
-    ${BUILD_LINK_DIRECTORIES}
     ${BUILD_IMPLICIT_LINK_LIBRARIES}
     ${BUILD_LINK_LIBRARIES}
     ${BUILD_LINK_OPTIONS}
@@ -314,6 +290,14 @@ function(add_host_executable TARGET)
 
   # TODO: find an appropriate language to build executables
   set(lang C)
+
+  # Convert relative include directories to absolute ones
+  unset(_incdirs)
+  foreach(_incdir IN LISTS BUILD_INCLUDE_DIRECTORIES)
+    get_filename_component(_incdir "${_incdir}" ABSOLUTE)
+    list(APPEND _incdirs "${_incdir}")
+  endforeach()
+  set(BUILD_INCLUDE_DIRECTORIES "${_incdirs}")
 
   # Compile source files
   unset(_objects)
@@ -344,5 +328,6 @@ function(add_host_executable TARGET)
     NAME "${TARGET}"
     TYPE "HOST_EXECUTABLE"
     SOURCES "${BUILD_SOURCES}"
+    INTERFACE_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
   )
 endfunction(add_host_executable)
