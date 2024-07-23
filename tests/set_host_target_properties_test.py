@@ -18,18 +18,16 @@ include(cmake/HostBuild.cmake)
 add_custom_target(hello COMMAND echo "hello")
 
 set_host_target_properties({target}
-  TYPE "A"
-  TARGET_FILE "B"
-  SOURCES "C"
-  INTERFACE_INCLUDE_DIRECTORIES "D"
-  INTERFACE_COMPILE_OPTIONS "E"
-  INTERFACE_LINK_OPTIONS "F"
+  TYPE "type"
+  SOURCES "sources"
+  INTERFACE_INCLUDE_DIRECTORIES "interface_include_directories"
+  INTERFACE_COMPILE_OPTIONS "interface_compile_options"
+  INTERFACE_LINK_OPTIONS "interface_link_options"
 )
 
 get_host_target_properties(hello
   NAME name
   TYPE type
-  TARGET_FILE target_file
   SOURCES sources
   INTERFACE_INCLUDE_DIRECTORIES include_directories
   INTERFACE_COMPILE_OPTIONS compile_options
@@ -49,9 +47,8 @@ def test_get_set_properties(testing):
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     stdout = testing.configure_internal(options).stdout
     assert 'name="hello"' in stdout
-    assert 'type="A"' in stdout
-    assert 'target_file="B"' in stdout
-    assert 'sources="C"' in stdout
-    assert 'include_directories="D"' in stdout
-    assert 'compile_options="E"' in stdout
-    assert 'link_options="F"' in stdout
+    assert 'type="type"' in stdout
+    assert 'sources="sources"' in stdout
+    assert 'include_directories="interface_include_directories"' in stdout
+    assert 'compile_options="interface_compile_options"' in stdout
+    assert 'link_options="interface_link_options"' in stdout

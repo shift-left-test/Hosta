@@ -37,9 +37,9 @@ define_property(TARGET PROPERTY HOST_TYPE
   FULL_DOCS "Type of the host target"
 )
 
-define_property(TARGET PROPERTY HOST_TARGET_FILE
-  BRIEF_DOCS "Path to the host target file"
-  FULL_DOCS "Path to the host target file"
+define_property(TARGET PROPERTY HOST_NAME
+  BRIEF_DOCS "Name of the host target"
+  FULL_DOCS "Name of the host target"
 )
 
 define_property(TARGET PROPERTY HOST_SOURCES
@@ -81,7 +81,7 @@ function(get_host_target_property VARIABLE TARGET PROPERTY)
 endfunction(get_host_target_property)
 
 function(get_host_target_properties TARGET)
-  set(oneValueArgs NAME TYPE TARGET_FILE SOURCE_DIR BINARY_DIR)
+  set(oneValueArgs NAME TYPE SOURCE_DIR BINARY_DIR)
   set(multiValueArgs SOURCES INTERFACE_INCLUDE_DIRECTORIES INTERFACE_COMPILE_OPTIONS INTERFACE_LINK_OPTIONS)
   cmake_parse_arguments(ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -112,7 +112,7 @@ function(set_host_target_property TARGET PROPERTY VALUE)
 endfunction(set_host_target_property)
 
 function(set_host_target_properties TARGET)
-  set(oneValueArgs TYPE TARGET_FILE)
+  set(oneValueArgs NAME TYPE)
   set(multiValueArgs SOURCES INTERFACE_INCLUDE_DIRECTORIES INTERFACE_COMPILE_OPTIONS INTERFACE_LINK_OPTIONS)
   cmake_parse_arguments(ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -341,8 +341,8 @@ function(add_host_executable TARGET)
   add_host_dependencies("${CMAKE_HOST_BUILD_TARGET}" "${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}")
 
   set_host_target_properties(${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}
+    NAME "${TARGET}"
     TYPE "HOST_EXECUTABLE"
-    TARGET_FILE "${_output}"
     SOURCES "${BUILD_SOURCES}"
   )
 endfunction(add_host_executable)

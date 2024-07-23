@@ -37,7 +37,7 @@ def test_get_original_property(testing):
     assert 'OUTPUT="hello"' in testing.configure_internal(options).stdout
 
 def test_get_empty_host_property(testing):
-    testing.write("CMakeLists.txt", content.format(key="HOST_SOURCES", value="aaa", target="hello", property="TARGET_FILE"))
+    testing.write("CMakeLists.txt", content.format(key="HOST_SOURCES", value="aaa", target="hello", property="HOST_TYPE"))
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     assert 'OUTPUT=""' in testing.configure_internal(options).stdout
 

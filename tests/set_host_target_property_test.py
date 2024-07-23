@@ -28,11 +28,6 @@ def test_unknown_target_name(testing):
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     assert 'set_host_target_property() called with non-existent target "unknown".' in testing.configure_internal(options).stderr
 
-def test_set_read_only_property(testing):
-    testing.write("CMakeLists.txt", content.format(target="hello", key="NAME", value="abc"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'NAME property is read-only' in testing.configure_internal(options).stderr
-
 def test_set_anonymous_property(testing):
     testing.write("CMakeLists.txt", content.format(target="hello", key="UNKNOWN", value="abc"))
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
