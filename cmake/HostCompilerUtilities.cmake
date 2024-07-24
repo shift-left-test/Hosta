@@ -244,8 +244,13 @@ function(find_host_binutils lang)
     set(toolchain_prefix ${CMAKE_MATCH_1})
   endif()
 
+  # Remove "llvm-" prefix if exists
+  if(toolchain_prefix MATCHES "(.+-)?llvm-$")
+    set(toolchain_prefix ${CMAKE_PATCH_1})
+  endif()
+
   # Try searching for binutils located in the same directory as the host compiler
-  set(ar_names "${toolchain_prefix}ar")
+  set(ar_names "${toolchain_prefix}ar" "${toolchain_prefix}llvm-ar")
   get_filename_component(toolchain_location "${CMAKE_HOST${lang}_COMPILER}" DIRECTORY)
   find_program(CMAKE_HOST_AR NAMES ${ar_names} HINTS ${toolchain_location})
   set(CMAKE_HOST_AR "${CMAKE_HOST_AR}" PARENT_SCOPE)
