@@ -29,9 +29,10 @@ function(save_host_compiler_preferences lang)
     "set(CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES \"@CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES@\")\n"
     "set(CMAKE_HOST${lang}_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES \"@CMAKE_HOST${lang}_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES@\")\n"
     "set(CMAKE_HOST${lang}_VERBOSE_FLAG \"@CMAKE_HOST${lang}_VERBOSE_FLAG@\")\n"
-    "set(CMAKE_HOST${lang}_OUTPUT_EXTENSION \"@CMAKE_HOST${lang}_OUTPUT_EXTENSION@\")\n"
     "set(CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang} \"@CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}@\")\n"
+    "set(CMAKE_HOST${lang}_OUTPUT_EXTENSION \"@CMAKE_HOST${lang}_OUTPUT_EXTENSION@\")\n"
     "set(CMAKE_HOST_EXECUTABLE_SUFFIX \"@CMAKE_HOST_EXECUTABLE_SUFFIX@\")\n"
+    "set(CMAKE_HOST_AR \"@CMAKE_HOST_AR@\")\n"
   )
 
   # Guess the supported language standard versions based on C and CXX
@@ -126,26 +127,6 @@ function(find_host_compiler_id lang)
   set(CMAKE_HOST${lang}_VERBOSE_FLAG "${CMAKE_${lang}_VERBOSE_FLAG}" PARENT_SCOPE)
   set(CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang} "${CMAKE_INCLUDE_SYSTEM_FLAG_${lang}}" PARENT_SCOPE)
 
-  # Identify the host platform to set the default object file extension
-  if(NOT CMAKE_HOST${lang}_OUTPUT_EXTENSION)
-    if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-      set(CMAKE_HOST${lang}_OUTPUT_EXTENSION .o PARENT_SCOPE)
-    else()
-      set(CMAKE_HOST${lang}_OUTPUT_EXTENSION .obj PARENT_SCOPE)
-    endif()
-  endif()
-
-  # Identify the host platform to set the default executable suffix
-  if(NOT CMAKE_HOST_EXECUTABLE_SUFFIX)
-    if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
-      set(CMAKE_HOST_EXECUTABLE_SUFFIX ".exe" PARENT_SCOPE)
-    elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-      set(CMAKE_HOST_EXECUTABLE_SUFFIX "" PARENT_SCOPE)
-    else()
-      message(FATAL_ERROR "Builds hosted on '${CMAKE_HOST_SYSTEM_NAME}' not supported.")
-    endif()
-  endif()
-
   # Guess the supported language standard versions based on C and CXX
   list(APPEND versions 90 98 99 03 11 14 17 20 23 26)
 
@@ -159,6 +140,28 @@ function(find_host_compiler_id lang)
     endif()
   endforeach()
 endfunction(find_host_compiler_id)
+
+function(set_host_default_options lang)
+  # Set the default object file extension
+  if(NOT CMAKE_HOST${lang}_OUTPUT_EXTENSION)
+    if(CMAKE_HOST${lang}_PLATFORM_ID STREQUAL "Linux")
+      set(CMAKE_HOST${lang}_OUTPUT_EXTENSION .o PARENT_SCOPE)
+    else()
+      set(CMAKE_HOST${lang}_OUTPUT_EXTENSION .obj PARENT_SCOPE)
+    endif()
+  endif()
+
+  # Set the default executable suffix
+  if(NOT CMAKE_HOST_EXECUTABLE_SUFFIX)
+    if(CMAKE_HOST${lang}_PLATFORM_ID STREQUAL "Linux")
+      set(CMAKE_HOST_EXECUTABLE_SUFFIX "" PARENT_SCOPE)
+    elseif(CMAKE_HOST${lang}_PLATFORM_ID MATCHES "CYGWIN.*|MinGW|Windows")
+      set(CMAKE_HOST_EXECUTABLE_SUFFIX ".exe" PARENT_SCOPE)
+    else()
+      message(FATAL_ERROR "Builds hosted on '${CMAKE_HOST${lang}_PLATFORM_ID}' not supported.")
+    endif()
+  endif()
+endfunction(set_host_default_options)
 
 function(try_host_compile lang)
   set(oneValueArgs SOURCE TARGET WORKING_DIRECTORY RESULT_VARIABLE OUTPUT_VARIABLE)
@@ -226,3 +229,24 @@ function(parse_host_implicit_link_info lang text)
   set(CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES "${implicit_dirs}" PARENT_SCOPE)
   set(CMAKE_HOST${lang}_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES "${implicit_fwks}" PARENT_SCOPE)
 endfunction(parse_host_implicit_link_info)
+
+function(find_host_binutils lang)
+  if(NOT CMAKE_HOST${lang}_COMPILER)
+    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
+      "CMake Error: CMAKE_HOST${lang}_COMPILER not set\n\n"
+    )
+    message(FATAL_ERROR "CMake Error: CMAKE_HOST${lang}_COMPILER not set")
+  endif()
+
+  # Identify host compiler prefix if exists
+  get_filename_component(compiler_basename "${CMAKE_HOST${lang}_COMPILER}" NAME)
+  if(compiler_basename MATCHES "^(.+-)(clang|g?cc)(\\.exe)?$")
+    set(toolchain_prefix ${CMAKE_MATCH_1})
+  endif()
+
+  # Try searching for binutils located in the same directory as the host compiler
+  set(ar_names "${toolchain_prefix}ar")
+  get_filename_component(toolchain_location "${CMAKE_HOST${lang}_COMPILER}" DIRECTORY)
+  find_program(CMAKE_HOST_AR NAMES ${ar_names} HINTS ${toolchain_location})
+  set(CMAKE_HOST_AR "${CMAKE_HOST_AR}" PARENT_SCOPE)
+endfunction(find_host_binutils)

@@ -38,6 +38,9 @@ find_host_compiler_id(C
   FLAGS "-c" "-Aa" "-D__CLASSIC_C__" "--target=arm-arm-none-eabi -mcpu=cortex-m3"
 )
 
+# Identify the host platform to set default options
+set_host_default_options(C)
+
 # Test if the host compiler can compile the most basic of programs.
 # If not, a fatal error is set and stops processing commands.
 PrintTestCompilerStatus("HOSTC" "")
@@ -110,6 +113,9 @@ else()
     )
   endif()
 endif()
+
+# Find BinUtils on the host platform
+find_host_binutils(C)
 
 # Configure variables set in this file for fast reload later on
 save_host_compiler_preferences(C)

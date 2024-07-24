@@ -26,21 +26,11 @@ def test_build_target_works(testing, cross_toolchain, generator, compiler_list):
 def test_test_targets_work(testing, cross_toolchain, generator, compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("host-targets").check_returncode()
-    assert testing.exists("CMakeFiles/HOST-unittest.dir/src/calc.c.o")
-    assert testing.exists("CMakeFiles/HOST-unittest.dir/test/unity_test_main.c.o")
+    suffix = '.obj' if compiler_list in ["i686-w64-mingw32-gcc"] else '.o'
+    assert testing.exists(f"CMakeFiles/HOST-unittest.dir/src/calc.c{suffix}")
+    assert testing.exists(f"CMakeFiles/HOST-unittest.dir/test/unity_test_main.c{suffix}")
     if compiler_list not in ["i686-w64-mingw32-gcc"]:
         testing.ctest().check_returncode()
-
-@PARAM_CROSS_TOOLCHAIN
-@PARAM_GENERATORS
-@PARAM_COMPILERS
-def test_compile_works(testing, cross_toolchain, generator, compiler_list):
-    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
-    stdout = testing.cmake("host-targets", verbose=True).stdout
-    if compiler_list in ["i686-w64-mingw32-gcc"]:
-        assert 'CMakeFiles/HOST-unittest.dir/test/unity_test_main.c.obj'
-    else:
-        assert 'CMakeFiles/HOST-unittest.dir/test/unity_test_main.c.o'
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -48,7 +38,7 @@ def test_compile_works(testing, cross_toolchain, generator, compiler_list):
 def test_link_works(testing, cross_toolchain, generator, compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("host-targets").check_returncode()
-    assert testing.exists("unittest.out")
+    assert testing.exists("unittest") or testing.exists("unittest.exe")
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -84,7 +74,7 @@ def test_gcovr_works(testing, cross_toolchain, generator, compiler_list):
 def test_no_changes_no_rebuilds(testing, cross_toolchain, generator, compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("host-targets")
-    assert "Linking HOSTC executable unittest.out" not in testing.cmake("host-targets").stdout
+    assert "Linking HOSTC executable unittest" not in testing.cmake("host-targets").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -93,7 +83,7 @@ def test_no_configuration_changes_no_rebuilds(testing, cross_toolchain, generato
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("host-targets")
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
-    assert "Linking HOSTC executable unittest.out" not in testing.cmake("host-targets").stdout
+    assert "Linking HOSTC executable unittest" not in testing.cmake("host-targets").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -102,7 +92,7 @@ def test_reconfiguration_rebuilds(testing, cross_toolchain, generator, compiler_
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, debug_enabled=True)
     testing.cmake("host-targets")
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, debug_enabled=False)
-    assert "Linking HOSTC executable unittest.out" in testing.cmake("host-targets").stdout
+    assert "Linking HOSTC executable unittest" in testing.cmake("host-targets").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -111,7 +101,7 @@ def test_updating_source_file_rebuilds(testing, cross_toolchain, generator, comp
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("host-targets")
     testing.touch("src/calc.c")
-    assert "Linking HOSTC executable unittest.out" in testing.cmake("host-targets").stdout
+    assert "Linking HOSTC executable unittest" in testing.cmake("host-targets").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -120,7 +110,7 @@ def test_updating_header_file_rebuilds(testing, cross_toolchain, generator, comp
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("host-targets")
     testing.touch("src/calc.h")
-    assert "Linking HOSTC executable unittest.out" in testing.cmake("host-targets").stdout
+    assert "Linking HOSTC executable unittest" in testing.cmake("host-targets").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -170,9 +160,10 @@ def test_depends_option(testing, cross_toolchain, generator, compiler_list):
 def test_paths(testing, cross_toolchain, generator, compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     stdout = testing.cmake("host-targets", verbose=True).stdout
-    assert '-o CMakeFiles/HOST-unittest.dir/unity/unity.c.o' in stdout  # absolute source path
+    suffix = '.obj' if compiler_list in ["i686-w64-mingw32-gcc"] else '.o'
+    assert f'-o CMakeFiles/HOST-unittest.dir/unity/unity.c{suffix}' in stdout  # absolute source path
     assert f'{testing.workspace}/unity' in stdout  # relative include path to absolute one
-    assert testing.exists("relative_path_test/CMakeFiles/HOST-relative_path_test.dir/__/src/calc.c.o")  # .. to __
+    assert testing.exists(f"relative_path_test/CMakeFiles/HOST-relative_path_test.dir/__/src/calc.c{suffix}")  # .. to __
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -201,7 +192,7 @@ def test_custom_build_target_conflict_existing_name(testing, cross_toolchain, ge
 def test_custom_build_target(testing, cross_toolchain, generator, compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list, extra_options=["-DCMAKE_HOST_BUILD_TARGET=abc"])
     testing.cmake("abc").check_returncode()
-    assert testing.exists("unittest.out")
+    assert testing.exists("unittest") or testing.exists("unittest.exe")
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
