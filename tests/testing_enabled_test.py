@@ -34,6 +34,17 @@ def test_test_targets_work(testing, cross_toolchain, generator, compiler_list):
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_COMPILERS
+def test_compile_works(testing, cross_toolchain, generator, compiler_list):
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    stdout = testing.cmake("host-targets", verbose=True).stdout
+    if compiler_list in ["i686-w64-mingw32-gcc"]:
+        assert 'CMakeFiles/HOST-unittest.dir/test/unity_test_main.c.obj'
+    else:
+        assert 'CMakeFiles/HOST-unittest.dir/test/unity_test_main.c.o'
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@PARAM_COMPILERS
 def test_link_works(testing, cross_toolchain, generator, compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("host-targets").check_returncode()

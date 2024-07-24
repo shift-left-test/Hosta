@@ -175,7 +175,7 @@ function(do_host_compile lang OUTPUT)
     file(RELATIVE_PATH BUILD_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} "${BUILD_SOURCE}")
   endif()
   string(REPLACE ".." "__" _build_source "${BUILD_SOURCE}")
-  set(_absolute_output "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_HOST_TARGET_PREFIX}${BUILD_TARGET}.dir/${_build_source}.o")
+  set(_absolute_output "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_HOST_TARGET_PREFIX}${BUILD_TARGET}.dir/${_build_source}${CMAKE_HOST${lang}_OUTPUT_EXTENSION}")
   file(RELATIVE_PATH _relative_output ${CMAKE_CURRENT_BINARY_DIR} "${_absolute_output}")
 
   # Make sure that the base directory of the object file exists

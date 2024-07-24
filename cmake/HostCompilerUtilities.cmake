@@ -29,6 +29,7 @@ function(save_host_compiler_preferences lang)
     "set(CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES \"@CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES@\")\n"
     "set(CMAKE_HOST${lang}_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES \"@CMAKE_HOST${lang}_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES@\")\n"
     "set(CMAKE_HOST${lang}_VERBOSE_FLAG \"@CMAKE_HOST${lang}_VERBOSE_FLAG@\")\n"
+    "set(CMAKE_HOST${lang}_OUTPUT_EXTENSION \"@CMAKE_HOST${lang}_OUTPUT_EXTENSION@\")\n"
     "set(CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang} \"@CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}@\")\n"
     "set(CMAKE_HOST_EXECUTABLE_SUFFIX \"@CMAKE_HOST_EXECUTABLE_SUFFIX@\")\n"
   )
@@ -125,7 +126,16 @@ function(find_host_compiler_id lang)
   set(CMAKE_HOST${lang}_VERBOSE_FLAG "${CMAKE_${lang}_VERBOSE_FLAG}" PARENT_SCOPE)
   set(CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang} "${CMAKE_INCLUDE_SYSTEM_FLAG_${lang}}" PARENT_SCOPE)
 
-  # Identify the host platform to set the executable suffix
+  # Identify the host platform to set the default object file extension
+  if(NOT CMAKE_HOST${lang}_OUTPUT_EXTENSION)
+    if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+      set(CMAKE_HOST${lang}_OUTPUT_EXTENSION .o PARENT_SCOPE)
+    else()
+      set(CMAKE_HOST${lang}_OUTPUT_EXTENSION .obj PARENT_SCOPE)
+    endif()
+  endif()
+
+  # Identify the host platform to set the default executable suffix
   if(NOT CMAKE_HOST_EXECUTABLE_SUFFIX)
     if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
       set(CMAKE_HOST_EXECUTABLE_SUFFIX ".exe" PARENT_SCOPE)
