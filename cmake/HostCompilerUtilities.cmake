@@ -69,7 +69,7 @@ function(find_host_compiler_id lang)
     file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
       "CMake Error: CMAKE_HOST${lang}_COMPILER not set\n\n"
     )
-    message(FATAL_ERROR "CMake Error: CMAKE_HOST${lang}_COMPILER not set")
+    message(FATAL_ERROR "CMake Error: CMAKE_HOST${lang}_COMPILER not set\n")
   endif()
 
   set(multiValueArgs FLAGS)
@@ -141,7 +141,15 @@ function(find_host_compiler_id lang)
   endforeach()
 endfunction(find_host_compiler_id)
 
-function(set_host_default_options lang)
+function(set_host_platform_default_options lang)
+  # Check if it is a supported platform
+  if(NOT CMAKE_HOST${lang}_PLATFORM_ID MATCHES "CYGWIN.*|Linux|MinGW|Windows")
+    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
+      "Builds hosted on '${CMAKE_HOST${lang}_PLATFORM_ID}' not supported.\n\n"
+    )
+    message(FATAL_ERROR "Builds hosted on '${CMAKE_HOST${lang}_PLATFORM_ID}' not supported.\n")
+  endif()
+
   # Set the default object file extension
   if(NOT CMAKE_HOST${lang}_OUTPUT_EXTENSION)
     if(CMAKE_HOST${lang}_PLATFORM_ID STREQUAL "Linux")
@@ -157,11 +165,9 @@ function(set_host_default_options lang)
       set(CMAKE_HOST_EXECUTABLE_SUFFIX "" PARENT_SCOPE)
     elseif(CMAKE_HOST${lang}_PLATFORM_ID MATCHES "CYGWIN.*|MinGW|Windows")
       set(CMAKE_HOST_EXECUTABLE_SUFFIX ".exe" PARENT_SCOPE)
-    else()
-      message(FATAL_ERROR "Builds hosted on '${CMAKE_HOST${lang}_PLATFORM_ID}' not supported.")
     endif()
   endif()
-endfunction(set_host_default_options)
+endfunction(set_host_platform_default_options)
 
 function(try_host_compile lang)
   set(oneValueArgs SOURCE TARGET WORKING_DIRECTORY RESULT_VARIABLE OUTPUT_VARIABLE)
@@ -235,7 +241,7 @@ function(find_host_binutils lang)
     file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
       "CMake Error: CMAKE_HOST${lang}_COMPILER not set\n\n"
     )
-    message(FATAL_ERROR "CMake Error: CMAKE_HOST${lang}_COMPILER not set")
+    message(FATAL_ERROR "CMake Error: CMAKE_HOST${lang}_COMPILER not set\n")
   endif()
 
   # Identify host compiler prefix if exists

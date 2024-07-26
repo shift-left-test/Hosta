@@ -66,7 +66,7 @@ function(get_host_target_property VARIABLE TARGET PROPERTY)
   get_host_target_name(TARGET "${TARGET}")
 
   if(NOT TARGET ${TARGET})
-    message(FATAL_ERROR "get_host_target_property() called with non-existent target \"${TARGET}\".")
+    message(FATAL_ERROR "get_host_target_property() called with non-existent target \"${TARGET}\".\n")
   endif()
 
   # Try fetching host properties first
@@ -99,7 +99,7 @@ function(set_host_target_property TARGET PROPERTY VALUE)
   get_host_target_name(TARGET "${TARGET}")
 
   if(NOT TARGET ${TARGET})
-    message(FATAL_ERROR "set_host_target_property() called with non-existent target \"${TARGET}\".")
+    message(FATAL_ERROR "set_host_target_property() called with non-existent target \"${TARGET}\".\n")
   endif()
 
   # Try setting host properties first
@@ -151,7 +151,7 @@ function(do_host_compile lang OUTPUT)
   # Set standard compile option
   if(DEFINED CMAKE_HOST${lang}_STANDARD)
     if(NOT DEFINED CMAKE_HOST${lang}${CMAKE_HOST${lang}_STANDARD}_STANDARD_COMPILE_OPTION)
-      message(FATAL_ERROR "HOST${lang}_STANDARD is set to invalid value '${CMAKE_HOST${lang}_STANDARD}'")
+      message(FATAL_ERROR "HOST${lang}_STANDARD is set to invalid value '${CMAKE_HOST${lang}_STANDARD}'\n")
     endif()
 
     if(NOT DEFINED CMAKE_HOST${lang}_EXTENSIONS OR CMAKE_HOST${lang}_EXTENSIONS)
@@ -295,7 +295,21 @@ function(add_host_executable TARGET)
 
   # Compile source files
   unset(_objects)
+
   foreach(_source IN LISTS BUILD_SOURCES)
+    # Check if the source file exists
+    if(IS_ABSOLUTE "${_source}")
+      set(_path "${_source}")
+    else()
+      set(_path "${CMAKE_CURRENT_SOURCE_DIR}/${_source}")
+    endif()
+    if(NOT EXISTS "${_path}")
+      file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
+        "Cannot find source file:\n  ${_source}\n\n"
+      )
+      message(FATAL_ERROR "Cannot find source file:\n  ${_source}\n")
+    endif()
+
     do_host_compile(${lang} _output
       SOURCE "${_source}"
       TARGET "${TARGET}"

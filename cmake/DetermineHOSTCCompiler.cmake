@@ -31,15 +31,24 @@ include(CMakeTestCompilerCommon)
 if(NOT CMAKE_HOSTC_COMPILER_LIST)
   set(CMAKE_HOSTC_COMPILER_LIST cc gcc clang)
 endif()
+
 find_host_compiler(C)
+
+# Check if a host compiler is available
+if(NOT CMAKE_HOSTC_COMPILER)
+  file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
+    "The CMAKE_HOSTC_COMPILER:\n ${CMAKE_HOSTC_COMPILER_LIST}\n\n is not a full path and was not found in the PATH.\n\n"
+  )
+  message(FATAL_ERROR "The CMAKE_HOSTC_COMPILER:\n  ${CMAKE_HOSTC_COMPILER_LIST}\n\n is not a full path and was not found in the PATH.\n")
+endif()
 
 # Build a small source file to identify the compiler.
 find_host_compiler_id(C
   FLAGS "-c" "-Aa" "-D__CLASSIC_C__" "--target=arm-arm-none-eabi -mcpu=cortex-m3"
 )
 
-# Identify the host platform to set default options
-set_host_default_options(C)
+# Set host platform specific default options
+set_host_platform_default_options(C)
 
 # Test if the host compiler can compile the most basic of programs.
 # If not, a fatal error is set and stops processing commands.
