@@ -47,7 +47,6 @@ Create an executable running on the host
 
 ```cmake
 add_host_executable(<target>
-  [SUFFIX <suffix>]
   [SOURCES <sources>]
   [OBJECTS <objects>]
   [INCLUDE_DIRECTORIES <include_directories>]
@@ -57,7 +56,6 @@ add_host_executable(<target>
 )
 
 # target: Specifies an executable target name
-# suffix: Speficies an executable suffix
 # sources: List of source files
 # objects: List of object files
 # include_directories: List of include directories

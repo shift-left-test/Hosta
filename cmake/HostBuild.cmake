@@ -235,9 +235,8 @@ endfunction(do_host_compile)
 function(do_host_link lang TARGET OUTPUT)
   include(${_HOSTA_BASE_DIR}/DetermineHOST${lang}Compiler.cmake)
 
-  set(oneValueArgs SUFFIX)
   set(multiValueArgs OBJECTS LINK_LIBRARIES LINK_OPTIONS DEPENDS)
-  cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
   # Set object files
   separate_arguments(BUILD_OBJECTS NATIVE_COMMAND "${BUILD_OBJECTS}")
@@ -254,11 +253,7 @@ function(do_host_link lang TARGET OUTPUT)
   # Set libraries
   list(TRANSFORM BUILD_LINK_LIBRARIES PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
 
-  if(NOT BUILD_SUFFIX)
-    set(BUILD_SUFFIX "${CMAKE_HOST_EXECUTABLE_SUFFIX}")
-  endif()
-
-  set(_filename "${TARGET}${BUILD_SUFFIX}")
+  set(_filename "${TARGET}${CMAKE_HOST_EXECUTABLE_SUFFIX}")
   set(_output "${CMAKE_CURRENT_BINARY_DIR}/${_filename}")
 
   set(BUILD_COMMAND
@@ -284,9 +279,8 @@ function(do_host_link lang TARGET OUTPUT)
 endfunction(do_host_link)
 
 function(add_host_executable TARGET)
-  set(oneValueArgs SUFFIX)
   set(multiValueArgs SOURCES OBJECTS INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
-  cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
   # TODO: find an appropriate language to build executables
   set(lang C)
@@ -314,7 +308,6 @@ function(add_host_executable TARGET)
 
   # Link object files
   do_host_link(${lang} ${TARGET} _output
-    SUFFIX "${BUILD_SUFFIX}"
     OBJECTS "${_objects}" "${BUILD_OBJECTS}"
     LINK_OPTIONS "${BUILD_LINK_OPTIONS}"
     DEPENDS "${BUILD_DEPENDS}"
