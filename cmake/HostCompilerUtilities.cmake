@@ -256,8 +256,16 @@ function(find_host_binutils lang)
   endif()
 
   # Try searching for binutils located in the same directory as the host compiler
+
+  # CMAKE_HOST_AR
   set(ar_names "${toolchain_prefix}ar" "${toolchain_prefix}llvm-ar")
   get_filename_component(toolchain_location "${CMAKE_HOST${lang}_COMPILER}" DIRECTORY)
   find_program(CMAKE_HOST_AR NAMES ${ar_names} HINTS ${toolchain_location})
   set(CMAKE_HOST_AR "${CMAKE_HOST_AR}" PARENT_SCOPE)
+
+  # CMAKE_HOST_RANLIB
+  set(ranlib_names "${toolchain_prefix}ranlib" "${toolchain_prefix}llvm-ranlib")
+  get_filename_component(toolchain_location "${CMAKE_HOST${lang}_COMPILER}" DIRECTORY)
+  find_program(CMAKE_HOST_RANLIB NAMES ${ranlib_names} HINTS ${toolchain_location})
+  set(CMAKE_HOST_RANLIB "${CMAKE_HOST_RANLIB}" PARENT_SCOPE)
 endfunction(find_host_binutils)
