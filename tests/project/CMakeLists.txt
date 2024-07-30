@@ -39,8 +39,6 @@ endif()
 
 include(cmake/HostTest.cmake)
 
-list(APPEND HOST_COMPILE_OPTIONS -DUNITY_FIXTURE_NO_EXTRAS -DUNITY_INCLUDE_DOUBLE)
-
 if(WITH_COVERAGE_OPTIONS)
   list(APPEND HOST_COMPILE_OPTIONS -ftest-coverage -fprofile-arcs -O0)
   list(APPEND HOST_LINK_OPTIONS -fprofile-arcs)
@@ -59,10 +57,11 @@ add_custom_target(hello
 )
 
 add_host_executable(unittest
-  SOURCES src/calc.c test/unity_test_main.c ${CMAKE_CURRENT_LIST_DIR}/unity/unity.c
-  INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/test ./unity
+  SOURCES src/calc.c test/unity_test_main.c
+  INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/test
   COMPILE_OPTIONS ${HOST_COMPILE_OPTIONS}
   LINK_OPTIONS ${HOST_LINK_OPTIONS}
+  LINK_LIBRARIES Host::unity
   DEPENDS hello
 )
 
@@ -71,3 +70,4 @@ add_host_test(Host::unittest)
 add_subdirectory(src)
 add_subdirectory(fixture_tests)
 add_subdirectory(relative_path_test)
+add_subdirectory(unity)

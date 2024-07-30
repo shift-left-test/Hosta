@@ -4,17 +4,16 @@
 
 ## About
 
-This project provides CMake scripts designed to build unit test programs using the host build toolchain and execute them on the host machine via CTest while a cross-build toolchain environment is configured.
+Hosta is a comprehensive solution for building and executing unit tests for C programs using the host build toolchain. It leverages CMake scripts to facilitate the creation of test programs and their execution on the host platform via CTest, even within a cross-build toolchain environment.
 
+## Prerequisites
 
-## Prerequisite
+Ensure the following software packages are installed on your host environment:
 
-The following packages should be installed to use on your host environment
+- CMake (3.16 or higher)
+- C Compiler Toolchain (e.g. GCC, clang)
 
-- CMake (3.16 or above)
-- C compiler toolchain (GCC, clang, etc)
-
-The following packages are necessary to test this project
+The following additional packages are required for testing this project:
 
 - build-essential
 - docker
@@ -26,65 +25,134 @@ The following packages are necessary to test this project
 - pytest3-xdist
 - python3
 
-You may use the following commands to build a Docker image which the required packages are installed
+### Docker Setup
+
+To streamline the setup process, you can build a Docker image with the necessary packages using the following commands:
+
 ```bash
 $ docker build -t host-test-dev .
 $ docker run --rm -it -v `pwd`:/test host-test-dev
 $ cd /test
 ```
 
-## How to set up
+## Setup Instructions
 
-You may copy the files under cmake directory to CMake script directory of your project, then add the following command to your top-level CMakeLists.txt
+To integrate Hosta into your project, follow these steps:
+
+Copy the files from the cmake directory to your project's CMake script directory.
+Add the following line to your top-level CMakeLists.txt file:
 
 ```cmake
 include(cmake/HostTest.cmake)
 ```
 
-## How to use
+## Usage
 
-Create an executable running on the host
+### Creating an Executable for the Host Platform
+
+To define an executable target for the host platform, use the `add_host_executbale` function:
 
 ```cmake
 add_host_executable(<target>
   [SOURCES <sources>]
-  [OBJECTS <objects>]
+  [INCLUDE_DIRECTORIES <include_directories>]
+  [COMPILE_OPTIONS <compile_options>]
+  [LINK_OPTIONS <link_options>]
+  [LINK_LIBRARIES <libraries>]
+  [DEPENDS <depends>]
+)
+
+# Parameters:
+# - target: Specifies the name of the executable target
+# - sources: List of source files
+# - include_directories: List of include directories
+# - compile_options: List of compile options
+# - link_options: List of link options
+# - libraries: List of host libraries
+# - depends: List of dependencies
+```
+
+### Creating a Library for the Host Platform
+
+To define a library target for the host platform, use the `add_host_library` function:
+
+```cmake
+add_host_library(<target> <type>
+  [SOURCES <sources>]
   [INCLUDE_DIRECTORIES <include_directories>]
   [COMPILE_OPTIONS <compile_options>]
   [LINK_OPTIONS <link_options>]
   [DEPENDS <depends>]
 )
 
-# target: Specifies an executable target name
-# sources: List of source files
-# objects: List of object files
-# include_directories: List of include directories
-# compile_options: List of compile options
-# link_options: List of link options
-# depends: List of dependencies
+# Parameters:
+# - target: Specifies the name of the library target
+# - type: Type of the library (e.g. STATIC)
+# - sources: List of source files
+# - include_directories: List of include directories
+# - compile_options: List of compile options
+# - link_options: List of link options
+# - depends: List of dependencies
 ```
 
-Automatically add an executable running on the host as a test with CTest
+### Host Target Dependencies
+
+The host functions, such as `add_host_library` and `add_host_executable`, create target names with the virtual namespace prefix `Host::` to distinguish them from ordinary target names. The host target names are used to define dependencies between host targets. For instance, the following code demonstrates how to create a host executable named `hello` that depends on a host library named `world`.
+
+```cmake
+add_host_executable(hello
+  SOURCES hello.c
+  LINK_LIBRARIES Host::world
+)
+
+add_host_library(world STATIC
+  SOURCES world.c
+)
+```
+
+#### Limitations
+
+Only direct dependencies between host targets are allowed. Indirect dependencies are not properly reflected.
+
+### Adding an Executable as a Test with CTest
+
+To add an executable target as a test with CTest, use the `add_host_test` function:
 
 ```cmake
 add_host_test(<target> [EXTRA_ARGS <extra_args>])
 
-# target: Specifies an executable target created with `add_host_executable`
-# extra_args: Any extra arguments to pass on the command line
+# Parameters:
+# - target: Specifies the name of the executable target created with `add_host_executable`
+# - extra_args: Any additional arguments to pass on the command line
 ```
 
-Automatically add an executable running on the host as tests with CTest by scanning source code for Unity test macros
+### Adding Executable Tests by Scanning Source Code for Unity Test Macros
+
+To automatically add executable tests by scanning the source code for Unity test macros, use the `unity_fixture_add_host_tests` function:
 
 ```cmake
 unity_fixture_add_host_tests(<target> [EXTRA_ARGS <extra_args>])
 
-# target: Specifies an executable target created with `add_host_executable`
-# extra_args: Any extra arguments to pass on the command line
+# Parameters:
+# - target: Specifies the name of the executable target created with `add_host_executable`
+# - extra_args: Any additional arguments to pass on the command line
 ```
 
-## How to build
+## CMake Variables
 
-You may use the following commands to build and execute sample tests
+The following CMake variables can be used to configure internal behaviors:
+
+- `CMAKE_HOST${lang}_COMPILER_LIST`: This variable is used to find the host compiler
+- `CMAKE_HOST${lang}_OUTPUT_EXTENSION`: Defines the extension for object files
+- `CMAKE_HOST_EXECUTABLE_SUFFIX`: Defines the extension for executable files
+- `CMAKE_HOST_STATIC_LIBRARY_PREFIX`: Defines the prefix for static libraries
+- `CMAKE_HOST_STATIC_LIBRARY_SUFFIX`: Defines the extension for static libraries
+- `CMAKE_HOST_BUILD_TARGET`: Defines the target name to be used when building host targets
+
+## Building the Project
+
+To build and execute sample tests, use the following commands:
+
 ```bash
 $ cd sample
 $ cmake .
@@ -92,13 +160,14 @@ $ make host-targets
 $ ctest
 ```
 
-## How to test
+## Testing the CMake Scripts
 
-You may use the following commands to test CMake scripts
+To test the CMake scripts, use the following command:
+
 ```bash
 $ pytest -n auto
 ```
 
 ## License
 
-This project source code is available under MIT license. See [LICENSE](LICENSE).
+This project is licensed under the MIT License. For more details, see the [LICENSE](LICENSE) file.

@@ -22,7 +22,7 @@ function(add_host_test TARGET)
   cmake_parse_arguments(ARG "" "" "${multiValueArgs}" ${ARGN})
 
   # Remove the host namespace prefix if exists
-  string(REGEX REPLACE "^${CMAKE_HOST_NAMESPACE_PREFIX}(.*)" "\\1" TARGET "${TARGET}")
+  remove_host_namespace_prefix(TARGET "${TARGET}")
 
   get_host_target_properties(${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}
     TYPE _type
@@ -46,7 +46,7 @@ function(unity_fixture_add_host_tests TARGET)
   cmake_parse_arguments(ARG "" "" "${multiValueArgs}" ${ARGN})
 
   # Remove the host namespace prefix if exists
-  string(REGEX REPLACE "^${CMAKE_HOST_NAMESPACE_PREFIX}(.*)" "\\1" TARGET "${TARGET}")
+  remove_host_namespace_prefix(TARGET "${TARGET}")
 
   get_host_target_properties(${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}
     TYPE _type

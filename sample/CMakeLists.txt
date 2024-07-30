@@ -22,10 +22,11 @@ set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_HOSTC_STANDARD 11)
 set(CMAKE_HOSTC_EXTENSIONS ON)
 
+include(../cmake/HostTest.cmake)
+
 # Enable CTest
 enable_testing()
 
-include(../cmake/HostTest.cmake)
-
 add_subdirectory(src)
 add_subdirectory(test)
+add_subdirectory(external/unity)

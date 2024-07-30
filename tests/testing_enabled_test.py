@@ -160,10 +160,18 @@ def test_depends_option(testing, cross_toolchain, generator, compiler_list):
 def test_paths(testing, cross_toolchain, generator, compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     stdout = testing.cmake("host-targets", verbose=True).stdout
-    suffix = '.obj' if compiler_list in ["i686-w64-mingw32-gcc"] else '.o'
-    assert f'-o CMakeFiles/HOST-unittest.dir/unity/unity.c{suffix}' in stdout  # absolute source path
+    if compiler_list in ["i686-w64-mingw32-gcc"]:
+        static_library_prefix = ""
+        static_library_suffix = ".lib"
+        object_extension = ".obj"
+    else:
+        static_library_prefix = "lib"
+        static_library_suffix = ".a"
+        object_extension = ".o"
+
+    assert f'-o CMakeFiles/HOST-{static_library_prefix}unity{static_library_suffix}.dir/unity.c{object_extension}' in stdout  # absolute source path
     assert f'{testing.workspace}/unity' in stdout  # relative include path to absolute one
-    assert testing.exists(f"relative_path_test/CMakeFiles/HOST-relative_path_test.dir/__/src/calc.c{suffix}")  # .. to __
+    assert testing.exists(f"relative_path_test/CMakeFiles/HOST-relative_path_test.dir/__/src/calc.c{object_extension}")  # .. to __
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS

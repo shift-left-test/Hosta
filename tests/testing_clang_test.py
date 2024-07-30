@@ -24,7 +24,10 @@ def test_host_compiler_info(testing_clang):
     assert 'set(CMAKE_HOSTC_VERBOSE_FLAG "-v")' in compiler_info
     assert 'set(CMAKE_HOSTC_OUTPUT_EXTENSION ".o")' in compiler_info
     assert 'set(CMAKE_HOST_EXECUTABLE_SUFFIX "")' in compiler_info
+    assert 'set(CMAKE_HOST_STATIC_LIBRARY_PREFIX "lib")' in compiler_info
+    assert 'set(CMAKE_HOST_STATIC_LIBRARY_SUFFIX ".a")' in compiler_info
     assert 'set(CMAKE_HOST_AR "/usr/bin/ar")' in compiler_info
+    assert 'set(CMAKE_HOST_RANLIB "/usr/bin/ranlib")' in compiler_info
     assert 'set(CMAKE_INCLUDE_SYSTEM_FLAG_HOSTC "-isystem ")' in compiler_info
     assert 'set(CMAKE_HOSTC11_STANDARD_COMPILE_OPTION "-std=c11")' in compiler_info
     assert 'set(CMAKE_HOSTC11_EXTENSION_COMPILE_OPTION "-std=gnu11")' in compiler_info
