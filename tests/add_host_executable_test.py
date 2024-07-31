@@ -28,3 +28,10 @@ def test_unknown_source(testing):
     testing.write("CMakeLists.txt", content.format(source="unknown.c"))
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     assert 'Cannot find source file:\n\n    unknown.c' in testing.configure_internal(options).stderr
+
+def test_standalone_source(testing):
+    testing.write("main.c", "#include <stdio.h> \n int main() { return 0; }")
+    testing.write("CMakeLists.txt", content.format(source="main.c"))
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    testing.configure_internal(options).check_returncode()
+    testing.cmake("host-targets").check_returncode()

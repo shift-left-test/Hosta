@@ -3,12 +3,13 @@
 
 include_guard(GLOBAL)
 
-include(CMakeParseArguments)
-
 # Set the directory of the current file
 if(NOT _HOSTA_BASE_DIR)
   set(_HOSTA_BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 endif()
+
+include(CMakeParseArguments)
+include(${_HOSTA_BASE_DIR}/DetermineHOSTCCompiler.cmake)
 
 # Set default host build target name
 if(NOT CMAKE_HOST_BUILD_TARGET)
@@ -149,8 +150,6 @@ function(add_host_custom_target TARGET)
 endfunction(add_host_custom_target)
 
 function(get_host_file_dependencies lang OUTPUT)
-  include(${_HOSTA_BASE_DIR}/DetermineHOST${lang}Compiler.cmake)
-
   set(oneValueArgs SOURCE)
   set(multiValueArgs INCLUDE_DIRECTORIES COMPILE_OPTIONS)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -199,8 +198,6 @@ function(find_host_language OUTPUT SOURCES)
 endfunction(find_host_language)
 
 function(do_host_compile lang OUTPUT)
-  include(${_HOSTA_BASE_DIR}/DetermineHOST${lang}Compiler.cmake)
-
   set(oneValueArgs SOURCE TARGET)
   set(multiValueArgs INCLUDE_DIRECTORIES COMPILE_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -268,8 +265,6 @@ function(do_host_compile lang OUTPUT)
 endfunction(do_host_compile)
 
 function(do_host_link lang TARGET OUTPUT)
-  include(${_HOSTA_BASE_DIR}/DetermineHOST${lang}Compiler.cmake)
-
   set(multiValueArgs OBJECTS LINK_LIBRARIES LINK_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 

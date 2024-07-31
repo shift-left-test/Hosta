@@ -9,7 +9,6 @@ if(NOT _HOSTA_BASE_DIR)
 endif()
 
 include(CMakeParseArguments)
-include(${_HOSTA_BASE_DIR}/DetermineHOSTCCompiler.cmake)
 include(${_HOSTA_BASE_DIR}/HostBuild.cmake)
 
 function(add_host_test TARGET)
