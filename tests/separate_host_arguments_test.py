@@ -1,0 +1,41 @@
+#-*- coding: utf-8 -*-
+
+"""
+Copyright (c) 2024 LG Electronics Inc.
+SPDX-License-Identifier: MIT
+"""
+
+import pytest
+
+content = '''
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+
+project(CMakeTest LANGUAGES NONE)
+
+include(cmake/HostBuild.cmake)
+
+separate_host_arguments(OUTPUT "{data}" {args})
+
+include(CMakePrintHelpers)
+cmake_print_variables(OUTPUT)
+'''
+
+def test_empty_input(testing):
+    testing.write("CMakeLists.txt", content.format(data="", args=""))
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    assert 'OUTPUT=""' in testing.configure_internal(options).stdout
+
+def test_single_data(testing):
+    testing.write("CMakeLists.txt", content.format(data="hello", args=""))
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    assert 'OUTPUT="hello"' in testing.configure_internal(options).stdout
+
+def test_multiple_data(testing):
+    testing.write("CMakeLists.txt", content.format(data="hello;world", args=""))
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    assert 'OUTPUT="hello;world"' in testing.configure_internal(options).stdout
+
+def test_prepend(testing):
+    testing.write("CMakeLists.txt", content.format(data="hello;world", args="PREPEND -I"))
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    assert 'OUTPUT="-Ihello;-Iworld"' in testing.configure_internal(options).stdout

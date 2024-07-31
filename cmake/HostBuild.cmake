@@ -149,6 +149,18 @@ function(add_host_custom_target TARGET)
   endif()
 endfunction(add_host_custom_target)
 
+function(separate_host_arguments OUTPUT INPUT)
+  set(oneValueArgs PREPEND)
+  cmake_parse_arguments(ARG "" "${oneValueArgs}" "" ${ARGN})
+
+  set(_result ${INPUT})
+  if(ARG_PREPEND)
+    list(TRANSFORM _result PREPEND "${ARG_PREPEND}")
+  endif()
+  separate_arguments(_result NATIVE_COMMAND "${_result}")
+  set(${OUTPUT} ${_result} PARENT_SCOPE)
+endfunction(separate_host_arguments)
+
 function(get_host_file_dependencies lang OUTPUT)
   set(oneValueArgs SOURCE)
   set(multiValueArgs INCLUDE_DIRECTORIES COMPILE_OPTIONS)
@@ -158,11 +170,10 @@ function(get_host_file_dependencies lang OUTPUT)
   get_filename_component(BUILD_SOURCE ${BUILD_SOURCE} ABSOLUTE)
 
   # Set include directories
-  list(TRANSFORM BUILD_INCLUDE_DIRECTORIES PREPEND "${CMAKE_INCLUDE_FLAG_C}")
-  separate_arguments(BUILD_INCLUDE_DIRECTORIES NATIVE_COMMAND "${BUILD_INCLUDE_DIRECTORIES}")
+  separate_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_C}")
 
   # Set compile options
-  separate_arguments(BUILD_COMPILE_OPTIONS NATIVE_COMMAND "${BUILD_COMPILE_OPTIONS}")
+  separate_host_arguments(BUILD_COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}")
 
   # Resolve file dependencies
   set(BUILD_COMMAND
@@ -183,13 +194,13 @@ function(get_host_file_dependencies lang OUTPUT)
   if(_result EQUAL 0)
     string(REPLACE " \\" "" _output "${_output}")
     string(REPLACE "\n" "" _output "${_output}")
-    separate_arguments(BUILD_FILE_DEPENDENCIES NATIVE_COMMAND "${_output}")
-    list(REMOVE_AT BUILD_FILE_DEPENDENCIES 0)
+    separate_host_arguments(_file_dependencies "${_output}")
+    list(REMOVE_AT _file_dependencies 0)
   else()
-    set(BUILD_FILE_DEPENDENCIES ${BUILD_SOURCE})
+    set(_file_dependencies ${BUILD_SOURCE})
   endif()
 
-  set(${OUTPUT} ${BUILD_FILE_DEPENDENCIES} PARENT_SCOPE)
+  set(${OUTPUT} ${_file_dependencies} PARENT_SCOPE)
 endfunction(get_host_file_dependencies)
 
 function(find_host_language OUTPUT SOURCES)
@@ -216,16 +227,13 @@ function(do_host_compile lang OUTPUT)
   endif()
 
   # Set system include directories
-  set(BUILD_IMPLICIT_INCLUDE_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}")
-  list(TRANSFORM BUILD_IMPLICIT_INCLUDE_DIRECTORIES PREPEND "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}")
-  separate_arguments(BUILD_IMPLICIT_INCLUDE_DIRECTORIES NATIVE_COMMAND "${BUILD_IMPLICIT_INCLUDE_DIRECTORIES}")
+  separate_host_arguments(BUILD_IMPLICIT_INCLUDE_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}")
 
   # Set include directories
-  list(TRANSFORM BUILD_INCLUDE_DIRECTORIES PREPEND "${CMAKE_INCLUDE_FLAG_C}")
-  separate_arguments(BUILD_INCLUDE_DIRECTORIES NATIVE_COMMAND "${BUILD_INCLUDE_DIRECTORIES}")
+  separate_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_C}")
 
   # Set compile options
-  separate_arguments(BUILD_COMPILE_OPTIONS NATIVE_COMMAND "${BUILD_COMPILE_OPTIONS}")
+  separate_host_arguments(BUILD_COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}")
 
   # Set path to the output file
   if(IS_ABSOLUTE "${BUILD_SOURCE}")
@@ -269,19 +277,16 @@ function(do_host_link lang TARGET OUTPUT)
   cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
   # Set object files
-  separate_arguments(BUILD_OBJECTS NATIVE_COMMAND "${BUILD_OBJECTS}")
+  separate_host_arguments(BUILD_OBJECTS "${BUILD_OBJECTS}")
 
   # Set system library directories
-  set(BUILD_IMPLICIT_LINK_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES}")
-  list(TRANSFORM BUILD_IMPLICIT_LINK_DIRECTORIES PREPEND "${CMAKE_LIBRARY_PATH_FLAG}")
-  separate_arguments(BUILD_IMPLICIT_LINK_DIRECTORIES NATIVE_COMMAND "${BUILD_IMPLICIT_LINK_DIRECTORIES}")
+  separate_host_arguments(BUILD_IMPLICIT_LINK_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES}" PREPEND "${CMAKE_LIBRARY_PATH_FLAG}")
 
   # Set system libraries
-  set(BUILD_IMPLICIT_LINK_LIBRARIES "${CMAKE_HOST${lang}_IMPLICIT_LINK_LIBRARIES}")
-  list(TRANSFORM BUILD_IMPLICIT_LINK_LIBRARIES PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
+  separate_host_arguments(BUILD_IMPLICIT_LINK_LIBRARIES "${CMAKE_HOST${lang}_IMPLICIT_LINK_LIBRARIES}" PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
 
   # Set libraries
-  list(TRANSFORM BUILD_LINK_LIBRARIES PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
+  separate_host_arguments(BUILD_LINK_LIBRARIES "${BUILD_LINK_LIBRARIES}" PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
 
   set(_filename "${TARGET}${CMAKE_HOST_EXECUTABLE_SUFFIX}")
   set(_output "${CMAKE_CURRENT_BINARY_DIR}/${_filename}")
