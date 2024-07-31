@@ -203,6 +203,20 @@ function(get_host_file_dependencies lang OUTPUT)
   set(${OUTPUT} ${_file_dependencies} PARENT_SCOPE)
 endfunction(get_host_file_dependencies)
 
+function(get_host_standard_compile_option lang OUTPUT)
+  if(DEFINED CMAKE_HOST${lang}_STANDARD)
+    if(NOT DEFINED CMAKE_HOST${lang}${CMAKE_HOST${lang}_STANDARD}_STANDARD_COMPILE_OPTION)
+      host_logging_error("HOST${lang}_STANDARD is set to invalid value '${CMAKE_HOST${lang}_STANDARD}'")
+    endif()
+
+    if(NOT DEFINED CMAKE_HOST${lang}_EXTENSIONS OR CMAKE_HOST${lang}_EXTENSIONS)
+      set(${OUTPUT} "${CMAKE_HOST${lang}${CMAKE_HOST${lang}_STANDARD}_EXTENSION_COMPILE_OPTION}" PARENT_SCOPE)
+    else()
+      set(${OUTPUT} "${CMAKE_HOST${lang}${CMAKE_HOST${lang}_STANDARD}_STANDARD_COMPILE_OPTION}" PARENT_SCOPE)
+    endif()
+  endif()
+endfunction(get_host_standard_compile_option)
+
 function(find_host_language OUTPUT SOURCES)
   # TODO: find appropriate language to compile source files
   set(${OUTPUT} C PARENT_SCOPE)
@@ -214,17 +228,8 @@ function(do_host_compile lang OUTPUT)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   # Set standard compile option
-  if(DEFINED CMAKE_HOST${lang}_STANDARD)
-    if(NOT DEFINED CMAKE_HOST${lang}${CMAKE_HOST${lang}_STANDARD}_STANDARD_COMPILE_OPTION)
-      message(FATAL_ERROR "HOST${lang}_STANDARD is set to invalid value '${CMAKE_HOST${lang}_STANDARD}'\n")
-    endif()
-
-    if(NOT DEFINED CMAKE_HOST${lang}_EXTENSIONS OR CMAKE_HOST${lang}_EXTENSIONS)
-      list(PREPEND BUILD_COMPILE_OPTIONS "${CMAKE_HOST${lang}${CMAKE_HOST${lang}_STANDARD}_EXTENSION_COMPILE_OPTION}")
-    else()
-      list(PREPEND BUILD_COMPILE_OPTIONS "${CMAKE_HOST${lang}${CMAKE_HOST${lang}_STANDARD}_STANDARD_COMPILE_OPTION}")
-    endif()
-  endif()
+  get_host_standard_compile_option(${lang} _option)
+  list(PREPEND BUILD_COMPILE_OPTIONS "${_option}")
 
   # Set system include directories
   separate_host_arguments(BUILD_IMPLICIT_INCLUDE_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}")
