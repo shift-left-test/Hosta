@@ -36,10 +36,11 @@ find_host_compiler(C)
 
 # Check if a host compiler is available
 if(NOT CMAKE_HOSTC_COMPILER)
-  file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-    "The CMAKE_HOSTC_COMPILER:\n ${CMAKE_HOSTC_COMPILER_LIST}\n\n is not a full path and was not found in the PATH.\n\n"
+  host_logging_error(
+    "The CMAKE_HOSTC_COMPILER:"
+    "  ${CMAKE_HOSTC_COMPILER_LIST}\n"
+    "is not a full path and was not found in the PATH."
   )
-  message(FATAL_ERROR "The CMAKE_HOSTC_COMPILER:\n  ${CMAKE_HOSTC_COMPILER_LIST}\n\n is not a full path and was not found in the PATH.\n")
 endif()
 
 # Build a small source file to identify the compiler.

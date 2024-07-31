@@ -319,10 +319,7 @@ function(add_host_executable TARGET)
   cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
   if(NOT BUILD_SOURCES)
-    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-      "No SOURCES given to target: ${TARGET}\n\n"
-    )
-    message(FATAL_ERROR "No SOURCES given to target: ${TARGET}\n")
+    host_logging_error("No SOURCES given to target: ${TARGET}")
   endif()
 
   find_host_language(lang "${BUILD_SOURCES}")
@@ -366,10 +363,7 @@ function(add_host_executable TARGET)
       set(_path "${CMAKE_CURRENT_SOURCE_DIR}/${_source}")
     endif()
     if(NOT EXISTS "${_path}")
-      file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-        "Cannot find source file:\n  ${_source}\n\n"
-      )
-      message(FATAL_ERROR "Cannot find source file:\n  ${_source}\n")
+      host_logging_error("Cannot find source file:\n  ${_source}")
     endif()
 
     # Resolve file dependencies
@@ -413,20 +407,14 @@ function(add_host_library TARGET TYPE)
   if(TYPE IN_LIST _supported_types)
     set(BUILD_TYPE "HOST_${TYPE}")
   else()
-    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-      "Unsupported library type: ${TYPE}\n\n"
-    )
-    message(FATAL_ERROR "Unsupported library type: ${TYPE}\n")
+    host_logging_error("Unsupported library type: ${TYPE}")
   endif()
 
   set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
   if(NOT BUILD_SOURCES)
-    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-      "No SOURCES given to target: ${TARGET}\n\n"
-    )
-    message(FATAL_ERROR "No SOURCES given to target: ${TARGET}\n")
+    host_logging_error("No SOURCES given to target: ${TARGET}")
   endif()
 
   find_host_language(lang "${BUILD_SOURCES}")
@@ -450,10 +438,7 @@ function(add_host_library TARGET TYPE)
       set(_path "${CMAKE_CURRENT_SOURCE_DIR}/${_source}")
     endif()
     if(NOT EXISTS "${_path}")
-      file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-        "Cannot find source file:\n  ${_source}\n\n"
-      )
-      message(FATAL_ERROR "Cannot find source file:\n  ${_source}\n")
+      host_logging_error("Cannot find source file:\n  ${_source}")
     endif()
 
     do_host_compile(${lang} _output

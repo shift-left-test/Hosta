@@ -5,6 +5,12 @@ include_guard(GLOBAL)
 
 include(CMakeParseArguments)
 
+function(host_logging_error)
+  list(JOIN ARGN "\n" _messages)
+  file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log "${_messages}\n\n")
+  message(FATAL_ERROR "${_messages}\n")
+endfunction(host_logging_error)
+
 macro(load_host_compiler_preferences lang)
   include(${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION}/CMakeHOST${lang}Compiler.cmake OPTIONAL)
 endmacro(load_host_compiler_preferences)
@@ -69,10 +75,7 @@ endfunction(find_host_compiler)
 
 function(find_host_compiler_id lang)
   if(NOT CMAKE_HOST${lang}_COMPILER)
-    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-      "CMake Error: CMAKE_HOST${lang}_COMPILER not set\n\n"
-    )
-    message(FATAL_ERROR "CMake Error: CMAKE_HOST${lang}_COMPILER not set\n")
+    host_logging_error("CMake Error: CMAKE_HOST${lang}_COMPILER not set")
   endif()
 
   set(multiValueArgs FLAGS)
@@ -147,10 +150,7 @@ endfunction(find_host_compiler_id)
 function(set_host_platform_default_options lang)
   # Check if it is a supported platform
   if(NOT CMAKE_HOST${lang}_PLATFORM_ID MATCHES "CYGWIN.*|Cygwin|Linux|MinGW|Windows")
-    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-      "Builds hosted on '${CMAKE_HOST${lang}_PLATFORM_ID}' not supported.\n\n"
-    )
-    message(FATAL_ERROR "Builds hosted on '${CMAKE_HOST${lang}_PLATFORM_ID}' not supported.\n")
+    host_logging_error("Builds hosted on '${CMAKE_HOST${lang}_PLATFORM_ID}' not supported.")
   endif()
 
   # Set default object file extension
@@ -259,10 +259,7 @@ endfunction(parse_host_implicit_link_info)
 
 function(find_host_binutils lang)
   if(NOT CMAKE_HOST${lang}_COMPILER)
-    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-      "CMake Error: CMAKE_HOST${lang}_COMPILER not set\n\n"
-    )
-    message(FATAL_ERROR "CMake Error: CMAKE_HOST${lang}_COMPILER not set\n")
+    host_logging_error("CMake Error: CMAKE_HOST${lang}_COMPILER not set")
   endif()
 
   # Identify host compiler prefix if exists

@@ -26,7 +26,7 @@ cmake_print_variables(CMAKE_HOST_RANLIB)
 def test_unknown_host_compiler(testing):
     testing.write("CMakeLists.txt", content.format(compiler="unknown"))
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'The CMAKE_HOSTC_COMPILER:\n\n    unknown\n\n  \n\n   is not a full path and was not found in the PATH.' in testing.configure_internal(options).stderr
+    assert 'The CMAKE_HOSTC_COMPILER:\n\n    unknown\n\n  \n\n  is not a full path and was not found in the PATH.' in testing.configure_internal(options).stderr
 
 def test_find_binutils_of_cc_compiler(testing):
     testing.write("CMakeLists.txt", content.format(compiler="cc"))
