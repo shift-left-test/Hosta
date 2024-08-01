@@ -178,12 +178,6 @@ function(get_host_file_dependencies lang OUTPUT)
   # Resolve absolute path
   get_filename_component(BUILD_SOURCE ${BUILD_SOURCE} ABSOLUTE)
 
-  # Set include directories
-  separate_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_C}")
-
-  # Set compile options
-  separate_host_arguments(BUILD_COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}")
-
   # Resolve file dependencies
   set(BUILD_COMMAND
     ${CMAKE_HOST${lang}_COMPILER}
@@ -243,12 +237,6 @@ function(do_host_compile lang OUTPUT)
   # Set system include directories
   separate_host_arguments(BUILD_IMPLICIT_INCLUDE_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}")
 
-  # Set include directories
-  separate_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_C}")
-
-  # Set compile options
-  separate_host_arguments(BUILD_COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}")
-
   # Set path to the output file
   if(IS_ABSOLUTE "${BUILD_SOURCE}")
     file(RELATIVE_PATH BUILD_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} "${BUILD_SOURCE}")
@@ -280,6 +268,7 @@ function(do_host_compile lang OUTPUT)
     DEPENDS ${BUILD_FILE_DEPENDENCIES} ${BUILD_DEPENDS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Building HOST${lang} object ${_relative_output}"
+    COMMAND_EXPAND_LISTS
     VERBATIM
   )
 
@@ -322,6 +311,7 @@ function(do_host_link lang TARGET OUTPUT)
     DEPENDS ${BUILD_OBJECTS} ${BUILD_DEPENDS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Linking HOST${lang} executable ${_filename}"
+    COMMAND_EXPAND_LISTS
     VERBATIM
   )
 
@@ -338,9 +328,6 @@ function(add_host_executable TARGET)
 
   find_host_language(lang "${BUILD_SOURCES}")
 
-  # Replace host namespace prefix with host target prefix
-  get_host_target_names(BUILD_LINK_LIBRARIES "${BUILD_LINK_LIBRARIES}")
-
   # Convert relative include directories to absolute ones
   unset(_incdirs)
   foreach(_incdir IN LISTS BUILD_INCLUDE_DIRECTORIES)
@@ -348,6 +335,15 @@ function(add_host_executable TARGET)
     list(APPEND _incdirs "${_incdir}")
   endforeach()
   set(BUILD_INCLUDE_DIRECTORIES "${_incdirs}")
+
+  # Set include directories
+  separate_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_C}")
+
+  # Set compile options
+  separate_host_arguments(BUILD_COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}")
+
+  # Replace host namespace prefix with host target prefix
+  get_host_target_names(BUILD_LINK_LIBRARIES "${BUILD_LINK_LIBRARIES}")
 
   # Get interface properties of linking libraries
   unset(_extra_include_directories)
@@ -411,6 +407,9 @@ function(add_host_executable TARGET)
 endfunction(add_host_executable)
 
 function(add_host_library TARGET TYPE)
+  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
+  cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
+
   # Check if the type is supported
   set(_supported_types STATIC)
   if(TYPE IN_LIST _supported_types)
@@ -418,9 +417,6 @@ function(add_host_library TARGET TYPE)
   else()
     host_logging_error("Unsupported library type: ${TYPE}")
   endif()
-
-  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
-  cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
   if(NOT BUILD_SOURCES)
     host_logging_error("No SOURCES given to target: ${TARGET}")
@@ -436,6 +432,12 @@ function(add_host_library TARGET TYPE)
   endforeach()
   set(BUILD_INCLUDE_DIRECTORIES "${_incdirs}")
 
+  # Set include directories
+  separate_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_C}")
+
+  # Set compile options
+  separate_host_arguments(BUILD_COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}")
+
   # Compile source files
   unset(_objects)
 
@@ -449,6 +451,13 @@ function(add_host_library TARGET TYPE)
     if(NOT EXISTS "${_path}")
       host_logging_error("Cannot find source file:\n  ${_source}")
     endif()
+
+    # Resolve file dependencies
+    get_host_file_dependencies(${lang} _file_dependencies
+      SOURCE "${_source}"
+      INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
+      COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}"
+    )
 
     do_host_compile(${lang} _output
       SOURCE "${_source}"
@@ -472,6 +481,7 @@ function(add_host_library TARGET TYPE)
       DEPENDS ${_objects} ${BUILD_DEPENDS}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Linking HOST${lang} static library ${_filename}"
+      COMMAND_EXPAND_LISTS
       VERBATIM
     )
   else()
