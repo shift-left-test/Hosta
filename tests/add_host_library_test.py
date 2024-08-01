@@ -7,30 +7,76 @@ SPDX-License-Identifier: MIT
 
 import pytest
 
-content = '''
-cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
-
-project(CMakeTest LANGUAGES NONE)
-
-include(cmake/HostBuild.cmake)
-
-add_host_library(hello {type}
-  SOURCES {source}
-)
-'''
-
 def test_unknown_type(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(hello unknown SOURCES hello.c)
+    '''
     testing.write("hello.c", "void hello() {}")
-    testing.write("CMakeLists.txt", content.format(type="unknown", source="hello.c"))
+    testing.write("CMakeLists.txt", content)
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     assert 'Unsupported library type: unknown' in testing.configure_internal(options).stderr
 
-def test_static_library_no_source(testing):
-    testing.write("CMakeLists.txt", content.format(type="STATIC", source=""))
+def test_no_source(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(hello STATIC)
+    '''
+    testing.write("CMakeLists.txt", content)
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     assert 'No SOURCES given to target: hello' in testing.configure_internal(options).stderr
 
-def test_static_library_unknown_source(testing):
-    testing.write("CMakeLists.txt", content.format(type="STATIC", source="unknown.c"))
+def test_unknown_source(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(hello STATIC SOURCES unknown.c)
+    '''
+    testing.write("CMakeLists.txt", content)
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     assert 'Cannot find source file:\n\n    unknown.c' in testing.configure_internal(options).stderr
+
+def test_sources(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(main STATIC SOURCES hello.c world.c)
+    '''
+    testing.write("hello.c", "void hello() { }")
+    testing.write("world.c", "void world() { }")
+    testing.write("CMakeLists.txt", content)
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    testing.configure_internal(options).check_returncode()
+    testing.cmake("host-targets").check_returncode()
+
+def test_include_directories(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(hello STATIC SOURCES hello.c INCLUDE_DIRECTORIES first second)
+    '''
+    testing.write("hello.c", "int hello() { return 0; }")
+    testing.write("CMakeLists.txt", content)
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    testing.configure_internal(options).check_returncode()
+    assert f'-I{testing.workspace}/first -I{testing.workspace}/second' in testing.cmake("host-targets", verbose=True).stdout
+
+def test_link_options(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(hello STATIC SOURCES hello.c LINK_OPTIONS -fprofile-arcs -lm)
+    '''
+    testing.write("hello.c", "int hello() { return 0; }")
+    testing.write("CMakeLists.txt", content)
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    testing.configure_internal(options).check_returncode()
+    testing.cmake("host-targets").check_returncode()
