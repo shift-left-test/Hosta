@@ -7,6 +7,32 @@ SPDX-License-Identifier: MIT
 
 import pytest
 
+def test_existing_target(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(hello STATIC SOURCES hello.c)
+    add_host_library(hello STATIC SOURCES hello.c)
+    '''
+    testing.write("hello.c", "void hello() {}")
+    testing.write("CMakeLists.txt", content)
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    assert 'add_custom_target cannot create target "HOST-hello"' in testing.configure_internal(options).stderr
+
+def test_host_namespace_target(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(Host::hello STATIC SOURCES hello.c)
+    '''
+    testing.write("hello.c", "int hello() { return 0; }")
+    testing.write("CMakeLists.txt", content)
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    testing.configure_internal(options).check_returncode()
+    assert 'Linking HOSTC static library libhello.a' in testing.cmake("host-targets", verbose=True).stdout
+
 def test_unknown_type(testing):
     content = '''
     cmake_minimum_required(VERSION 3.16)

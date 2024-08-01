@@ -322,6 +322,9 @@ function(add_host_executable TARGET)
   set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_LIBRARIES LINK_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
+  # Remove host namespace prefix if exists
+  remove_host_namespace_prefix(TARGET "${TARGET}")
+
   if(NOT BUILD_SOURCES)
     host_logging_error("No SOURCES given to target: ${TARGET}")
   endif()
@@ -414,6 +417,9 @@ endfunction(add_host_executable)
 function(add_host_library TARGET TYPE)
   set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
+
+  # Remove host namespace prefix if exists
+  remove_host_namespace_prefix(TARGET "${TARGET}")
 
   # Check if the type is supported
   set(_supported_types STATIC)

@@ -7,6 +7,32 @@ SPDX-License-Identifier: MIT
 
 import pytest
 
+def test_existing_target(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_executable(hello SOURCES main.c)
+    add_host_executable(hello SOURCES main.c)
+    '''
+    testing.write("main.c", "int main() { return 0; }")
+    testing.write("CMakeLists.txt", content)
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    assert 'add_custom_target cannot create target "HOST-hello"' in testing.configure_internal(options).stderr
+
+def test_host_namespace_target(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_executable(Host::hello SOURCES main.c)
+    '''
+    testing.write("main.c", "int main() { return 0; }")
+    testing.write("CMakeLists.txt", content)
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    testing.configure_internal(options).check_returncode()
+    assert 'Linking HOSTC executable hello' in testing.cmake("host-targets", verbose=True).stdout
+
 def test_no_source(testing):
     content = '''
     cmake_minimum_required(VERSION 3.16)
