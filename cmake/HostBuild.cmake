@@ -39,6 +39,15 @@ function(get_host_target_name OUTPUT INPUT)
   set(${OUTPUT} ${_result} PARENT_SCOPE)
 endfunction(get_host_target_name)
 
+function(get_host_target_names OUTPUT INPUT)
+  unset(_result)
+  foreach(arg IN LISTS INPUT)
+    get_host_target_name(_target "${arg}")
+    list(APPEND _result "${_target}")
+  endforeach()
+  set(${OUTPUT} ${_result} PARENT_SCOPE)
+endfunction(get_host_target_names)
+
 # Define custom target properties
 define_property(TARGET PROPERTY HOST_TYPE
   BRIEF_DOCS "Type of the host target"
@@ -330,12 +339,7 @@ function(add_host_executable TARGET)
   find_host_language(lang "${BUILD_SOURCES}")
 
   # Replace host namespace prefix with host target prefix
-  unset(_libs)
-  foreach(_lib IN LISTS BUILD_LINK_LIBRARIES)
-    get_host_target_name(_target "${_lib}")
-    list(APPEND _libs "${_target}")
-  endforeach()
-  set(BUILD_LINK_LIBRARIES "${_libs}")
+  get_host_target_names(BUILD_LINK_LIBRARIES "${BUILD_LINK_LIBRARIES}")
 
   # Convert relative include directories to absolute ones
   unset(_incdirs)
