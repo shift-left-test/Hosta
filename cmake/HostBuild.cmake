@@ -233,6 +233,15 @@ function(get_host_file_dependencies lang OUTPUT)
   set(${OUTPUT} ${_file_dependencies} PARENT_SCOPE)
 endfunction(get_host_file_dependencies)
 
+function(get_host_absolute_paths OUTPUT INPUT)
+  unset(_result)
+  foreach(_path IN LISTS INPUT)
+    get_filename_component(_path "${_path}" ABSOLUTE)
+    list(APPEND _result "${_path}")
+  endforeach()
+  set(${OUTPUT} ${_result} PARENT_SCOPE)
+endfunction(get_host_absolutepaths)
+
 function(get_host_standard_compile_option lang OUTPUT)
   if(DEFINED CMAKE_HOST${lang}_STANDARD)
     if(NOT DEFINED CMAKE_HOST${lang}${CMAKE_HOST${lang}_STANDARD}_STANDARD_COMPILE_OPTION)
@@ -358,15 +367,8 @@ function(add_host_executable TARGET)
 
   find_host_language(lang "${BUILD_SOURCES}")
 
-  # Convert relative include directories to absolute ones
-  unset(_incdirs)
-  foreach(_incdir IN LISTS BUILD_INCLUDE_DIRECTORIES)
-    get_filename_component(_incdir "${_incdir}" ABSOLUTE)
-    list(APPEND _incdirs "${_incdir}")
-  endforeach()
-  set(BUILD_INCLUDE_DIRECTORIES "${_incdirs}")
-
   # Set include directories
+  get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
   separate_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_C}")
 
   # Set compile options
@@ -462,15 +464,8 @@ function(add_host_library TARGET TYPE)
 
   find_host_language(lang "${BUILD_SOURCES}")
 
-  # Convert relative include directories to absolute ones
-  unset(_incdirs)
-  foreach(_incdir IN LISTS BUILD_INCLUDE_DIRECTORIES)
-    get_filename_component(_incdir "${_incdir}" ABSOLUTE)
-    list(APPEND _incdirs "${_incdir}")
-  endforeach()
-  set(BUILD_INCLUDE_DIRECTORIES "${_incdirs}")
-
   # Set include directories
+  get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
   separate_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_C}")
 
   # Set compile options
