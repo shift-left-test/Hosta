@@ -74,7 +74,7 @@ def test_include_directories(testing):
     cmake_minimum_required(VERSION 3.16)
     project(CMakeTest LANGUAGES NONE)
     include(cmake/HostBuild.cmake)
-    add_host_executable(hello SOURCES main.c INCLUDE_DIRECTORIES first second)
+    add_host_executable(hello SOURCES main.c INCLUDE_DIRECTORIES PRIVATE first second)
     '''
     testing.write("main.c", "int main() { return 0; }")
     testing.write("CMakeLists.txt", content)
@@ -87,7 +87,7 @@ def test_compile_options(testing):
     cmake_minimum_required(VERSION 3.16)
     project(CMakeTest LANGUAGES NONE)
     include(cmake/HostBuild.cmake)
-    add_host_executable(hello SOURCES main.c COMPILE_OPTIONS -DHELLO -DWORLD)
+    add_host_executable(hello SOURCES main.c COMPILE_OPTIONS PRIVATE -DHELLO -DWORLD)
     '''
     testing.write("main.c", "#ifdef HELLO void hello() { } \n #endif \n #ifdef WORLD \n int main() { return 0; } \n #endif")
     testing.write("CMakeLists.txt", content)
@@ -100,7 +100,7 @@ def test_link_options(testing):
     cmake_minimum_required(VERSION 3.16)
     project(CMakeTest LANGUAGES NONE)
     include(cmake/HostBuild.cmake)
-    add_host_executable(hello SOURCES main.c LINK_OPTIONS -fprofile-arcs -lm)
+    add_host_executable(hello SOURCES main.c LINK_OPTIONS PRIVATE -fprofile-arcs -lm)
     '''
     testing.write("main.c", "int main() { return 0; }")
     testing.write("CMakeLists.txt", content)
@@ -113,9 +113,9 @@ def test_link_libraries(testing):
     cmake_minimum_required(VERSION 3.16)
     project(CMakeTest LANGUAGES NONE)
     include(cmake/HostBuild.cmake)
-    add_host_executable(main SOURCES main.c LINK_LIBRARIES Host::hello Host::world)
-    add_host_library(hello STATIC SOURCES hello/hello.c INCLUDE_DIRECTORIES hello COMPILE_OPTIONS -DHELLO LINK_OPTIONS -fprofile-arcs)
-    add_host_library(world STATIC SOURCES world/world.c INCLUDE_DIRECTORIES world COMPILE_OPTIONS -DWORLD LINK_OPTIONS -lm)
+    add_host_executable(main SOURCES main.c LINK_LIBRARIES PRIVATE Host::hello Host::world)
+    add_host_library(hello STATIC SOURCES hello/hello.c INCLUDE_DIRECTORIES PUBLIC hello COMPILE_OPTIONS PUBLIC -DHELLO LINK_OPTIONS PUBLIC -fprofile-arcs)
+    add_host_library(world STATIC SOURCES world/world.c INCLUDE_DIRECTORIES PUBLIC world COMPILE_OPTIONS PUBLIC -DWORLD LINK_OPTIONS PUBLIC -lm)
     '''
     testing.write("CMakeLists.txt", content)
     testing.write("main.c", '#include "hello.h" \n #include "world.h" \n int main() { hello(); world(); return 0; }')

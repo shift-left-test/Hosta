@@ -86,7 +86,7 @@ def test_include_directories(testing):
     cmake_minimum_required(VERSION 3.16)
     project(CMakeTest LANGUAGES NONE)
     include(cmake/HostBuild.cmake)
-    add_host_library(hello STATIC SOURCES hello.c INCLUDE_DIRECTORIES first second)
+    add_host_library(hello STATIC SOURCES hello.c INCLUDE_DIRECTORIES PUBLIC first second)
     '''
     testing.write("hello.c", "int hello() { return 0; }")
     testing.write("CMakeLists.txt", content)
@@ -99,7 +99,7 @@ def test_link_options(testing):
     cmake_minimum_required(VERSION 3.16)
     project(CMakeTest LANGUAGES NONE)
     include(cmake/HostBuild.cmake)
-    add_host_library(hello STATIC SOURCES hello.c LINK_OPTIONS -fprofile-arcs -lm)
+    add_host_library(hello STATIC SOURCES hello.c LINK_OPTIONS PUBLIC -fprofile-arcs -lm)
     '''
     testing.write("hello.c", "int hello() { return 0; }")
     testing.write("CMakeLists.txt", content)

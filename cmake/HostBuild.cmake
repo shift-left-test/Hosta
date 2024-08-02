@@ -175,8 +175,8 @@ function(separate_host_scoped_arguments INPUT OUTPUT INTERFACE_OUTPUT)
   set(_result )
   set(_interface_result )
 
-  if(NOT "${INPUT}" MATCHES "PRIVATE.*|PUBLIC.*")
-    host_logging_error("The function called with invalid arguments. PRIVATE or PUBLIC keywords are required to specify the scope of the arguments.")
+  if(NOT "${INPUT}" MATCHES "^$|PRIVATE.*|PUBLIC.*")
+    host_logging_error("The function called with invalid arguments: '${INPUT}'\nPRIVATE or PUBLIC keywords are required to specify the scope of the arguments.")
   endif()
 
   while(INPUT)
@@ -240,7 +240,7 @@ function(get_host_absolute_paths OUTPUT INPUT)
     list(APPEND _result "${_path}")
   endforeach()
   set(${OUTPUT} ${_result} PARENT_SCOPE)
-endfunction(get_host_absolutepaths)
+endfunction(get_host_absolute_paths)
 
 function(get_host_standard_compile_option lang OUTPUT)
   if(DEFINED CMAKE_HOST${lang}_STANDARD)
@@ -355,7 +355,7 @@ function(do_host_link lang TARGET OUTPUT)
 endfunction(do_host_link)
 
 function(add_host_executable TARGET)
-  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_LIBRARIES LINK_OPTIONS DEPENDS)
+  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS LINK_LIBRARIES DEPENDS)
   cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
   # Remove host namespace prefix if exists
@@ -368,13 +368,19 @@ function(add_host_executable TARGET)
   find_host_language(lang "${BUILD_SOURCES}")
 
   # Set include directories
+  separate_host_scoped_arguments("${BUILD_INCLUDE_DIRECTORIES}" BUILD_INCLUDE_DIRECTORIES BUILD_INTERFACE_INCLUDE_DIRECTORIES)
   get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
   separate_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_C}")
 
   # Set compile options
+  separate_host_scoped_arguments("${BUILD_COMPILE_OPTIONS}" BUILD_COMPILE_OPTIONS BUILD_INTERFACE_COMPILE_OPTIONS)
   separate_host_arguments(BUILD_COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}")
 
-  # Replace host namespace prefix with host target prefix
+  # Set link options
+  separate_host_scoped_arguments("${BUILD_LINK_OPTIONS}" BUILD_LINK_OPTIONS BUILD_INTERFACE_LINK_OPTIONS)
+
+  # Set link libraries
+  separate_host_scoped_arguments("${BUILD_LINK_LIBRARIES}" BUILD_LINK_LIBRARIES BUILD_INTERFACE_LINK_LIBRARIES)
   get_host_target_names(BUILD_LINK_LIBRARIES "${BUILD_LINK_LIBRARIES}")
 
   # Get interface properties of linking libraries
@@ -465,11 +471,19 @@ function(add_host_library TARGET TYPE)
   find_host_language(lang "${BUILD_SOURCES}")
 
   # Set include directories
+  separate_host_scoped_arguments("${BUILD_INCLUDE_DIRECTORIES}" BUILD_INCLUDE_DIRECTORIES BUILD_INTERFACE_INCLUDE_DIRECTORIES)
   get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
   separate_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_C}")
+  get_host_absolute_paths(BUILD_INTERFACE_INCLUDE_DIRECTORIES "${BUILD_INTERFACE_INCLUDE_DIRECTORIES}")
+  separate_host_arguments(BUILD_INTERFACE_INCLUDE_DIRECTORIES "${BUILD_INTERFACE_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_C}")
 
   # Set compile options
+  separate_host_scoped_arguments("${BUILD_COMPILE_OPTIONS}" BUILD_COMPILE_OPTIONS BUILD_INTERFACE_COMPILE_OPTIONS)
   separate_host_arguments(BUILD_COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}")
+
+  # Set link options
+  separate_host_scoped_arguments("${BUILD_LINK_OPTIONS}" BUILD_LINK_OPTIONS BUILD_INTERFACE_LINK_OPTIONS)
+  separate_host_arguments(BUILD_LINK_OPTIONS "${BUILD_LINK_OPTIONS}")
 
   # Compile source files
   unset(_objects)
@@ -529,8 +543,8 @@ function(add_host_library TARGET TYPE)
     NAME "${TARGET}"
     TYPE "${BUILD_TYPE}"
     SOURCES "${BUILD_SOURCES}"
-    INTERFACE_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
-    INTERFACE_COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}"
-    INTERFACE_LINK_OPTIONS "${BUILD_LINK_OPTIONS}"
+    INTERFACE_INCLUDE_DIRECTORIES "${BUILD_INTERFACE_INCLUDE_DIRECTORIES}"
+    INTERFACE_COMPILE_OPTIONS "${BUILD_INTERFACE_COMPILE_OPTIONS}"
+    INTERFACE_LINK_OPTIONS "${BUILD_INTERFACE_LINK_OPTIONS}"
   )
 endfunction(add_host_library)

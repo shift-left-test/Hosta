@@ -54,12 +54,12 @@ To define an executable target for the host platform, use the `add_host_executba
 
 ```cmake
 add_host_executable(<target>
-  [SOURCES <sources>]
-  [INCLUDE_DIRECTORIES <include_directories>]
-  [COMPILE_OPTIONS <compile_options>]
-  [LINK_OPTIONS <link_options>]
-  [LINK_LIBRARIES <libraries>]
-  [DEPENDS <depends>]
+  [SOURCES <source>...]
+  [INCLUDE_DIRECTORIES <PRIVATE|PUBLIC> <include_directory>...]
+  [COMPILE_OPTIONS <PRIVATE|PUBLIC> <compile_option>...]
+  [LINK_OPTIONS <PRIVATE|PUBLIC> <link_option>...]
+  [LINK_LIBRARIES <PRIVATE|PUBLIC> <library>...]
+  [DEPENDS <depend>...]
 )
 
 # Parameters:
@@ -70,6 +70,9 @@ add_host_executable(<target>
 # - link_options: List of link options
 # - libraries: List of host libraries
 # - depends: List of dependencies
+
+# Scope:
+# - Arguments following both PRIVATE and PUBLIC are used to build the current target.
 ```
 
 ### Creating a Library for the Host Platform
@@ -78,11 +81,11 @@ To define a library target for the host platform, use the `add_host_library` fun
 
 ```cmake
 add_host_library(<target> <type>
-  [SOURCES <sources>]
-  [INCLUDE_DIRECTORIES <include_directories>]
-  [COMPILE_OPTIONS <compile_options>]
-  [LINK_OPTIONS <link_options>]
-  [DEPENDS <depends>]
+  [SOURCES <source>...]
+  [INCLUDE_DIRECTORIES <PRIVATE|PUBLIC> <include_directory>...]
+  [COMPILE_OPTIONS <PRIVATE|PUBLIC> <compile_option>...]
+  [LINK_OPTIONS <PRIVATE|PUBLIC> <link_option>...]
+  [DEPENDS <depend>...]
 )
 
 # Parameters:
@@ -93,6 +96,10 @@ add_host_library(<target> <type>
 # - compile_options: List of compile options
 # - link_options: List of link options
 # - depends: List of dependencies
+
+# Scope:
+# - Arguments following both PRIVATE and PUBLIC are used to build the current target.
+# - Arguments following PUBLIC are also used to build another target that links to the current target.
 ```
 
 ### Host Target Dependencies

@@ -25,6 +25,11 @@ def test_unknown_format(testing):
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     assert 'The function called with invalid arguments' in testing.configure_internal(options).stderr
 
+def test_empty_string(testing):
+    testing.write("CMakeLists.txt", content.format(text=""))
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    assert 'OUTPUT="" ; INTERFACE_OUTPUT=""' in testing.configure_internal(options).stdout
+
 def test_private_empty_value(testing):
     testing.write("CMakeLists.txt", content.format(text="PRIVATE"))
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
