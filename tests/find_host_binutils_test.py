@@ -46,7 +46,7 @@ def test_find_binutils_of_clang_compiler(testing):
     assert 'CMAKE_HOST_AR="/usr/bin/ar"' in testing.configure_internal(options).stdout
     assert 'CMAKE_HOST_RANLIB="/usr/bin/ranlib"' in testing.configure_internal(options).stdout
 
-def test_find_binutils_of_clang_compiler(testing):
+def test_find_binutils_of_mingw_compiler(testing):
     testing.write("CMakeLists.txt", content.format(compiler="i686-w64-mingw32-gcc"))
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     assert 'CMAKE_HOST_AR="/usr/bin/i686-w64-mingw32-ar"' in testing.configure_internal(options).stdout
