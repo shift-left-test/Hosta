@@ -72,3 +72,20 @@ def test_no_depends(testing):
     testing.write("CMakeLists.txt", content)
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     assert 'hello exists' in testing.configure_internal(options).stdout
+
+def test_multiple_dependencies(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_custom_target(HOST-second COMMAND echo "second")
+    add_custom_target(HOST-third COMMAND echo "third")
+    add_host_custom_target(Host::first DEPENDS "Host::second;Host::third")
+    '''
+    testing.write("CMakeLists.txt", content)
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    testing.configure_internal(options).check_returncode()
+    stdout = testing.cmake("HOST-first", verbose=True).stdout
+    assert 'Built target HOST-first' in stdout
+    assert 'Built target HOST-second' in stdout
+    assert 'Built target HOST-third' in stdout

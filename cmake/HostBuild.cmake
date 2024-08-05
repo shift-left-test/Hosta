@@ -148,16 +148,16 @@ function(add_host_dependencies TARGET DEPENDENCIES)
 endfunction(add_host_dependencies)
 
 function(add_host_custom_target TARGET)
-  set(oneValueArgs DEPENDS)
-  cmake_parse_arguments(ARG "" "${oneValueArgs}" "" ${ARGN})
+  set(multiValueArgs DEPENDS)
+  cmake_parse_arguments(ARG "" "" "${multiValueArgs}" ${ARGN})
 
   get_host_target_name(TARGET "${TARGET}")
 
   if(ARG_DEPENDS)
-    get_host_target_name(DEPENDENCIES "${ARG_DEPENDS}")
-    add_custom_target("${TARGET}" DEPENDS "${DEPENDENCIES}")
+    get_host_target_names(DEPENDENCIES "${ARG_DEPENDS}")
+    add_custom_target(${TARGET} DEPENDS ${DEPENDENCIES})
   else()
-    add_custom_target("${TARGET}")
+    add_custom_target(${TARGET})
   endif()
 endfunction(add_host_custom_target)
 
