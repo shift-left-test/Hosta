@@ -56,3 +56,19 @@ def test_host_depend_name(testing):
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     testing.configure_internal(options).check_returncode()
     assert 'Built target HOST-B' in testing.cmake("TARGET").stdout
+
+def test_no_depends(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_custom_target(hello)
+    if(TARGET hello)
+      message(STATUS "hello exists")
+    else()
+      message(STATUS "hello not exists")
+    endif()
+    '''
+    testing.write("CMakeLists.txt", content)
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    assert 'hello exists' in testing.configure_internal(options).stdout

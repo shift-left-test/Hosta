@@ -143,18 +143,21 @@ endfunction(set_host_target_properties)
 
 function(add_host_dependencies TARGET DEPENDENCIES)
   get_host_target_name(TARGET "${TARGET}")
-  get_host_target_name(DEPENDENCIES "${DEPENDENCIES}")
-  add_dependencies("${TARGET}" "${DEPENDENCIES}")
+  get_host_target_names(DEPENDENCIES "${DEPENDENCIES}")
+  add_dependencies(${TARGET} ${DEPENDENCIES})
 endfunction(add_host_dependencies)
 
 function(add_host_custom_target TARGET)
   set(oneValueArgs DEPENDS)
   cmake_parse_arguments(ARG "" "${oneValueArgs}" "" ${ARGN})
 
+  get_host_target_name(TARGET "${TARGET}")
+
   if(ARG_DEPENDS)
-    get_host_target_name(TARGET "${TARGET}")
     get_host_target_name(DEPENDENCIES "${ARG_DEPENDS}")
     add_custom_target("${TARGET}" DEPENDS "${DEPENDENCIES}")
+  else()
+    add_custom_target("${TARGET}")
   endif()
 endfunction(add_host_custom_target)
 
@@ -439,7 +442,6 @@ function(add_host_executable TARGET)
   )
 
   add_host_custom_target("${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}" DEPENDS "${_output}")
-
   add_host_dependencies("${CMAKE_HOST_BUILD_TARGET}" "${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}")
 
   set_host_target_properties(${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}
@@ -536,7 +538,6 @@ function(add_host_library TARGET TYPE)
   endif()
 
   add_host_custom_target("${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}" DEPENDS "${_output}")
-
   add_host_dependencies("${CMAKE_HOST_BUILD_TARGET}" "${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}")
 
   set_host_target_properties(${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}
