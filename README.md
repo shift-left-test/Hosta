@@ -151,6 +151,8 @@ The following CMake variables can be used to configure internal behaviors:
 
 - `CMAKE_HOST${lang}_COMPILER_LIST`: This variable is used to find the host compiler
 - `CMAKE_HOST${lang}_OUTPUT_EXTENSION`: Defines the extension for object files
+- `CMAKE_HOST${lang}_STANDARD`: Defines the language standard version
+- `CMAKE_HOST${lang}_EXTENSIONS`: Specifies whether compiler-specific extensions are required
 - `CMAKE_HOST_EXECUTABLE_SUFFIX`: Defines the extension for executable files
 - `CMAKE_HOST_STATIC_LIBRARY_PREFIX`: Defines the prefix for static libraries
 - `CMAKE_HOST_STATIC_LIBRARY_SUFFIX`: Defines the extension for static libraries
