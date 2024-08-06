@@ -364,12 +364,6 @@ function(add_host_executable TARGET)
   # Remove host namespace prefix if exists
   remove_host_namespace_prefix(TARGET "${TARGET}")
 
-  if(NOT BUILD_SOURCES)
-    host_logging_error("No SOURCES given to target: ${TARGET}")
-  endif()
-
-  find_host_language(lang "${BUILD_SOURCES}")
-
   # Set include directories
   separate_host_scoped_arguments("${BUILD_INCLUDE_DIRECTORIES}" BUILD_INCLUDE_DIRECTORIES BUILD_INTERFACE_INCLUDE_DIRECTORIES)
   get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
@@ -400,8 +394,14 @@ function(add_host_executable TARGET)
 
   # Add static library paths as link option
   foreach(_lib IN LISTS BUILD_LINK_LIBRARIES)
-    list(APPEND _extra_link_options "$<$<BOOL:${_lib}>:$<TARGET_PROPERTY:${_lib},BINARY_DIR>/${CMAKE_HOST_STATIC_LIBRARY_PREFIX}$<TARGET_PROPERTY:${_lib},HOST_NAME>${CMAKE_HOST_STATIC_LIBRARY_SUFFIX}>")
+    list(APPEND _extra_link_options "$<$<AND:$<BOOL:${_lib}>,$<STREQUAL:$<TARGET_PROPERTY:${_lib},HOST_TYPE>,HOST_STATIC>>:$<TARGET_PROPERTY:${_lib},BINARY_DIR>/${CMAKE_HOST_STATIC_LIBRARY_PREFIX}$<TARGET_PROPERTY:${_lib},HOST_NAME>${CMAKE_HOST_STATIC_LIBRARY_SUFFIX}>")
   endforeach()
+
+  if(NOT BUILD_SOURCES)
+    host_logging_error("No SOURCES given to target: ${TARGET}")
+  endif()
+
+  find_host_language(lang "${BUILD_SOURCES}")
 
   # Compile source files
   unset(_objects)
@@ -458,20 +458,6 @@ function(add_host_library TARGET TYPE)
   # Remove host namespace prefix if exists
   remove_host_namespace_prefix(TARGET "${TARGET}")
 
-  # Check if the type is supported
-  set(_supported_types STATIC)
-  if(TYPE IN_LIST _supported_types)
-    set(BUILD_TYPE "HOST_${TYPE}")
-  else()
-    host_logging_error("Unsupported library type: ${TYPE}")
-  endif()
-
-  if(NOT BUILD_SOURCES)
-    host_logging_error("No SOURCES given to target: ${TARGET}")
-  endif()
-
-  find_host_language(lang "${BUILD_SOURCES}")
-
   # Set include directories
   separate_host_scoped_arguments("${BUILD_INCLUDE_DIRECTORIES}" BUILD_INCLUDE_DIRECTORIES BUILD_INTERFACE_INCLUDE_DIRECTORIES)
   get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
@@ -487,42 +473,50 @@ function(add_host_library TARGET TYPE)
   separate_host_scoped_arguments("${BUILD_LINK_OPTIONS}" BUILD_LINK_OPTIONS BUILD_INTERFACE_LINK_OPTIONS)
   separate_host_arguments(BUILD_LINK_OPTIONS "${BUILD_LINK_OPTIONS}")
 
-  # Compile source files
-  unset(_objects)
+  set(BUILD_TYPE "HOST_${TYPE}")
 
-  foreach(_source IN LISTS BUILD_SOURCES)
-    # Check if the source file exists
-    if(IS_ABSOLUTE "${_source}")
-      set(_path "${_source}")
-    else()
-      set(_path "${CMAKE_CURRENT_SOURCE_DIR}/${_source}")
-    endif()
-    if(NOT EXISTS "${_path}")
-      host_logging_error("Cannot find source file:\n  ${_source}")
-    endif()
-
-    # Resolve file dependencies
-    get_host_file_dependencies(${lang} _file_dependencies
-      SOURCE "${_source}"
-      INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
-      COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}"
-    )
-
-    do_host_compile(${lang} _output
-      SOURCE "${_source}"
-      TARGET "${CMAKE_HOST_STATIC_LIBRARY_PREFIX}${TARGET}${CMAKE_HOST_STATIC_LIBRARY_SUFFIX}"
-      INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
-      COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}"
-      DEPENDS "${BUILD_DEPENDS}"
-    )
-    list(APPEND _objects ${_output})
-  endforeach()
-
-  set(_filename "${CMAKE_HOST_STATIC_LIBRARY_PREFIX}${TARGET}${CMAKE_HOST_STATIC_LIBRARY_SUFFIX}")
-  set(_output "${CMAKE_CURRENT_BINARY_DIR}/${_filename}")
-
-  # Archive object files to create a static library
   if(BUILD_TYPE STREQUAL "HOST_STATIC")
+    if(NOT BUILD_SOURCES)
+      host_logging_error("No SOURCES given to target: ${TARGET}")
+    endif()
+
+    find_host_language(lang "${BUILD_SOURCES}")
+
+    # Compile source files
+    unset(_objects)
+
+    foreach(_source IN LISTS BUILD_SOURCES)
+      # Check if the source file exists
+      if(IS_ABSOLUTE "${_source}")
+        set(_path "${_source}")
+      else()
+        set(_path "${CMAKE_CURRENT_SOURCE_DIR}/${_source}")
+      endif()
+      if(NOT EXISTS "${_path}")
+        host_logging_error("Cannot find source file:\n  ${_source}")
+      endif()
+
+      # Resolve file dependencies
+      get_host_file_dependencies(${lang} _file_dependencies
+        SOURCE "${_source}"
+        INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
+        COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}"
+      )
+
+      do_host_compile(${lang} _output
+        SOURCE "${_source}"
+        TARGET "${CMAKE_HOST_STATIC_LIBRARY_PREFIX}${TARGET}${CMAKE_HOST_STATIC_LIBRARY_SUFFIX}"
+        INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
+        COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}"
+        DEPENDS "${BUILD_DEPENDS}"
+      )
+      list(APPEND _objects ${_output})
+    endforeach()
+
+    set(_filename "${CMAKE_HOST_STATIC_LIBRARY_PREFIX}${TARGET}${CMAKE_HOST_STATIC_LIBRARY_SUFFIX}")
+    set(_output "${CMAKE_CURRENT_BINARY_DIR}/${_filename}")
+
+    # Archive object files to create a static library
     add_custom_command(
       OUTPUT ${_output}
       COMMAND ${CMAKE_HOST_AR} rc ${_output} ${_objects}
@@ -533,11 +527,17 @@ function(add_host_library TARGET TYPE)
       COMMAND_EXPAND_LISTS
       VERBATIM
     )
+    add_host_custom_target("${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}" DEPENDS "${_output}")
+  elseif(BUILD_TYPE STREQUAL "HOST_INTERFACE")
+    if(BUILD_SOURCES)
+      host_logging_error("add_host_library INTERFACE requires no source arguments.")
+    endif()
+    # Create a phony target for an interface library
+    add_host_custom_target("${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}")
   else()
-    message(FATAL_ERROR "Unsupported library type: ${TYPE}\n")
+    host_logging_error("Unsupported library type: ${TYPE}")
   endif()
 
-  add_host_custom_target("${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}" DEPENDS "${_output}")
   add_host_dependencies("${CMAKE_HOST_BUILD_TARGET}" "${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}")
 
   set_host_target_properties(${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}

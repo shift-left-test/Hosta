@@ -5,7 +5,6 @@ cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
 option(WITH_CROSS_TOOLCHAIN "Enable cross toolchain" ON)
 option(WITH_HOST_TEST "Enable host based testing" ON)
-option(WITH_COVERAGE_OPTIONS "Enable coverage options" ON)
 option(WITH_DEBUG_SYMBOL "Enable debug symbol" OFF)
 option(WITH_LIBM "Enable math library" OFF)
 
@@ -39,11 +38,6 @@ endif()
 
 include(cmake/HostTest.cmake)
 
-if(WITH_COVERAGE_OPTIONS)
-  list(APPEND HOST_COMPILE_OPTIONS -ftest-coverage -fprofile-arcs -O0)
-  list(APPEND HOST_LINK_OPTIONS -fprofile-arcs)
-endif()
-
 if(WITH_DEBUG_SYMBOL)
   list(APPEND HOST_COMPILE_OPTIONS -g)
 endif()
@@ -56,12 +50,17 @@ add_custom_target(hello
   COMMAND echo "hello"
 )
 
+add_host_library(coverage INTERFACE
+  COMPILE_OPTIONS PUBLIC -ftest-coverage -fprofile-arcs -O0
+  LINK_OPTIONS PUBLIC -fprofile-arcs
+)
+
 add_host_executable(unittest
   SOURCES src/calc.c test/unity_test_main.c
   INCLUDE_DIRECTORIES PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/test
   COMPILE_OPTIONS PRIVATE ${HOST_COMPILE_OPTIONS}
   LINK_OPTIONS PRIVATE ${HOST_LINK_OPTIONS}
-  LINK_LIBRARIES PRIVATE Host::unity
+  LINK_LIBRARIES PRIVATE Host::unity Host::coverage
   DEPENDS hello
 )
 

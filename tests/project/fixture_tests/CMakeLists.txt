@@ -3,7 +3,7 @@ add_host_executable(no_unity_fixture_test
   INCLUDE_DIRECTORIES PRIVATE ../src
   COMPILE_OPTIONS PRIVATE ${HOST_COMPILE_OPTIONS}
   LINK_OPTIONS PRIVATE ${HOST_LINK_OPTIONS}
-  LINK_LIBRARIES PRIVATE Host::unity
+  LINK_LIBRARIES PRIVATE Host::unity Host::coverage
 )
 
 unity_fixture_add_host_tests(no_unity_fixture_test)
@@ -13,7 +13,7 @@ add_host_executable(unity_fixture_test
   INCLUDE_DIRECTORIES PRIVATE ../src
   COMPILE_OPTIONS PRIVATE ${HOST_COMPILE_OPTIONS}
   LINK_OPTIONS PRIVATE ${HOST_LINK_OPTIONS}
-  LINK_LIBRARIES PRIVATE Host::unity Host::unity-fixture
+  LINK_LIBRARIES PRIVATE Host::unity Host::unity-fixture Host::coverage
 )
 
 unity_fixture_add_host_tests(unity_fixture_test)

@@ -90,8 +90,8 @@ add_host_library(<target> <type>
 
 # Parameters:
 # - target: Specifies the name of the library target
-# - type: Type of the library (e.g. STATIC)
-# - sources: List of source files
+# - type: Type of the library (e.g. STATIC, INTERFACE)
+# - sources: List of source files (Note: INTERFACE library requires no source files)
 # - include_directories: List of include directories
 # - compile_options: List of compile options
 # - link_options: List of link options
