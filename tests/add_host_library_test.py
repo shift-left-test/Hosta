@@ -161,7 +161,7 @@ def test_interface_include_directories(testing):
     '''
     testing.write("CMakeLists.txt", content)
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert f'A="" ; B="-I{testing.workspace}/b"' in testing.configure_internal(options).stdout
+    assert f'A="" ; B="{testing.workspace}/b"' in testing.configure_internal(options).stdout
 
 def test_interface_compile_options(testing):
     content = '''
