@@ -103,7 +103,7 @@ else()
     SOURCE ${CMAKE_ROOT}/Modules/CMakeCCompilerABI.c
     TARGET CMakeDetermineCompilerABI_HOSTC.bin
     COMPILE_OPTIONS ${CMAKE_HOSTC_VERBOSE_FLAG}
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION}-hosta.internal
     RESULT_VARIABLE CMAKE_HOSTC_ABI_COMPILED
     OUTPUT_VARIABLE __CMAKE_HOSTC_ABI_COMPILED_OUTPUT
   )
@@ -113,7 +113,7 @@ else()
     file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
       "Detecting HOSTC compiler ABI info compiled with the following output:\n${__CMAKE_HOSTC_ABI_COMPILED_OUTPUT}\n\n"
     )
-    parse_host_compiler_abi_info(C ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION}/CMakeDetermineCompilerABI_HOSTC.bin)
+    parse_host_compiler_abi_info(C ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION}-hosta.internal/CMakeDetermineCompilerABI_HOSTC.bin)
     parse_host_implicit_include_info(C "${__CMAKE_HOSTC_ABI_COMPILED_OUTPUT}")
     parse_host_implicit_link_info(C "${__CMAKE_HOSTC_ABI_COMPILED_OUTPUT}")
   else()

@@ -12,16 +12,14 @@ function(host_logging_error)
 endfunction(host_logging_error)
 
 macro(load_host_compiler_preferences lang)
-  include(${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION}/CMakeHOST${lang}Compiler.cmake OPTIONAL)
+  include(${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION}-hosta.internal/CMakeHOST${lang}Compiler.cmake OPTIONAL)
 endmacro(load_host_compiler_preferences)
 
 function(save_host_compiler_preferences lang)
-  # Set internal directory path if missing
-  if(NOT CMAKE_PLATFORM_INFO_DIR)
-    set(CMAKE_PLATFORM_INFO_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION})
-  endif()
+  # Set internal directory path
+  set(INTERNAL_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION}-hosta.internal)
 
-  file(WRITE ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}Compiler.cmake.in
+  file(WRITE ${INTERNAL_DIR}/CMakeHOST${lang}Compiler.cmake.in
     "set(CMAKE_HOST${lang}_COMPILER \"@CMAKE_HOST${lang}_COMPILER@\")\n"
     "set(CMAKE_HOST${lang}_COMPILER_ID \"@CMAKE_HOST${lang}_COMPILER_ID@\")\n"
     "set(CMAKE_HOST${lang}_COMPILER_VERSION \"@CMAKE_HOST${lang}_COMPILER_VERSION@\")\n"
@@ -50,20 +48,20 @@ function(save_host_compiler_preferences lang)
 
   foreach(version IN LISTS versions)
     if(CMAKE_HOST${lang}${version}_STANDARD_COMPILE_OPTION)
-      file(APPEND ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}Compiler.cmake.in
+      file(APPEND ${INTERNAL_DIR}/CMakeHOST${lang}Compiler.cmake.in
         "set(CMAKE_HOST${lang}${version}_STANDARD_COMPILE_OPTION \"@CMAKE_HOST${lang}${version}_STANDARD_COMPILE_OPTION@\")\n"
       )
     endif()
     if(CMAKE_HOST${lang}${version}_EXTENSION_COMPILE_OPTION)
-      file(APPEND ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}Compiler.cmake.in
+      file(APPEND ${INTERNAL_DIR}/CMakeHOST${lang}Compiler.cmake.in
         "set(CMAKE_HOST${lang}${version}_EXTENSION_COMPILE_OPTION \"@CMAKE_HOST${lang}${version}_EXTENSION_COMPILE_OPTION@\")\n"
       )
     endif()
   endforeach()
 
   configure_file(
-    ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}Compiler.cmake.in
-    ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}Compiler.cmake
+    ${INTERNAL_DIR}/CMakeHOST${lang}Compiler.cmake.in
+    ${INTERNAL_DIR}/CMakeHOST${lang}Compiler.cmake
     @ONLY
   )
 endfunction(save_host_compiler_preferences)
@@ -98,25 +96,26 @@ function(find_host_compiler_id lang)
   set(CMAKE_${lang}_COMPILER_ID_TOOL_MATCH_REGEX "\nLd[^\n]*(\n[ \t]+[^\n]*)*\n[ \t]+([^ \t\r\n]+)[^\r\n]*-o[^\r\n]*CompilerId${lang}/(\\./)?(CompilerId${lang}.(framework|xctest)/)?CompilerId${lang}[ \t\n\\\"]")
   set(CMAKE_${lang}_COMPILER_ID_TOOL_MATCH_INDEX 2)
 
-  # Set internal directory path if missing
-  if(NOT CMAKE_PLATFORM_INFO_DIR)
-    set(CMAKE_PLATFORM_INFO_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION})
-  endif()
+  # Set internal directory path
+  set(INTERNAL_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION}-hosta.internal)
 
   # Copy the original file to temporary directory
   configure_file(
     ${CMAKE_ROOT}/Modules/CMake${lang}CompilerId.c.in
-    ${CMAKE_PLATFORM_INFO_DIR}/CMakeHOST${lang}CompilerId.c.in
+    ${INTERNAL_DIR}/CMakeHOST${lang}CompilerId.c.in
     COPYONLY
   )
 
   # Add the location of the above file to the module path
   set(_cmake_module_path ${CMAKE_MODULE_PATH})
-  list(APPEND CMAKE_MODULE_PATH ${CMAKE_PLATFORM_INFO_DIR})
+  list(APPEND CMAKE_MODULE_PATH ${INTERNAL_DIR})
 
   # Try to identify the compiler information
   include(CMakeDetermineCompilerId)
+  set(_cmake_platform_info_dir ${CMAKE_PLATFORM_INFO_DIR})
+  set(CMAKE_PLATFORM_INFO_DIR ${INTERNAL_DIR})
   CMAKE_DETERMINE_COMPILER_ID(${lang} HOST${lang}FLAGS CMakeHOST${lang}CompilerId.c)
+  set(CMAKE_PLATFORM_INFO_DIR ${_cmake_platform_info_dir})
 
   # Restore the original module path
   set(CMAKE_MODULE_PATH ${_cmake_module_path})
@@ -199,6 +198,11 @@ function(set_host_platform_default_options lang)
     else()
       set(CMAKE_HOST_STATIC_LIBRARY_SUFFIX ".a" PARENT_SCOPE)
     endif()
+  endif()
+
+  # Set default include flag prefix
+  if(NOT CMAKE_INCLUDE_FLAG_HOST${lang})
+    set(CMAKE_INCLUDE_FLAG_HOST${lang} "-I" PARENT_SCOPE)
   endif()
 endfunction(set_host_platform_default_options)
 

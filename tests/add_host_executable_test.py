@@ -150,3 +150,37 @@ def test_link_interface_libraries(testing):
     assert f'-I{testing.workspace}/hello -I{testing.workspace}/world' in stdout
     assert '-DHELLO -DWORLD' in stdout
     assert '-fprofile-arcs -lm' in stdout
+
+def test_executable_rebuild(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_executable(main SOURCES main.c)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.write("main.c", "int main() { return 0; }")
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    testing.configure_internal(options).check_returncode()
+    assert 'Scanning dependencies of target HOST-main' in testing.cmake("host-targets").stdout
+    assert not 'Scanning dependencies of target HOST-main' in testing.cmake("host-targets").stdout
+
+def test_include_before_project(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    include(cmake/HostBuild.cmake)
+    project(CMakeTest LANGUAGES NONE)
+    add_host_executable(main SOURCES main.c LINK_LIBRARIES PRIVATE Host::hello Host::world)
+    add_host_library(hello INTERFACE INCLUDE_DIRECTORIES PUBLIC hello COMPILE_OPTIONS PUBLIC -DHELLO LINK_OPTIONS PUBLIC -fprofile-arcs)
+    add_host_library(world INTERFACE INCLUDE_DIRECTORIES PUBLIC world COMPILE_OPTIONS PUBLIC -DWORLD LINK_OPTIONS PUBLIC -lm)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.write("main.c", 'int main() { return 0; }')
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    testing.configure_internal(options).check_returncode()
+    process = testing.cmake("host-targets", verbose=True)
+    process.check_returncode()
+    stdout = process.stdout
+    assert f'-I{testing.workspace}/hello -I{testing.workspace}/world' in stdout
+    assert '-DHELLO -DWORLD' in stdout
+    assert '-fprofile-arcs -lm' in stdout

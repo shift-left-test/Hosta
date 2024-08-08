@@ -38,4 +38,4 @@ def test_test_targets_not_available(testing, cross_toolchain, generator, compile
 @PARAM_COMPILERS
 def test_test_compiler_info_available(testing, cross_toolchain, generator, compiler_list):
     testing.configure(testing_enabled=False, cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
-    assert testing.exists("CMakeFiles/3.16.3/CMakeHOSTCCompiler.cmake")
+    assert testing.exists("CMakeFiles/3.16.3-hosta.internal/CMakeHOSTCCompiler.cmake")
