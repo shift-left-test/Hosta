@@ -28,6 +28,7 @@ def test_host_compiler_info(testing_mingw):
     assert 'set(CMAKE_HOST_STATIC_LIBRARY_SUFFIX ".lib")' in compiler_info
     assert 'set(CMAKE_HOST_AR "/usr/bin/i686-w64-mingw32-ar")' in compiler_info
     assert 'set(CMAKE_HOST_RANLIB "/usr/bin/i686-w64-mingw32-ranlib")' in compiler_info
+    assert 'set(CMAKE_INCLUDE_FLAG_HOSTC "-I")' in compiler_info
     assert 'set(CMAKE_INCLUDE_SYSTEM_FLAG_HOSTC "-isystem ")' in compiler_info
     assert 'set(CMAKE_HOSTC11_STANDARD_COMPILE_OPTION "-std=c11")' in compiler_info
     assert 'set(CMAKE_HOSTC11_EXTENSION_COMPILE_OPTION "-std=gnu11")' in compiler_info
