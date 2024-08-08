@@ -1,9 +1,13 @@
+#include "fff.h"
 #include "unity_fixture.h"
 #include "calc.h"
+
+DEFINE_FFF_GLOBALS;
 
 TEST_GROUP(CalculatorTest);
 
 TEST_SETUP(CalculatorTest) {
+  FFF_RESET_HISTORY();
 }
 
 TEST_TEAR_DOWN(CalculatorTest) {

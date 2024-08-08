@@ -7,4 +7,8 @@ Open Source Software Package:
 - name: Unity
   source: https://github.com/ThrowTheSwitch/Unity
   license: MIT
-  copyright: Copyright (c) <year> 2007-23 Mike Karlesky, Mark VanderVoord, Greg Williams
+  copyright: Copyright (c) 2007-23 Mike Karlesky, Mark VanderVoord, Greg Williams
+- name: Fake Function Framework (fff)
+  source: https://github.com/meekrosoft/fff
+  license: MIT
+  copyright: Copyright (c) 2010 Michael Long

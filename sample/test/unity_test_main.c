@@ -1,7 +1,11 @@
+#include "fff.h"
 #include "unity.h"
 #include "calc.h"
 
+DEFINE_FFF_GLOBALS;
+
 void setUp() {
+  FFF_RESET_HISTORY();
 }
 
 void tearDown() {
