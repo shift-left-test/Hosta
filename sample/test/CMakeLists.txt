@@ -17,7 +17,7 @@ add_host_test(Host::unity_test)
 add_host_executable(unity_fixture_test
   SOURCES ../src/calc.c unity_fixture_test_main.c
   INCLUDE_DIRECTORIES PRIVATE ../src
-  LINK_LIBRARIES PRIVATE Host::unity Host::unity-fixture Host::fff Host::coverage
+  LINK_LIBRARIES PRIVATE Host::unity-fixture Host::unity Host::fff Host::coverage
 )
 
 unity_fixture_add_host_tests(Host::unity_fixture_test)
