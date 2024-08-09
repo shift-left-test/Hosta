@@ -166,7 +166,7 @@ function(add_host_custom_target TARGET)
   endif()
 endfunction(add_host_custom_target)
 
-function(separate_host_arguments OUTPUT INPUT)
+function(transform_host_arguments OUTPUT INPUT)
   set(oneValueArgs PREPEND)
   cmake_parse_arguments(ARG "" "${oneValueArgs}" "" ${ARGN})
 
@@ -174,9 +174,8 @@ function(separate_host_arguments OUTPUT INPUT)
   if(ARG_PREPEND)
     list(TRANSFORM _result PREPEND "${ARG_PREPEND}")
   endif()
-  separate_arguments(_result NATIVE_COMMAND "${_result}")
   set(${OUTPUT} ${_result} PARENT_SCOPE)
-endfunction(separate_host_arguments)
+endfunction(transform_host_arguments)
 
 function(separate_host_scoped_arguments INPUT OUTPUT INTERFACE_OUTPUT)
   set(_interface_mode FALSE)
@@ -232,7 +231,7 @@ function(get_host_file_dependencies lang OUTPUT)
   if(_result EQUAL 0)
     string(REPLACE " \\" "" _output "${_output}")
     string(REPLACE "\n" "" _output "${_output}")
-    separate_host_arguments(_file_dependencies "${_output}")
+    separate_arguments(_file_dependencies NATIVE_COMMAND "${_output}")
     list(REMOVE_AT _file_dependencies 0)
   else()
     set(_file_dependencies ${BUILD_SOURCE})
@@ -279,7 +278,17 @@ function(do_host_compile lang OUTPUT)
   list(PREPEND BUILD_COMPILE_OPTIONS "${_option}")
 
   # Set system include directories
-  separate_host_arguments(BUILD_IMPLICIT_INCLUDE_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}")
+  if(CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang} MATCHES ".*[ ]+$")
+    # Remove trailing whitespaces to prevent arguments from being quoted in command line
+    string(STRIP "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}" CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang})
+    set(BUILD_IMPLICIT_INCLUDE_DIRECTORIES )
+    foreach(dir IN LISTS CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES)
+      list(APPEND BUILD_IMPLICIT_INCLUDE_DIRECTORIES "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}")
+      list(APPEND BUILD_IMPLICIT_INCLUDE_DIRECTORIES "${dir}")
+    endforeach()
+  else()
+    transform_host_arguments(BUILD_IMPLICIT_INCLUDE_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}")
+  endif()
 
   # Set path to the output file
   if(IS_ABSOLUTE "${BUILD_SOURCE}")
@@ -324,16 +333,16 @@ function(do_host_link lang TARGET OUTPUT)
   cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
   # Set object files
-  separate_host_arguments(BUILD_OBJECTS "${BUILD_OBJECTS}")
+  separate_arguments(BUILD_OBJECTS NATIVE_COMMAND "${BUILD_OBJECTS}")
 
   # Set system library directories
-  separate_host_arguments(BUILD_IMPLICIT_LINK_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES}" PREPEND "${CMAKE_LIBRARY_PATH_FLAG}")
+  transform_host_arguments(BUILD_IMPLICIT_LINK_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES}" PREPEND "${CMAKE_LIBRARY_PATH_FLAG}")
 
   # Set system libraries
-  separate_host_arguments(BUILD_IMPLICIT_LINK_LIBRARIES "${CMAKE_HOST${lang}_IMPLICIT_LINK_LIBRARIES}" PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
+  transform_host_arguments(BUILD_IMPLICIT_LINK_LIBRARIES "${CMAKE_HOST${lang}_IMPLICIT_LINK_LIBRARIES}" PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
 
   # Set libraries
-  separate_host_arguments(BUILD_LINK_LIBRARIES "${BUILD_LINK_LIBRARIES}" PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
+  transform_host_arguments(BUILD_LINK_LIBRARIES "${BUILD_LINK_LIBRARIES}" PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
 
   set(_filename "${TARGET}${CMAKE_HOST_EXECUTABLE_SUFFIX}")
   set(_output "${CMAKE_CURRENT_BINARY_DIR}/${_filename}")
@@ -372,11 +381,10 @@ function(add_host_executable TARGET)
   # Set include directories
   separate_host_scoped_arguments("${BUILD_INCLUDE_DIRECTORIES}" BUILD_INCLUDE_DIRECTORIES BUILD_INTERFACE_INCLUDE_DIRECTORIES)
   get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
-  separate_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_HOSTC}")
+  transform_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_HOSTC}")
 
   # Set compile options
   separate_host_scoped_arguments("${BUILD_COMPILE_OPTIONS}" BUILD_COMPILE_OPTIONS BUILD_INTERFACE_COMPILE_OPTIONS)
-  separate_host_arguments(BUILD_COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}")
 
   # Set link options
   separate_host_scoped_arguments("${BUILD_LINK_OPTIONS}" BUILD_LINK_OPTIONS BUILD_INTERFACE_LINK_OPTIONS)
@@ -391,7 +399,7 @@ function(add_host_executable TARGET)
   unset(_extra_link_options)
   unset(_extra_dependencies)
   foreach(_lib IN LISTS BUILD_LINK_LIBRARIES)
-    list(APPEND _extra_include_directories "$<$<AND:$<BOOL:${_lib}>,$<BOOL:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>>>:${CMAKE_INCLUDE_FLAG_HOSTC}$<JOIN:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>, ${CMAKE_INCLUDE_FLAG_HOSTC}>>")
+    list(APPEND _extra_include_directories "$<$<AND:$<BOOL:${_lib}>,$<BOOL:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>>>:${CMAKE_INCLUDE_FLAG_HOSTC}$<JOIN:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>,$<SEMICOLON>${CMAKE_INCLUDE_FLAG_HOSTC}>>")
     list(APPEND _extra_compile_options "$<$<BOOL:${_lib}>:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_COMPILE_OPTIONS>>")
     list(APPEND _extra_link_options "$<$<BOOL:${_lib}>:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_LINK_OPTIONS>>")
     list(APPEND _extra_dependencies "$<$<BOOL:${_lib}>:${CMAKE_HOST_TARGET_PREFIX}$<TARGET_PROPERTY:${_lib},HOST_NAME>>")
@@ -466,16 +474,14 @@ function(add_host_library TARGET TYPE)
   # Set include directories
   separate_host_scoped_arguments("${BUILD_INCLUDE_DIRECTORIES}" BUILD_INCLUDE_DIRECTORIES BUILD_INTERFACE_INCLUDE_DIRECTORIES)
   get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
-  separate_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_HOSTC}")
+  transform_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_HOSTC}")
   get_host_absolute_paths(BUILD_INTERFACE_INCLUDE_DIRECTORIES "${BUILD_INTERFACE_INCLUDE_DIRECTORIES}")
 
   # Set compile options
   separate_host_scoped_arguments("${BUILD_COMPILE_OPTIONS}" BUILD_COMPILE_OPTIONS BUILD_INTERFACE_COMPILE_OPTIONS)
-  separate_host_arguments(BUILD_COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}")
 
   # Set link options
   separate_host_scoped_arguments("${BUILD_LINK_OPTIONS}" BUILD_LINK_OPTIONS BUILD_INTERFACE_LINK_OPTIONS)
-  separate_host_arguments(BUILD_LINK_OPTIONS "${BUILD_LINK_OPTIONS}")
 
   set(BUILD_TYPE "HOST_${TYPE}")
 

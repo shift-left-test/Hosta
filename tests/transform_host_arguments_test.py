@@ -14,7 +14,7 @@ project(CMakeTest LANGUAGES NONE)
 
 include(cmake/HostBuild.cmake)
 
-separate_host_arguments(OUTPUT "{data}" {args})
+transform_host_arguments(OUTPUT "{data}" {args})
 
 include(CMakePrintHelpers)
 cmake_print_variables(OUTPUT)

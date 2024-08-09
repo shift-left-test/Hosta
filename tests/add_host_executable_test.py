@@ -184,3 +184,17 @@ def test_include_before_project(testing):
     assert f'-I{testing.workspace}/hello -I{testing.workspace}/world' in stdout
     assert '-DHELLO -DWORLD' in stdout
     assert '-fprofile-arcs -lm' in stdout
+
+def test_generator_expression_options(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_executable(main SOURCES main.c COMPILE_OPTIONS PRIVATE $<TARGET_PROPERTY:HOST-hello,HOST_INTERFACE_COMPILE_OPTIONS>)
+    add_host_library(hello INTERFACE COMPILE_OPTIONS PUBLIC -DHELLO)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.write("main.c", '#ifdef HELLO \n int main() { return 0; } \n #endif')
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    testing.configure_internal(options).check_returncode()
+    testing.cmake("host-targets", verbose=True).check_returncode()
