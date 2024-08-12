@@ -233,3 +233,24 @@ def test_unity_fixture_add_host_tests_with_unused_test(testing, cross_toolchain,
     testing.cmake("host-targets").check_returncode()
     if compiler_list not in ["i686-w64-mingw32-gcc"]:
         assert 'unity_fixture_test.SecondGroup.test_divide .....***Skipped' in testing.ctest().stdout
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_host_interface_library(testing, cross_toolchain, generator, compiler_list):
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.cmake("HOST-coverage").check_returncode()
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_host_static_library(testing, cross_toolchain, generator, compiler_list):
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.cmake("HOST-unity").check_returncode()
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@PARAM_COMPILERS
+def test_host_executable(testing, cross_toolchain, generator, compiler_list):
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
+    testing.cmake("HOST-unittest").check_returncode()
