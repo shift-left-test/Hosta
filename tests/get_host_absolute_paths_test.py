@@ -33,3 +33,8 @@ def test_multiple_paths(testing):
     testing.write("CMakeLists.txt", content.format(paths="first;second"))
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     assert f'PATHS="{testing.workspace}/first;{testing.workspace}/second"' in testing.configure_internal(options).stdout
+
+def test_generator_expression(testing):
+    testing.write("CMakeLists.txt", content.format(paths="first;$<TARGET_PROPERTY:hello,SOURCES>;second"))
+    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
+    assert f'PATHS="{testing.workspace}/first;$<TARGET_PROPERTY:hello,SOURCES>;{testing.workspace}/second"' in testing.configure_internal(options).stdout
