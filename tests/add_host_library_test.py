@@ -197,7 +197,7 @@ def test_interface_link_options(testing):
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     assert f'A="" ; B="b"' in testing.configure_internal(options).stdout
 
-def test_static_rebuild(testing):
+def test_interface_rebuild(testing):
     content = '''
     cmake_minimum_required(VERSION 3.16)
     project(CMakeTest LANGUAGES NONE)
