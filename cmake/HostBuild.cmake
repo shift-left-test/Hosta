@@ -14,7 +14,11 @@ if(NOT _HOSTA_BASE_DIR)
 endif()
 
 include(CMakeParseArguments)
+
+# Set the list of enabled host languages
+unset(ENABLED_HOST_LANGUAGES)
 include(${_HOSTA_BASE_DIR}/DetermineHOSTCCompiler.cmake)
+list(REMOVE_DUPLICATES ENABLED_HOST_LANGUAGES)
 
 # Set default host build target name
 if(NOT CMAKE_HOST_BUILD_TARGET)
@@ -278,14 +282,43 @@ function(get_host_standard_compile_option lang OUTPUT)
 endfunction(get_host_standard_compile_option)
 
 function(find_host_language OUTPUT SOURCES)
-  # TODO: find appropriate language to compile source files
-  set(${OUTPUT} C PARENT_SCOPE)
+  # Collect source file extensions
+  unset(extensions)
+  foreach(source IN LISTS SOURCES)
+    get_filename_component(extension ${source} LAST_EXT)
+    list(APPEND extensions ${extension})
+  endforeach()
+
+  # Unable to find source file extensions
+  if(NOT extensions)
+    unset(${OUTPUT} PARENT_SCOPE)
+    return()
+  endif()
+
+  foreach(lang IN LISTS ENABLED_HOST_LANGUAGES)
+    # Remove all matching extensions
+    foreach(extension IN LISTS CMAKE_HOST${lang}_SOURCE_FILE_EXTENSIONS)
+      list(REMOVE_ITEM extensions ".${extension}")
+    endforeach()
+
+    # If no extensions left, the appropriate host language is found
+    if(NOT extensions)
+      set(${OUTPUT} ${lang} PARENT_SCOPE)
+      return()
+    endif()
+  endforeach()
+
+  # Unable to find the appropriate host language
+  unset(${OUTPUT} PARENT_SCOPE)
 endfunction(find_host_language)
 
 function(do_host_compile lang OUTPUT)
   set(oneValueArgs SOURCE TARGET)
   set(multiValueArgs INCLUDE_DIRECTORIES COMPILE_OPTIONS DEPENDS)
   cmake_parse_arguments(BUILD "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  # Reset the appropriate host language for each source file
+  find_host_language(lang "${BUILD_SOURCE}")
 
   # Set standard compile option
   get_host_standard_compile_option(${lang} _option)
@@ -429,6 +462,9 @@ function(add_host_executable TARGET)
   endif()
 
   find_host_language(lang "${BUILD_SOURCES}")
+  if(NOT lang)
+    host_logging_error("CMake Error: Cannot determine host language for target: ${TARGET}")
+  endif()
 
   # Compile source files
   unset(_objects)
@@ -505,6 +541,9 @@ function(add_host_library TARGET TYPE)
     endif()
 
     find_host_language(lang "${BUILD_SOURCES}")
+    if(NOT lang)
+      host_logging_error("CMake Error: Cannot determine host language for target: ${TARGET}")
+    endif()
 
     # Compile source files
     unset(_objects)

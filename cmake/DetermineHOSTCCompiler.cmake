@@ -8,6 +8,9 @@ if(NOT _HOSTA_BASE_DIR)
   set(_HOSTA_BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 endif()
 
+# Add the current host language to the list
+list(APPEND ENABLED_HOST_LANGUAGES C)
+
 # The compiler configuration was forced by the user.
 # Assume the user has configured all compiler information
 if(CMAKE_HOSTC_COMPILER_FORCED)
@@ -123,6 +126,9 @@ else()
     )
   endif()
 endif()
+
+# Set the host language specific file extensions
+set(CMAKE_HOSTC_SOURCE_FILE_EXTENSIONS c m)
 
 # Find BinUtils on the host platform
 find_host_binutils(C)
