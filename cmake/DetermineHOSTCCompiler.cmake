@@ -8,14 +8,12 @@ if(NOT _HOSTA_BASE_DIR)
   set(_HOSTA_BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 endif()
 
-# Add the current host language to the list
-list(APPEND ENABLED_HOST_LANGUAGES C)
-
 # The compiler configuration was forced by the user.
 # Assume the user has configured all compiler information
 if(CMAKE_HOSTC_COMPILER_FORCED)
-    set(CMAKE_HOSTC_COMPILER_WORKS TRUE)
-    return()
+  set(CMAKE_HOSTC_COMPILER_WORKS TRUE)
+  list(APPEND ENABLED_HOST_LANGUAGES C)
+  return()
 endif()
 
 include(${_HOSTA_BASE_DIR}/HostCompilerUtilities.cmake)
@@ -25,6 +23,7 @@ load_host_compiler_preferences(C)
 
 # Assume that the host compiler works properly
 if(CMAKE_HOSTC_COMPILER_WORKS)
+  list(APPEND ENABLED_HOST_LANGUAGES C)
   return()
 endif()
 
@@ -135,6 +134,9 @@ find_host_binutils(C)
 
 # Configure variables set in this file for fast reload later on
 save_host_compiler_preferences(C)
+
+# Add the current host language to the list
+list(APPEND ENABLED_HOST_LANGUAGES C)
 
 # Unset temporary variables
 unset(__CMAKE_HOSTC_COMPILER_WORKS_OUTPUT)
