@@ -101,9 +101,15 @@ function(find_host_compiler_id lang)
   set(INTERNAL_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION}-hosta.internal)
 
   # Copy the original file to temporary directory
+  # TODO: Fix the extension issue below
   configure_file(
-    ${CMAKE_ROOT}/Modules/CMake${lang}CompilerId.c.in
-    ${INTERNAL_DIR}/CMakeHOST${lang}CompilerId.c.in
+    ${CMAKE_ROOT}/Modules/CMakeCCompilerId.c.in
+    ${INTERNAL_DIR}/CMakeHOSTCCompilerId.c.in
+    COPYONLY
+  )
+  configure_file(
+    ${CMAKE_ROOT}/Modules/CMakeCXXCompilerId.cpp.in
+    ${INTERNAL_DIR}/CMakeHOSTCXXCompilerId.cpp.in
     COPYONLY
   )
 
@@ -115,7 +121,12 @@ function(find_host_compiler_id lang)
   include(CMakeDetermineCompilerId)
   set(_cmake_platform_info_dir ${CMAKE_PLATFORM_INFO_DIR})
   set(CMAKE_PLATFORM_INFO_DIR ${INTERNAL_DIR})
-  CMAKE_DETERMINE_COMPILER_ID(${lang} HOST${lang}FLAGS CMakeHOST${lang}CompilerId.c)
+  # TODO: Fix the extension issue below
+  if(${lang} STREQUAL "C")
+    CMAKE_DETERMINE_COMPILER_ID(${lang} HOST${lang}FLAGS CMakeHOST${lang}CompilerId.c)
+  else()
+    CMAKE_DETERMINE_COMPILER_ID(${lang} HOST${lang}FLAGS CMakeHOST${lang}CompilerId.cpp)
+  endif()
   set(CMAKE_PLATFORM_INFO_DIR ${_cmake_platform_info_dir})
 
   # Restore the original module path

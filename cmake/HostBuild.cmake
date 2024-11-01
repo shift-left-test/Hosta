@@ -18,6 +18,7 @@ include(CMakeParseArguments)
 # Set the list of enabled host languages
 unset(ENABLED_HOST_LANGUAGES)
 include(${_HOSTA_BASE_DIR}/DetermineHOSTCCompiler.cmake)
+include(${_HOSTA_BASE_DIR}/DetermineHOSTCXXCompiler.cmake)
 list(REMOVE_DUPLICATES ENABLED_HOST_LANGUAGES)
 
 # Set default host build target name
