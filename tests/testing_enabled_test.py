@@ -10,8 +10,6 @@ import pytest
 PARAM_CROSS_TOOLCHAIN = pytest.mark.parametrize("cross_toolchain", [True, False])
 PARAM_GENERATORS = pytest.mark.parametrize("generator", ["Unix Makefiles", "Ninja"])
 PARAM_COMPILERS = pytest.mark.parametrize("compiler_list", ["cc", "gcc", "clang", "i686-w64-mingw32-gcc"])
-PARAM_STANDARD = pytest.mark.parametrize("standard", [None, "11", "invalid"])
-PARAM_EXTENSIONS = pytest.mark.parametrize("extensions", [True, False])
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -254,3 +252,10 @@ def test_host_static_library(testing, cross_toolchain, generator, compiler_list)
 def test_host_executable(testing, cross_toolchain, generator, compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list)
     testing.cmake("HOST-unittest").check_returncode()
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@pytest.mark.parametrize("compiler_list", ["c++", "g++", "clang++", "i686-w64-mingw32-g++"])
+def test_hostc_with_cpp_compiler_fails(testing, cross_toolchain, generator, compiler_list):
+    stderr = testing.configure(cross_toolchain=cross_toolchain, generator=generator, compiler_list=compiler_list).stderr
+    assert "is not able to compile a simple test program" in stderr

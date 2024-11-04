@@ -50,9 +50,6 @@ find_host_compiler_id(C
   FLAGS "-c" "-Aa" "-D__CLASSIC_C__" "--target=arm-arm-none-eabi -mcpu=cortex-m3"
 )
 
-# Set host platform specific default options
-set_host_platform_default_options(C)
-
 # Test if the host compiler can compile the most basic of programs.
 # If not, a fatal error is set and stops processing commands.
 PrintTestCompilerStatus("HOSTC" "")
@@ -125,6 +122,9 @@ else()
     )
   endif()
 endif()
+
+# Set host platform specific default options
+set_host_platform_default_options(C)
 
 # Set the host language specific file extensions
 set(CMAKE_HOSTC_SOURCE_FILE_EXTENSIONS c m)

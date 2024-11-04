@@ -17,6 +17,9 @@ RUN apt-get install -y --no-install-recommends \
     build-essential \
     clang \
     cmake \
+    g++ \
+    g++-mingw-w64 \
+    g++-multilib \
     gcc \
     gcc-mingw-w64 \
     gcc-multilib \
