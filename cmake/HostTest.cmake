@@ -23,14 +23,10 @@ function(add_host_test TARGET)
   # Remove the host namespace prefix if exists
   remove_host_namespace_prefix(TARGET "${TARGET}")
 
-  get_host_target_properties(${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}
-    TYPE _type
-    NAME _name
-    BINARY_DIR _binary_dir
-  )
-
   # Path to the executable
-  set(_output "${_binary_dir}/${_name}${CMAKE_${_type}_SUFFIX}")
+  get_host_target_properties(${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}
+    OUTPUT_NAME _output
+  )
 
   add_test(NAME ${TARGET} COMMAND ${_output} ${ARG_EXTRA_ARGS})
 endfunction(add_host_test)
@@ -47,16 +43,12 @@ function(unity_fixture_add_host_tests TARGET)
   # Remove the host namespace prefix if exists
   remove_host_namespace_prefix(TARGET "${TARGET}")
 
+  # Path to the executable and source files
   get_host_target_properties(${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}
-    TYPE _type
-    NAME _name
     SOURCES _sources
     SOURCE_DIR _source_dir
-    BINARY_DIR _binary_dir
+    OUTPUT_NAME _output
   )
-
-  # Path to the executable
-  set(_output "${_binary_dir}/${_name}${CMAKE_${_type}_SUFFIX}")
 
   # Convert relative source paths to absolute ones
   unset(sources)

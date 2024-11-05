@@ -68,6 +68,11 @@ define_property(TARGET PROPERTY HOST_NAME
   FULL_DOCS "Name of the host target"
 )
 
+define_property(TARGET PROPERTY HOST_OUTPUT_NAME
+  BRIEF_DOCS "Output name of the host target"
+  FULL_DOCS "Output name of the host target"
+)
+
 define_property(TARGET PROPERTY HOST_SOURCES
   BRIEF_DOCS "List of sources files for host targets"
   FULL_DOCS "List of source files for host targets"
@@ -107,7 +112,7 @@ function(get_host_target_property VARIABLE TARGET PROPERTY)
 endfunction(get_host_target_property)
 
 function(get_host_target_properties TARGET)
-  set(oneValueArgs NAME TYPE SOURCE_DIR BINARY_DIR)
+  set(oneValueArgs NAME OUTPUT_NAME TYPE SOURCE_DIR BINARY_DIR)
   set(multiValueArgs SOURCES INTERFACE_INCLUDE_DIRECTORIES INTERFACE_COMPILE_OPTIONS INTERFACE_LINK_OPTIONS)
   cmake_parse_arguments(ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -138,7 +143,7 @@ function(set_host_target_property TARGET PROPERTY VALUE)
 endfunction(set_host_target_property)
 
 function(set_host_target_properties TARGET)
-  set(oneValueArgs NAME TYPE)
+  set(oneValueArgs NAME OUTPUT_NAME TYPE)
   set(multiValueArgs SOURCES INTERFACE_INCLUDE_DIRECTORIES INTERFACE_COMPILE_OPTIONS INTERFACE_LINK_OPTIONS)
   cmake_parse_arguments(ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -454,7 +459,7 @@ function(add_host_executable TARGET)
 
   # Add static library paths as link option
   foreach(_lib IN LISTS BUILD_LINK_LIBRARIES)
-    list(APPEND _extra_link_options "$<$<AND:$<BOOL:${_lib}>,$<STREQUAL:$<TARGET_PROPERTY:${_lib},HOST_TYPE>,HOST_STATIC>>:$<TARGET_PROPERTY:${_lib},BINARY_DIR>/${CMAKE_HOST_STATIC_LIBRARY_PREFIX}$<TARGET_PROPERTY:${_lib},HOST_NAME>${CMAKE_HOST_STATIC_LIBRARY_SUFFIX}>")
+    list(APPEND _extra_link_options "$<$<AND:$<BOOL:${_lib}>,$<STREQUAL:$<TARGET_PROPERTY:${_lib},HOST_TYPE>,HOST_STATIC>>:$<TARGET_PROPERTY:${_lib},HOST_OUTPUT_NAME>>")
   endforeach()
 
   if(NOT BUILD_SOURCES)
@@ -509,6 +514,7 @@ function(add_host_executable TARGET)
 
   set_host_target_properties(${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}
     NAME "${TARGET}"
+    OUTPUT_NAME "${_output}"
     TYPE "HOST_EXECUTABLE"
     SOURCES "${BUILD_SOURCES}"
   )
@@ -605,6 +611,7 @@ function(add_host_library TARGET TYPE)
 
   set_host_target_properties(${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}
     NAME "${TARGET}"
+    OUTPUT_NAME "${_output}"
     TYPE "${BUILD_TYPE}"
     SOURCES "${BUILD_SOURCES}"
     INTERFACE_INCLUDE_DIRECTORIES "${BUILD_INTERFACE_INCLUDE_DIRECTORIES}"

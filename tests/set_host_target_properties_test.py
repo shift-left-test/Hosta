@@ -19,6 +19,7 @@ add_custom_target(hello COMMAND echo "hello")
 
 set_host_target_properties({target}
   TYPE "type"
+  OUTPUT_NAME "output_name"
   SOURCES "sources"
   INTERFACE_INCLUDE_DIRECTORIES "interface_include_directories"
   INTERFACE_COMPILE_OPTIONS "interface_compile_options"
@@ -27,6 +28,7 @@ set_host_target_properties({target}
 
 get_host_target_properties(hello
   NAME name
+  OUTPUT_NAME output_name
   TYPE type
   SOURCES sources
   INTERFACE_INCLUDE_DIRECTORIES include_directories
@@ -34,7 +36,7 @@ get_host_target_properties(hello
   INTERFACE_LINK_OPTIONS link_options
 )
 
-cmake_print_variables(name type target_file sources include_directories compile_options link_options)
+cmake_print_variables(name output_name type sources include_directories compile_options link_options)
 '''
 
 def test_unknown_target_name(testing):
@@ -42,11 +44,12 @@ def test_unknown_target_name(testing):
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     assert 'set_host_target_property() called with non-existent target "unknown".' in testing.configure_internal(options).stderr
 
-def test_get_set_properties(testing):
+def test_get_host_properties(testing):
     testing.write("CMakeLists.txt", content.format(target="hello"))
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     stdout = testing.configure_internal(options).stdout
     assert 'name="hello"' in stdout
+    assert 'output_name="output_name"' in stdout
     assert 'type="type"' in stdout
     assert 'sources="sources"' in stdout
     assert 'include_directories="interface_include_directories"' in stdout
