@@ -100,22 +100,26 @@ function(find_host_compiler_id lang)
   # Set internal directory path
   set(INTERNAL_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${CMAKE_VERSION}-hosta.internal)
 
-  # Copy the original file to temporary directory
-  configure_file(
-    ${CMAKE_ROOT}/Modules/CMake${lang}CompilerId.c.in
-    ${INTERNAL_DIR}/CMakeHOST${lang}CompilerId.c.in
-    COPYONLY
-  )
-
   # Add the location of the above file to the module path
   set(_cmake_module_path ${CMAKE_MODULE_PATH})
   list(APPEND CMAKE_MODULE_PATH ${INTERNAL_DIR})
+
+  # A list of extensions for each language
+  set(C_extension c)
+  set(CXX_extension cpp)
+
+  # Copy the original file to temporary directory
+  configure_file(
+    ${CMAKE_ROOT}/Modules/CMake${lang}CompilerId.${${lang}_extension}.in
+    ${INTERNAL_DIR}/CMakeHOST${lang}CompilerId.${${lang}_extension}.in
+    COPYONLY
+  )
 
   # Try to identify the compiler information
   include(CMakeDetermineCompilerId)
   set(_cmake_platform_info_dir ${CMAKE_PLATFORM_INFO_DIR})
   set(CMAKE_PLATFORM_INFO_DIR ${INTERNAL_DIR})
-  CMAKE_DETERMINE_COMPILER_ID(${lang} HOST${lang}FLAGS CMakeHOST${lang}CompilerId.c)
+  CMAKE_DETERMINE_COMPILER_ID(${lang} HOST${lang}FLAGS CMakeHOST${lang}CompilerId.${${lang}_extension})
   set(CMAKE_PLATFORM_INFO_DIR ${_cmake_platform_info_dir})
 
   # Restore the original module path
