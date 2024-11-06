@@ -23,9 +23,9 @@ set_host_platform_default_options(C)
 
 cmake_print_variables(
   CMAKE_HOSTC_OUTPUT_EXTENSION
-  CMAKE_HOST_EXECUTABLE_SUFFIX
-  CMAKE_HOST_STATIC_LIBRARY_PREFIX
-  CMAKE_HOST_STATIC_LIBRARY_SUFFIX
+  CMAKE_HOSTC_EXECUTABLE_SUFFIX
+  CMAKE_HOSTC_STATIC_LIBRARY_PREFIX
+  CMAKE_HOSTC_STATIC_LIBRARY_SUFFIX
   CMAKE_GENERATOR
 )
 '''
@@ -50,33 +50,33 @@ def test_cygwin(testing):
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     stdout = testing.configure_internal(options).stdout
     assert 'CMAKE_HOSTC_OUTPUT_EXTENSION=".obj"' in stdout
-    assert 'CMAKE_HOST_EXECUTABLE_SUFFIX=".exe"' in stdout
-    assert 'CMAKE_HOST_STATIC_LIBRARY_PREFIX=""' in stdout
-    assert 'CMAKE_HOST_STATIC_LIBRARY_SUFFIX=".lib"' in stdout
+    assert 'CMAKE_HOSTC_EXECUTABLE_SUFFIX=".exe"' in stdout
+    assert 'CMAKE_HOSTC_STATIC_LIBRARY_PREFIX=""' in stdout
+    assert 'CMAKE_HOSTC_STATIC_LIBRARY_SUFFIX=".lib"' in stdout
 
 def test_linux(testing):
     testing.write("CMakeLists.txt", content.format(compiler="Clang", platform="Linux", generator="Ninja"))
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     stdout = testing.configure_internal(options).stdout
     assert 'CMAKE_HOSTC_OUTPUT_EXTENSION=".o"' in stdout
-    assert 'CMAKE_HOST_EXECUTABLE_SUFFIX=""' in stdout
-    assert 'CMAKE_HOST_STATIC_LIBRARY_PREFIX="lib"' in stdout
-    assert 'CMAKE_HOST_STATIC_LIBRARY_SUFFIX=".a"' in stdout
+    assert 'CMAKE_HOSTC_EXECUTABLE_SUFFIX=""' in stdout
+    assert 'CMAKE_HOSTC_STATIC_LIBRARY_PREFIX="lib"' in stdout
+    assert 'CMAKE_HOSTC_STATIC_LIBRARY_SUFFIX=".a"' in stdout
 
 def test_mingw(testing):
     testing.write("CMakeLists.txt", content.format(compiler="Clang", platform="MinGW", generator="Ninja"))
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     stdout = testing.configure_internal(options).stdout
     assert 'CMAKE_HOSTC_OUTPUT_EXTENSION=".obj"' in stdout
-    assert 'CMAKE_HOST_EXECUTABLE_SUFFIX=".exe"' in stdout
-    assert 'CMAKE_HOST_STATIC_LIBRARY_PREFIX=""' in stdout
-    assert 'CMAKE_HOST_STATIC_LIBRARY_SUFFIX=".lib"' in stdout
+    assert 'CMAKE_HOSTC_EXECUTABLE_SUFFIX=".exe"' in stdout
+    assert 'CMAKE_HOSTC_STATIC_LIBRARY_PREFIX=""' in stdout
+    assert 'CMAKE_HOSTC_STATIC_LIBRARY_SUFFIX=".lib"' in stdout
 
 def test_windows(testing):
     testing.write("CMakeLists.txt", content.format(compiler="Clang", platform="Windows", generator="Ninja"))
     options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
     stdout = testing.configure_internal(options).stdout
     assert 'CMAKE_HOSTC_OUTPUT_EXTENSION=".obj"' in stdout
-    assert 'CMAKE_HOST_EXECUTABLE_SUFFIX=".exe"' in stdout
-    assert 'CMAKE_HOST_STATIC_LIBRARY_PREFIX=""' in stdout
-    assert 'CMAKE_HOST_STATIC_LIBRARY_SUFFIX=".lib"' in stdout
+    assert 'CMAKE_HOSTC_EXECUTABLE_SUFFIX=".exe"' in stdout
+    assert 'CMAKE_HOSTC_STATIC_LIBRARY_PREFIX=""' in stdout
+    assert 'CMAKE_HOSTC_STATIC_LIBRARY_SUFFIX=".lib"' in stdout

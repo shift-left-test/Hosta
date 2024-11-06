@@ -24,11 +24,11 @@ def test_host_compiler_info(testing_mingw):
     assert 'set(CMAKE_HOSTC_VERBOSE_FLAG "-v")' in compiler_info
     assert 'set(CMAKE_HOSTC_SOURCE_FILE_EXTENSIONS "c;m")' in compiler_info
     assert 'set(CMAKE_HOSTC_OUTPUT_EXTENSION ".obj")' in compiler_info
-    assert 'set(CMAKE_HOST_EXECUTABLE_SUFFIX ".exe")' in compiler_info
-    assert 'set(CMAKE_HOST_STATIC_LIBRARY_PREFIX "")' in compiler_info
-    assert 'set(CMAKE_HOST_STATIC_LIBRARY_SUFFIX ".lib")' in compiler_info
-    assert 'set(CMAKE_HOST_AR "/usr/bin/i686-w64-mingw32-ar")' in compiler_info
-    assert 'set(CMAKE_HOST_RANLIB "/usr/bin/i686-w64-mingw32-ranlib")' in compiler_info
+    assert 'set(CMAKE_HOSTC_EXECUTABLE_SUFFIX ".exe")' in compiler_info
+    assert 'set(CMAKE_HOSTC_STATIC_LIBRARY_PREFIX "")' in compiler_info
+    assert 'set(CMAKE_HOSTC_STATIC_LIBRARY_SUFFIX ".lib")' in compiler_info
+    assert 'set(CMAKE_HOSTC_AR "/usr/bin/i686-w64-mingw32-ar")' in compiler_info
+    assert 'set(CMAKE_HOSTC_RANLIB "/usr/bin/i686-w64-mingw32-ranlib")' in compiler_info
     assert 'set(CMAKE_INCLUDE_FLAG_HOSTC "-I")' in compiler_info
     assert 'set(CMAKE_INCLUDE_SYSTEM_FLAG_HOSTC "-isystem ")' in compiler_info
     assert 'set(CMAKE_HOSTC11_STANDARD_COMPILE_OPTION "-std=c11")' in compiler_info

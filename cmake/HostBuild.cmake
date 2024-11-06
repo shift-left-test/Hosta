@@ -396,6 +396,10 @@ function(do_host_link lang TARGET OUTPUT)
   # Set libraries
   transform_host_arguments(BUILD_LINK_LIBRARIES "${BUILD_LINK_LIBRARIES}" PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
 
+  if(NOT CMAKE_HOST_EXECUTABLE_SUFFIX)
+    set(CMAKE_HOST_EXECUTABLE_SUFFIX "${CMAKE_HOST${lang}_EXECUTABLE_SUFFIX}")
+  endif()
+
   set(_filename "${TARGET}${CMAKE_HOST_EXECUTABLE_SUFFIX}")
   set(_output "${CMAKE_CURRENT_BINARY_DIR}/${_filename}")
 
@@ -572,6 +576,13 @@ function(add_host_library TARGET TYPE)
         COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}"
       )
 
+      if(NOT CMAKE_HOST_STATIC_LIBRARY_PREFIX)
+        set(CMAKE_HOST_STATIC_LIBRARY_PREFIX "${CMAKE_HOST${lang}_STATIC_LIBRARY_PREFIX}")
+      endif()
+      if(NOT CMAKE_HOST_STATIC_LIBRARY_SUFFIX)
+        set(CMAKE_HOST_STATIC_LIBRARY_SUFFIX "${CMAKE_HOST${lang}_STATIC_LIBRARY_SUFFIX}")
+      endif()
+
       do_host_compile(${lang} _output
         SOURCE "${_source}"
         TARGET "${CMAKE_HOST_STATIC_LIBRARY_PREFIX}${TARGET}${CMAKE_HOST_STATIC_LIBRARY_SUFFIX}"
@@ -584,6 +595,13 @@ function(add_host_library TARGET TYPE)
 
     set(_filename "${CMAKE_HOST_STATIC_LIBRARY_PREFIX}${TARGET}${CMAKE_HOST_STATIC_LIBRARY_SUFFIX}")
     set(_output "${CMAKE_CURRENT_BINARY_DIR}/${_filename}")
+
+    if(NOT CMAKE_HOST_AR)
+      set(CMAKE_HOST_AR "${CMAKE_HOST${lang}_AR}")
+    endif()
+    if(NOT CMAKE_HOST_RANLIB)
+      set(CMAKE_HOST_RANLIB "${CMAKE_HOST${lang}_RANLIB}")
+    endif()
 
     # Archive object files to create a static library
     add_custom_command(

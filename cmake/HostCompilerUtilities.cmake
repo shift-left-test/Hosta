@@ -37,11 +37,11 @@ function(save_host_compiler_preferences lang)
     "set(CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang} \"@CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}@\")\n"
     "set(CMAKE_HOST${lang}_SOURCE_FILE_EXTENSIONS \"@CMAKE_HOST${lang}_SOURCE_FILE_EXTENSIONS@\")\n"
     "set(CMAKE_HOST${lang}_OUTPUT_EXTENSION \"@CMAKE_HOST${lang}_OUTPUT_EXTENSION@\")\n"
-    "set(CMAKE_HOST_EXECUTABLE_SUFFIX \"@CMAKE_HOST_EXECUTABLE_SUFFIX@\")\n"
-    "set(CMAKE_HOST_STATIC_LIBRARY_PREFIX \"@CMAKE_HOST_STATIC_LIBRARY_PREFIX@\")\n"
-    "set(CMAKE_HOST_STATIC_LIBRARY_SUFFIX \"@CMAKE_HOST_STATIC_LIBRARY_SUFFIX@\")\n"
-    "set(CMAKE_HOST_AR \"@CMAKE_HOST_AR@\")\n"
-    "set(CMAKE_HOST_RANLIB \"@CMAKE_HOST_RANLIB@\")\n"
+    "set(CMAKE_HOST${lang}_EXECUTABLE_SUFFIX \"@CMAKE_HOST${lang}_EXECUTABLE_SUFFIX@\")\n"
+    "set(CMAKE_HOST${lang}_STATIC_LIBRARY_PREFIX \"@CMAKE_HOST${lang}_STATIC_LIBRARY_PREFIX@\")\n"
+    "set(CMAKE_HOST${lang}_STATIC_LIBRARY_SUFFIX \"@CMAKE_HOST${lang}_STATIC_LIBRARY_SUFFIX@\")\n"
+    "set(CMAKE_HOST${lang}_AR \"@CMAKE_HOST${lang}_AR@\")\n"
+    "set(CMAKE_HOST${lang}_RANLIB \"@CMAKE_HOST${lang}_RANLIB@\")\n"
   )
 
   # Guess the supported language standard versions based on C and CXX
@@ -179,29 +179,29 @@ function(set_host_platform_default_options lang)
   endif()
 
   # Set default executable suffix
-  if(NOT CMAKE_HOST_EXECUTABLE_SUFFIX)
+  if(NOT CMAKE_HOST${lang}_EXECUTABLE_SUFFIX)
     if(CMAKE_HOST${lang}_PLATFORM_ID MATCHES "CYGWIN.*|Cygwin|MinGW|Windows")
-      set(CMAKE_HOST_EXECUTABLE_SUFFIX ".exe" PARENT_SCOPE)
+      set(CMAKE_HOST${lang}_EXECUTABLE_SUFFIX ".exe" PARENT_SCOPE)
     else()
-      set(CMAKE_HOST_EXECUTABLE_SUFFIX "" PARENT_SCOPE)
+      set(CMAKE_HOST${lang}_EXECUTABLE_SUFFIX "" PARENT_SCOPE)
     endif()
   endif()
 
   # Set default static library prefix
-  if(NOT CMAKE_HOST_STATIC_LIBRARY_PREFIX)
+  if(NOT CMAKE_HOST${lang}_STATIC_LIBRARY_PREFIX)
     if(CMAKE_HOST${lang}_PLATFORM_ID STREQUAL "Linux")
-      set(CMAKE_HOST_STATIC_LIBRARY_PREFIX "lib" PARENT_SCOPE)
+      set(CMAKE_HOST${lang}_STATIC_LIBRARY_PREFIX "lib" PARENT_SCOPE)
     else()
-      set(CMAKE_HOST_STATIC_LIBRARY_PREFIX "" PARENT_SCOPE)
+      set(CMAKE_HOST${lang}_STATIC_LIBRARY_PREFIX "" PARENT_SCOPE)
     endif()
   endif()
 
   # Set default static library suffix
-  if(NOT CMAKE_HOST_STATIC_LIBRARY_SUFFIX)
+  if(NOT CMAKE_HOST${lang}_STATIC_LIBRARY_SUFFIX)
     if(CMAKE_HOST${lang}_PLATFORM_ID MATCHES "CYGWIN.*|Cygwin|MinGW|Windows")
-      set(CMAKE_HOST_STATIC_LIBRARY_SUFFIX ".lib" PARENT_SCOPE)
+      set(CMAKE_HOST${lang}_STATIC_LIBRARY_SUFFIX ".lib" PARENT_SCOPE)
     else()
-      set(CMAKE_HOST_STATIC_LIBRARY_SUFFIX ".a" PARENT_SCOPE)
+      set(CMAKE_HOST${lang}_STATIC_LIBRARY_SUFFIX ".a" PARENT_SCOPE)
     endif()
   endif()
 
@@ -295,15 +295,15 @@ function(find_host_binutils lang)
   endif()
 
   # Try searching for binutils located in the same directory as the host compiler
-  # CMAKE_HOST_AR
+  # CMAKE_HOST${lang}_AR
   set(ar_names "${toolchain_prefix}ar" "${toolchain_prefix}llvm-ar")
   get_filename_component(toolchain_location "${CMAKE_HOST${lang}_COMPILER}" DIRECTORY)
-  find_program(CMAKE_HOST_AR NAMES ${ar_names} HINTS ${toolchain_location})
-  set(CMAKE_HOST_AR "${CMAKE_HOST_AR}" PARENT_SCOPE)
+  find_program(CMAKE_HOST${lang}_AR NAMES ${ar_names} HINTS ${toolchain_location})
+  set(CMAKE_HOST${lang}_AR "${CMAKE_HOST${lang}_AR}" PARENT_SCOPE)
 
-  # CMAKE_HOST_RANLIB
+  # CMAKE_HOST${lang}_RANLIB
   set(ranlib_names "${toolchain_prefix}ranlib" "${toolchain_prefix}llvm-ranlib")
   get_filename_component(toolchain_location "${CMAKE_HOST${lang}_COMPILER}" DIRECTORY)
-  find_program(CMAKE_HOST_RANLIB NAMES ${ranlib_names} HINTS ${toolchain_location})
-  set(CMAKE_HOST_RANLIB "${CMAKE_HOST_RANLIB}" PARENT_SCOPE)
+  find_program(CMAKE_HOST${lang}_RANLIB NAMES ${ranlib_names} HINTS ${toolchain_location})
+  set(CMAKE_HOST${lang}_RANLIB "${CMAKE_HOST${lang}_RANLIB}" PARENT_SCOPE)
 endfunction(find_host_binutils)
