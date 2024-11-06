@@ -27,12 +27,12 @@ class CMakeFixture(object):
         command = [f'cmake -S {self.workspace} -B {self.build}']
         return self.execute(command + options)
 
-    def configure(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", compiler_list=None, debug_enabled=False, libm_enabled=False, standard=None, extensions=None, extra_options=[]):
+    def configure(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", c_compiler_list=None, debug_enabled=False, libm_enabled=False, standard=None, extensions=None, extra_options=[]):
         self.build = os.path.join(self.workspace, build)
         self.testing_enabled = testing_enabled
         self.cross_toolchain = cross_toolchain
         self.generator = generator
-        self.compiler_list = compiler_list
+        self.c_compiler_list = c_compiler_list
         self.debug_enabled = debug_enabled
         self.libm_enabled = libm_enabled
         self.standard = standard
@@ -45,7 +45,7 @@ class CMakeFixture(object):
             f'-G "{self.generator}"',
             f'-DWITH_HOST_TEST={self.testing_enabled}',
             f'-DWITH_CROSS_TOOLCHAIN={self.cross_toolchain}',
-            f'-DCMAKE_HOSTC_COMPILER_LIST="{self.compiler_list}"' if self.compiler_list else '',
+            f'-DCMAKE_HOSTC_COMPILER_LIST="{self.c_compiler_list}"' if self.c_compiler_list else '',
             f'-DWITH_DEBUG_SYMBOL={self.debug_enabled}',
             f'-DWITH_LIBM={self.libm_enabled}',
             f'-DCMAKE_HOSTC_STANDARD={self.standard}' if self.standard is not None else '',
@@ -117,15 +117,15 @@ def testing_cc(testing):
 
 @pytest.fixture
 def testing_gcc(testing):
-    testing.configure(compiler_list="gcc")
+    testing.configure(c_compiler_list="gcc")
     return testing
 
 @pytest.fixture
 def testing_clang(testing):
-    testing.configure(compiler_list="clang")
+    testing.configure(c_compiler_list="clang")
     return testing
 
 @pytest.fixture
-def testing_mingw(testing):
-    testing.configure(compiler_list="i686-w64-mingw32-gcc")
+def testing_mingw_gcc(testing):
+    testing.configure(c_compiler_list="i686-w64-mingw32-gcc")
     return testing
