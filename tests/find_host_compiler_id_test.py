@@ -19,8 +19,7 @@ def test_unknown_host_compiler(testing):
     message(STATUS "CMAKE_HOSTC_COMPILER_ID: ${CMAKE_HOSTC_COMPILER_ID}")
     '''
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'CMAKE_HOSTC_COMPILER_ID: \n' in testing.configure_internal(options).stdout
+    assert 'CMAKE_HOSTC_COMPILER_ID: \n' in testing.configure_internal().stdout
 
 def test_known_host_compiler(testing):
     content = '''
@@ -45,8 +44,7 @@ def test_known_host_compiler(testing):
     endforeach()
     '''
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    stdout = testing.configure_internal(options).stdout
+    stdout = testing.configure_internal().stdout
     assert 'CMAKE_HOSTC_COMPILER_ID: Clang' in stdout
     assert 'CMAKE_HOSTC_COMPILER_VERSION: 10.0.0' in stdout
     assert 'CMAKE_HOSTC_PLATFORM_ID: Linux' in stdout

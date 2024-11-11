@@ -41,13 +41,11 @@ cmake_print_variables(name output_name type sources include_directories compile_
 
 def test_unknown_target_name(testing):
     testing.write("CMakeLists.txt", content.format(target="unknown"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'set_host_target_property() called with non-existent target "unknown".' in testing.configure_internal(options).stderr
+    assert 'set_host_target_property() called with non-existent target "unknown".' in testing.configure_internal().stderr
 
 def test_get_host_properties(testing):
     testing.write("CMakeLists.txt", content.format(target="hello"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    stdout = testing.configure_internal(options).stdout
+    stdout = testing.configure_internal().stdout
     assert 'name="hello"' in stdout
     assert 'output_name="output_name"' in stdout
     assert 'type="type"' in stdout

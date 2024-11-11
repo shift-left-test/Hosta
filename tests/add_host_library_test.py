@@ -17,8 +17,7 @@ def test_existing_target(testing):
     '''
     testing.write("hello.c", "void hello() {}")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'add_custom_target cannot create target "HOST-hello"' in testing.configure_internal(options).stderr
+    assert 'add_custom_target cannot create target "HOST-hello"' in testing.configure_internal().stderr
 
 def test_host_namespace_target(testing):
     content = '''
@@ -29,8 +28,7 @@ def test_host_namespace_target(testing):
     '''
     testing.write("hello.c", "int hello() { return 0; }")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     assert 'Linking HOSTC static library libhello.a' in testing.cmake("host-targets", verbose=True).stdout
 
 def test_unknown_type(testing):
@@ -42,8 +40,7 @@ def test_unknown_type(testing):
     '''
     testing.write("hello.c", "void hello() {}")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'Unsupported library type: unknown' in testing.configure_internal(options).stderr
+    assert 'Unsupported library type: unknown' in testing.configure_internal().stderr
 
 def test_static_no_source(testing):
     content = '''
@@ -53,8 +50,7 @@ def test_static_no_source(testing):
     add_host_library(hello STATIC)
     '''
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'No SOURCES given to target: hello' in testing.configure_internal(options).stderr
+    assert 'No SOURCES given to target: hello' in testing.configure_internal().stderr
 
 def test_static_unknown_source(testing):
     content = '''
@@ -64,8 +60,7 @@ def test_static_unknown_source(testing):
     add_host_library(hello STATIC SOURCES unknown.c)
     '''
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'Cannot find source file:\n\n    unknown.c' in testing.configure_internal(options).stderr
+    assert 'Cannot find source file:\n\n    unknown.c' in testing.configure_internal().stderr
 
 def test_static_sources(testing):
     content = '''
@@ -77,8 +72,7 @@ def test_static_sources(testing):
     testing.write("hello.c", "void hello() { }")
     testing.write("world.c", "void world() { }")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     testing.cmake("host-targets").check_returncode()
 
 def test_static_include_directories(testing):
@@ -90,8 +84,7 @@ def test_static_include_directories(testing):
     '''
     testing.write("hello.c", "int hello() { return 0; }")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     assert f'-I{testing.workspace}/first -I{testing.workspace}/second' in testing.cmake("host-targets", verbose=True).stdout
 
 def test_static_compile_options(testing):
@@ -103,8 +96,7 @@ def test_static_compile_options(testing):
     '''
     testing.write("hello.c", "int hello() { return 0; }")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     assert '-DHELLO' in testing.cmake("host-targets", verbose=True).stdout
 
 def test_static_link_options(testing):
@@ -116,8 +108,7 @@ def test_static_link_options(testing):
     '''
     testing.write("hello.c", "int hello() { return 0; }")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     testing.cmake("host-targets").check_returncode()
 
 def test_static_rebuild(testing):
@@ -129,8 +120,7 @@ def test_static_rebuild(testing):
     '''
     testing.write("hello.c", "int hello() { return 0; }")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     assert 'Linking HOSTC static library' in testing.cmake("host-targets").stdout
     assert not 'Linking HOSTC static library' in testing.cmake("host-targets").stdout
 
@@ -143,8 +133,7 @@ def test_interface_sources(testing):
     '''
     testing.write("hello.c", "int hello() { return 0; }")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'add_host_library INTERFACE requires no source arguments.' in testing.configure_internal(options).stderr
+    assert 'add_host_library INTERFACE requires no source arguments.' in testing.configure_internal().stderr
 
 def test_interface_include_directories(testing):
     content = '''
@@ -160,8 +149,7 @@ def test_interface_include_directories(testing):
     cmake_print_variables(A B)
     '''
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert f'A="" ; B="{testing.workspace}/b"' in testing.configure_internal(options).stdout
+    assert f'A="" ; B="{testing.workspace}/b"' in testing.configure_internal().stdout
 
 def test_interface_compile_options(testing):
     content = '''
@@ -177,8 +165,7 @@ def test_interface_compile_options(testing):
     cmake_print_variables(A B)
     '''
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert f'A="" ; B="b"' in testing.configure_internal(options).stdout
+    assert f'A="" ; B="b"' in testing.configure_internal().stdout
 
 def test_interface_link_options(testing):
     content = '''
@@ -194,8 +181,7 @@ def test_interface_link_options(testing):
     cmake_print_variables(A B)
     '''
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert f'A="" ; B="b"' in testing.configure_internal(options).stdout
+    assert f'A="" ; B="b"' in testing.configure_internal().stdout
 
 def test_interface_rebuild(testing):
     content = '''
@@ -205,7 +191,6 @@ def test_interface_rebuild(testing):
     add_host_library(hello INTERFACE)
     '''
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     assert 'Scanning dependencies of target HOST-hello' in testing.cmake("host-targets").stdout
     assert not 'Scanning dependencies of target HOST-hello' in testing.cmake("host-targets").stdout

@@ -24,32 +24,20 @@ class CMakeFixture(object):
 
     def configure_internal(self, options=[]):
         self.copytree("cmake", "cmake")
-        command = [f'cmake -S {self.workspace} -B {self.build}']
+        command = [f'cmake -S {self.workspace} -B {self.build} -DCMAKE_BINARY_DIR={self.workspace}']
         return self.execute(command + options)
 
-    def configure(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", c_compiler_list=None, debug_enabled=False, libm_enabled=False, standard=None, extensions=None, extra_options=[]):
+    def configure(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", c_compiler_list=None, extra_options=[]):
         self.build = os.path.join(self.workspace, build)
-        self.testing_enabled = testing_enabled
-        self.cross_toolchain = cross_toolchain
-        self.generator = generator
-        self.c_compiler_list = c_compiler_list
-        self.debug_enabled = debug_enabled
-        self.libm_enabled = libm_enabled
-        self.standard = standard
-        self.extensions = extensions
 
         # Copy source files to workspace
         self.copytree("tests/project", "")
 
         options = [
-            f'-G "{self.generator}"',
-            f'-DWITH_HOST_TEST={self.testing_enabled}',
-            f'-DWITH_CROSS_TOOLCHAIN={self.cross_toolchain}',
-            f'-DCMAKE_HOSTC_COMPILER_LIST="{self.c_compiler_list}"' if self.c_compiler_list else '',
-            f'-DWITH_DEBUG_SYMBOL={self.debug_enabled}',
-            f'-DWITH_LIBM={self.libm_enabled}',
-            f'-DCMAKE_HOSTC_STANDARD={self.standard}' if self.standard is not None else '',
-            f'-DCMAKE_HOSTC_EXTENSIONS={self.extensions}' if self.extensions is not None else '',
+            f'-G "{generator}"',
+            f'-DCMAKE_TESTING_ENABLED={testing_enabled}',
+            f'-DWITH_CROSS_TOOLCHAIN={cross_toolchain}',
+            f'-DCMAKE_HOSTC_COMPILER_LIST="{c_compiler_list}"' if c_compiler_list else '',
         ] + extra_options
         return self.configure_internal(options)
 

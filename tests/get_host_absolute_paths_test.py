@@ -21,20 +21,16 @@ cmake_print_variables(PATHS)
 
 def test_empty_path(testing):
     testing.write("CMakeLists.txt", content.format(paths=""))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'PATHS=""' in testing.configure_internal(options).stdout
+    assert 'PATHS=""' in testing.configure_internal().stdout
 
 def test_one_path(testing):
     testing.write("CMakeLists.txt", content.format(paths="first"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert f'PATHS="{testing.workspace}/first"' in testing.configure_internal(options).stdout
+    assert f'PATHS="{testing.workspace}/first"' in testing.configure_internal().stdout
 
 def test_multiple_paths(testing):
     testing.write("CMakeLists.txt", content.format(paths="first;second"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert f'PATHS="{testing.workspace}/first;{testing.workspace}/second"' in testing.configure_internal(options).stdout
+    assert f'PATHS="{testing.workspace}/first;{testing.workspace}/second"' in testing.configure_internal().stdout
 
 def test_generator_expression(testing):
     testing.write("CMakeLists.txt", content.format(paths="first;$<TARGET_PROPERTY:hello,SOURCES>;second"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert f'PATHS="{testing.workspace}/first;$<TARGET_PROPERTY:hello,SOURCES>;{testing.workspace}/second"' in testing.configure_internal(options).stdout
+    assert f'PATHS="{testing.workspace}/first;$<TARGET_PROPERTY:hello,SOURCES>;{testing.workspace}/second"' in testing.configure_internal().stdout

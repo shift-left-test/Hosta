@@ -22,30 +22,29 @@ cmake_print_variables(OUTPUT)
 
 def test_default_option(testing):
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT=""' in testing.configure_internal(options).stdout
+    assert 'OUTPUT=""' in testing.configure_internal().stdout
 
 def test_unknown_version(testing):
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace} -DCMAKE_HOSTC_STANDARD=12345']
+    options = [f'-DCMAKE_HOSTC_STANDARD=12345']
     assert "HOSTC_STANDARD is set to invalid value '12345'" in testing.configure_internal(options).stderr
 
 def test_default_version_with_extension_on(testing):
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace} -DCMAKE_HOSTC_EXTENSIONS=ON']
+    options = [f'-DCMAKE_HOSTC_EXTENSIONS=ON']
     assert 'OUTPUT=""' in testing.configure_internal(options).stdout
 
 def test_valid_version_with_default_extension(testing):
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace} -DCMAKE_HOSTC_STANDARD=11']
+    options = [f'-DCMAKE_HOSTC_STANDARD=11']
     assert 'OUTPUT="-std=gnu11"' in testing.configure_internal(options).stdout
 
 def test_valid_version_with_extension_off(testing):
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace} -DCMAKE_HOSTC_STANDARD=11 -DCMAKE_HOSTC_EXTENSIONS=OFF']
+    options = [f'-DCMAKE_HOSTC_STANDARD=11 -DCMAKE_HOSTC_EXTENSIONS=OFF']
     assert 'OUTPUT="-std=c11"' in testing.configure_internal(options).stdout
 
 def test_valid_version_with_extension_on(testing):
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace} -DCMAKE_HOSTC_STANDARD=11 -DCMAKE_HOSTC_EXTENSIONS=ON']
+    options = [f'-DCMAKE_HOSTC_STANDARD=11 -DCMAKE_HOSTC_EXTENSIONS=ON']
     assert 'OUTPUT="-std=gnu11"' in testing.configure_internal(options).stdout

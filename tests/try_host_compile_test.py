@@ -24,17 +24,14 @@ message(STATUS "RESULT: ${{RESULT}}")
 
 def test_unknown_host_compiler(testing):
     testing.write("CMakeLists.txt", content.format(compiler="unknown", workspace=testing.workspace))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'RESULT: FALSE' in testing.configure_internal(options).stdout
+    assert 'RESULT: FALSE' in testing.configure_internal().stdout
 
 def test_compile_invalid_code(testing):
     testing.write("CMakeLists.txt", content.format(compiler="clang", workspace=testing.workspace))
     testing.write("test.c", "int main")
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'RESULT: FALSE' in testing.configure_internal(options).stdout
+    assert 'RESULT: FALSE' in testing.configure_internal().stdout
 
 def test_compile_valid_code(testing):
     testing.write("CMakeLists.txt", content.format(compiler="clang", workspace=testing.workspace))
     testing.write("test.c", "int main() { }")
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'RESULT: TRUE' in testing.configure_internal(options).stdout
+    assert 'RESULT: TRUE' in testing.configure_internal().stdout

@@ -17,8 +17,7 @@ def test_existing_target(testing):
     '''
     testing.write("main.c", "int main() { return 0; }")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'add_custom_target cannot create target "HOST-hello"' in testing.configure_internal(options).stderr
+    assert 'add_custom_target cannot create target "HOST-hello"' in testing.configure_internal().stderr
 
 def test_host_namespace_target(testing):
     content = '''
@@ -29,8 +28,7 @@ def test_host_namespace_target(testing):
     '''
     testing.write("main.c", "int main() { return 0; }")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     assert 'Linking HOSTC executable hello' in testing.cmake("host-targets", verbose=True).stdout
 
 def test_no_source(testing):
@@ -41,8 +39,7 @@ def test_no_source(testing):
     add_host_executable(hello)
     '''
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'No SOURCES given to target: hello' in testing.configure_internal(options).stderr
+    assert 'No SOURCES given to target: hello' in testing.configure_internal().stderr
 
 def test_unknown_source(testing):
     content = '''
@@ -52,8 +49,7 @@ def test_unknown_source(testing):
     add_host_executable(hello SOURCES unknown.c)
     '''
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'Cannot find source file:\n\n    unknown.c' in testing.configure_internal(options).stderr
+    assert 'Cannot find source file:\n\n    unknown.c' in testing.configure_internal().stderr
 
 def test_sources(testing):
     content = '''
@@ -65,8 +61,7 @@ def test_sources(testing):
     testing.write("hello.c", "void hello() { }")
     testing.write("main.c", "#include <stdio.h> \n int main() { hello(); return 0; }")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     testing.cmake("host-targets").check_returncode()
 
 def test_include_directories(testing):
@@ -78,8 +73,7 @@ def test_include_directories(testing):
     '''
     testing.write("main.c", "int main() { return 0; }")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     assert f'-I{testing.workspace}/first -I{testing.workspace}/second' in testing.cmake("host-targets", verbose=True).stdout
 
 def test_compile_options(testing):
@@ -91,8 +85,7 @@ def test_compile_options(testing):
     '''
     testing.write("main.c", "#ifdef HELLO void hello() { } \n #endif \n #ifdef WORLD \n int main() { return 0; } \n #endif")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     testing.cmake("host-targets").check_returncode()
 
 def test_link_options(testing):
@@ -104,8 +97,7 @@ def test_link_options(testing):
     '''
     testing.write("main.c", "int main() { return 0; }")
     testing.write("CMakeLists.txt", content)
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     assert '-fprofile-arcs -lm' in testing.cmake("host-targets", verbose=True).stdout
 
 def test_link_static_libraries(testing):
@@ -124,8 +116,7 @@ def test_link_static_libraries(testing):
     testing.write("world/world.h", "void world();")
     testing.write("world/world.c", "void world() { }")
 
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     stdout = testing.cmake("host-targets", verbose=True).stdout
     assert f'-I{testing.workspace}/hello -I{testing.workspace}/world' in stdout
     assert '-DHELLO -DWORLD' in stdout
@@ -142,8 +133,7 @@ def test_link_interface_libraries(testing):
     '''
     testing.write("CMakeLists.txt", content)
     testing.write("main.c", 'int main() { return 0; }')
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     process = testing.cmake("host-targets", verbose=True)
     process.check_returncode()
     stdout = process.stdout
@@ -160,8 +150,7 @@ def test_executable_rebuild(testing):
     '''
     testing.write("CMakeLists.txt", content)
     testing.write("main.c", "int main() { return 0; }")
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     assert 'Scanning dependencies of target HOST-main' in testing.cmake("host-targets").stdout
     assert not 'Scanning dependencies of target HOST-main' in testing.cmake("host-targets").stdout
 
@@ -176,8 +165,7 @@ def test_include_before_project(testing):
     '''
     testing.write("CMakeLists.txt", content)
     testing.write("main.c", 'int main() { return 0; }')
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     process = testing.cmake("host-targets", verbose=True)
     process.check_returncode()
     stdout = process.stdout
@@ -195,6 +183,5 @@ def test_generator_expression_options(testing):
     '''
     testing.write("CMakeLists.txt", content)
     testing.write("main.c", '#ifdef HELLO \n int main() { return 0; } \n #endif')
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options).check_returncode()
+    testing.configure_internal().check_returncode()
     testing.cmake("host-targets", verbose=True).check_returncode()

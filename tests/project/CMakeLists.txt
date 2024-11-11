@@ -4,9 +4,6 @@
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
 option(WITH_CROSS_TOOLCHAIN "Enable cross toolchain" ON)
-option(WITH_HOST_TEST "Enable host based testing" ON)
-option(WITH_DEBUG_SYMBOL "Enable debug symbol" OFF)
-option(WITH_LIBM "Enable math library" OFF)
 
 if(WITH_CROSS_TOOLCHAIN)
   # the name of the target operating system
@@ -32,19 +29,7 @@ project(host-test LANGUAGES C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(WITH_HOST_TEST)
-  enable_testing()
-endif()
-
 include(cmake/HostTest.cmake)
-
-if(WITH_DEBUG_SYMBOL)
-  list(APPEND HOST_COMPILE_OPTIONS -g)
-endif()
-
-if(WITH_LIBM)
-  list(APPEND HOST_LINK_OPTIONS -lm)
-endif()
 
 add_custom_target(hello
   COMMAND echo "hello"
@@ -55,18 +40,21 @@ add_host_library(coverage INTERFACE
   LINK_OPTIONS PUBLIC -fprofile-arcs
 )
 
-add_host_executable(unittest
-  SOURCES src/calc.c test/unity_test_main.c
-  INCLUDE_DIRECTORIES PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/test
-  COMPILE_OPTIONS PRIVATE ${HOST_COMPILE_OPTIONS}
-  LINK_OPTIONS PRIVATE ${HOST_LINK_OPTIONS}
-  LINK_LIBRARIES PRIVATE Host::unity Host::coverage
+add_host_library(hostc_options INTERFACE
+  COMPILE_OPTIONS PUBLIC ${EXTRA_HOSTC_COMPILE_OPTIONS}
+  LINK_OPTIONS PUBLIC ${EXTRA_HOSTC_LINK_OPTIONS}
+)
+
+add_host_executable(unity_test
+  SOURCES calculator/calc.c test/unity_test_main.c
+  INCLUDE_DIRECTORIES PRIVATE ${CMAKE_CURRENT_LIST_DIR}/calculator ${CMAKE_CURRENT_LIST_DIR}/test
+  LINK_LIBRARIES PRIVATE Host::unity Host::coverage Host::hostc_options
   DEPENDS hello
 )
 
-add_host_test(Host::unittest)
+add_host_test(Host::unity_test)
 
-add_subdirectory(src)
-add_subdirectory(fixture_tests)
+add_subdirectory(calculator)
+add_subdirectory(test)
 add_subdirectory(relative_path_test)
-add_subdirectory(unity)
+add_subdirectory(external/unity)

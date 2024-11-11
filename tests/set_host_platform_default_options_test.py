@@ -32,23 +32,19 @@ cmake_print_variables(
 
 def test_unsupported_host_compiler(testing):
     testing.write("CMakeLists.txt", content.format(compiler="MSVC", platform="Linux", generator="Ninja"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert "Builds based on 'MSVC' compiler not supported." in testing.configure_internal(options).stderr
+    assert "Builds based on 'MSVC' compiler not supported." in testing.configure_internal().stderr
 
 def test_unsupported_host_generator(testing):
     testing.write("CMakeLists.txt", content.format(compiler="Clang", platform="Linux", generator="Visual\\ Studio\\ 16\\ 2019"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert "Builds based on 'Visual Studio 16 2019' generator not supported." in testing.configure_internal(options).stderr
+    assert "Builds based on 'Visual Studio 16 2019' generator not supported." in testing.configure_internal().stderr
 
 def test_unknown_host_platform(testing):
     testing.write("CMakeLists.txt", content.format(compiler="Clang", platform="unknown", generator="Ninja"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert "Builds hosted on 'unknown' not supported." in testing.configure_internal(options).stderr
+    assert "Builds hosted on 'unknown' not supported." in testing.configure_internal().stderr
 
 def test_cygwin(testing):
     testing.write("CMakeLists.txt", content.format(compiler="Clang", platform="CYGWIN", generator="Ninja"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    stdout = testing.configure_internal(options).stdout
+    stdout = testing.configure_internal().stdout
     assert 'CMAKE_HOSTC_OUTPUT_EXTENSION=".obj"' in stdout
     assert 'CMAKE_HOSTC_EXECUTABLE_SUFFIX=".exe"' in stdout
     assert 'CMAKE_HOSTC_STATIC_LIBRARY_PREFIX=""' in stdout
@@ -56,8 +52,7 @@ def test_cygwin(testing):
 
 def test_linux(testing):
     testing.write("CMakeLists.txt", content.format(compiler="Clang", platform="Linux", generator="Ninja"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    stdout = testing.configure_internal(options).stdout
+    stdout = testing.configure_internal().stdout
     assert 'CMAKE_HOSTC_OUTPUT_EXTENSION=".o"' in stdout
     assert 'CMAKE_HOSTC_EXECUTABLE_SUFFIX=""' in stdout
     assert 'CMAKE_HOSTC_STATIC_LIBRARY_PREFIX="lib"' in stdout
@@ -65,8 +60,7 @@ def test_linux(testing):
 
 def test_mingw(testing):
     testing.write("CMakeLists.txt", content.format(compiler="Clang", platform="MinGW", generator="Ninja"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    stdout = testing.configure_internal(options).stdout
+    stdout = testing.configure_internal().stdout
     assert 'CMAKE_HOSTC_OUTPUT_EXTENSION=".obj"' in stdout
     assert 'CMAKE_HOSTC_EXECUTABLE_SUFFIX=".exe"' in stdout
     assert 'CMAKE_HOSTC_STATIC_LIBRARY_PREFIX=""' in stdout
@@ -74,8 +68,7 @@ def test_mingw(testing):
 
 def test_windows(testing):
     testing.write("CMakeLists.txt", content.format(compiler="Clang", platform="Windows", generator="Ninja"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    stdout = testing.configure_internal(options).stdout
+    stdout = testing.configure_internal().stdout
     assert 'CMAKE_HOSTC_OUTPUT_EXTENSION=".obj"' in stdout
     assert 'CMAKE_HOSTC_EXECUTABLE_SUFFIX=".exe"' in stdout
     assert 'CMAKE_HOSTC_STATIC_LIBRARY_PREFIX=""' in stdout

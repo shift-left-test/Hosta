@@ -25,8 +25,8 @@ def test_test_targets_work(testing, cross_toolchain, generator, c_compiler_list)
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list)
     testing.cmake("host-targets").check_returncode()
     suffix = '.obj' if c_compiler_list in ["i686-w64-mingw32-gcc"] else '.o'
-    assert testing.exists(f"CMakeFiles/HOST-unittest.dir/src/calc.c{suffix}")
-    assert testing.exists(f"CMakeFiles/HOST-unittest.dir/test/unity_test_main.c{suffix}")
+    assert testing.exists(f"CMakeFiles/HOST-unity_test.dir/calculator/calc.c{suffix}")
+    assert testing.exists(f"CMakeFiles/HOST-unity_test.dir/test/unity_test_main.c{suffix}")
     if c_compiler_list not in ["i686-w64-mingw32-gcc"]:
         testing.ctest().check_returncode()
 
@@ -36,7 +36,7 @@ def test_test_targets_work(testing, cross_toolchain, generator, c_compiler_list)
 def test_link_works(testing, cross_toolchain, generator, c_compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list)
     testing.cmake("host-targets").check_returncode()
-    assert testing.exists("unittest") or testing.exists("unittest.exe")
+    assert testing.exists("unity_test") or testing.exists("unity_test.exe")
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -54,7 +54,7 @@ def test_ctest_works(testing, cross_toolchain, generator, c_compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list)
     testing.cmake("host-targets")
     if c_compiler_list not in ["i686-w64-mingw32-gcc"]:
-        assert "unittest .......................................   Passed" in testing.ctest().stdout
+        assert "unity_test .....................................   Passed" in testing.ctest().stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -64,7 +64,7 @@ def test_gcovr_works(testing, cross_toolchain, generator, c_compiler_list):
     testing.cmake("host-targets")
     if c_compiler_list not in ["clang", "i686-w64-mingw32-gcc"]:
         testing.ctest()
-        assert "src/calc.c                                     8       8   100%" in testing.gcovr().stdout
+        assert "calculator/calc.c                              8       8   100%" in testing.gcovr().stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -72,7 +72,7 @@ def test_gcovr_works(testing, cross_toolchain, generator, c_compiler_list):
 def test_no_changes_no_rebuilds(testing, cross_toolchain, generator, c_compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list)
     testing.cmake("host-targets")
-    assert "Linking HOSTC executable unittest" not in testing.cmake("host-targets").stdout
+    assert "Linking HOSTC executable unity_test" not in testing.cmake("host-targets").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -81,16 +81,16 @@ def test_no_configuration_changes_no_rebuilds(testing, cross_toolchain, generato
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list)
     testing.cmake("host-targets")
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list)
-    assert "Linking HOSTC executable unittest" not in testing.cmake("host-targets").stdout
+    assert "Linking HOSTC executable unity_test" not in testing.cmake("host-targets").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_C_COMPILERS
 def test_reconfiguration_rebuilds(testing, cross_toolchain, generator, c_compiler_list):
-    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, debug_enabled=True)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, extra_options=['-DEXTRA_HOSTC_COMPILE_OPTIONS="-g"'])
     testing.cmake("host-targets")
-    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, debug_enabled=False)
-    assert "Linking HOSTC executable unittest" in testing.cmake("host-targets").stdout
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, extra_options=['-DEXTRA_HOSTC_COMPILE_OPTIONS=""'])
+    assert "Linking HOSTC executable unity_test" in testing.cmake("host-targets").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -98,8 +98,8 @@ def test_reconfiguration_rebuilds(testing, cross_toolchain, generator, c_compile
 def test_updating_source_file_rebuilds(testing, cross_toolchain, generator, c_compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list)
     testing.cmake("host-targets")
-    testing.touch("src/calc.c")
-    assert "Linking HOSTC executable unittest" in testing.cmake("host-targets").stdout
+    testing.touch("calculator/calc.c")
+    assert "Linking HOSTC executable unity_test" in testing.cmake("host-targets").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -107,42 +107,42 @@ def test_updating_source_file_rebuilds(testing, cross_toolchain, generator, c_co
 def test_updating_header_file_rebuilds(testing, cross_toolchain, generator, c_compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list)
     testing.cmake("host-targets")
-    testing.touch("src/calc.h")
-    assert "Linking HOSTC executable unittest" in testing.cmake("host-targets").stdout
+    testing.touch("calculator/calc.h")
+    assert "Linking HOSTC executable unity_test" in testing.cmake("host-targets").stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_C_COMPILERS
 def test_no_standard_option(testing, cross_toolchain, generator, c_compiler_list):
-    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, standard=None)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list)
     assert '-std=' not in testing.cmake("host-targets", verbose=True).stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_C_COMPILERS
 def test_standard_option(testing, cross_toolchain, generator, c_compiler_list):
-    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, standard="11")
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, extra_options=['-DCMAKE_HOSTC_STANDARD=11'])
     assert '-std=gnu11' in testing.cmake("host-targets", verbose=True).stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_C_COMPILERS
 def test_invalid_standard_option(testing, cross_toolchain, generator, c_compiler_list):
-    stderr = testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, standard="12345").stderr
+    stderr = testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, extra_options=['-DCMAKE_HOSTC_STANDARD=12345']).stderr
     assert "HOSTC_STANDARD is set to invalid value '12345'" in stderr
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_C_COMPILERS
 def test_standard_and_extension_options(testing, cross_toolchain, generator, c_compiler_list):
-    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, standard="11", extensions=True)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, extra_options=['-DCMAKE_HOSTC_STANDARD=11', '-DCMAKE_HOSTC_EXTENSIONS=True'])
     assert '-std=gnu11' in testing.cmake("host-targets", verbose=True).stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_C_COMPILERS
 def test_standard_and_no_extension_options(testing, cross_toolchain, generator, c_compiler_list):
-    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, standard="11", extensions=False)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, extra_options=['-DCMAKE_HOSTC_STANDARD=11', '-DCMAKE_HOSTC_EXTENSIONS=False'])
     assert '-std=c11' in testing.cmake("host-targets", verbose=True).stdout
 
 @PARAM_CROSS_TOOLCHAIN
@@ -168,21 +168,21 @@ def test_paths(testing, cross_toolchain, generator, c_compiler_list):
         object_extension = ".o"
 
     assert f'-o CMakeFiles/HOST-{static_library_prefix}unity{static_library_suffix}.dir/unity.c{object_extension}' in stdout  # absolute source path
-    assert f'{testing.workspace}/unity' in stdout  # relative include path to absolute one
-    assert testing.exists(f"relative_path_test/CMakeFiles/HOST-relative_path_test.dir/__/src/calc.c{object_extension}")  # .. to __
+    assert f'{testing.workspace}/external/unity' in stdout  # relative include path to absolute one
+    assert testing.exists(f"relative_path_test/CMakeFiles/HOST-relative_path_test.dir/__/calculator/calc.c{object_extension}")  # .. to __
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_C_COMPILERS
 def test_compile_options(testing, cross_toolchain, generator, c_compiler_list):
-    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, debug_enabled=True)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, extra_options=['-DEXTRA_HOSTC_COMPILE_OPTIONS="-g"'])
     assert ' -g' in testing.cmake("host-targets", verbose=True).stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @PARAM_C_COMPILERS
 def test_link_options(testing, cross_toolchain, generator, c_compiler_list):
-    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, libm_enabled=True)
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, extra_options=['-DEXTRA_HOSTC_LINK_OPTIONS="-lm"'])
     assert ' -lm' in testing.cmake("host-targets", verbose=True).stdout
 
 @PARAM_CROSS_TOOLCHAIN
@@ -198,7 +198,7 @@ def test_custom_build_target_conflict_existing_name(testing, cross_toolchain, ge
 def test_custom_build_target(testing, cross_toolchain, generator, c_compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list, extra_options=["-DCMAKE_HOST_BUILD_TARGET=abc"])
     testing.cmake("abc").check_returncode()
-    assert testing.exists("unittest") or testing.exists("unittest.exe")
+    assert testing.exists("unity_test") or testing.exists("unity_test.exe")
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -251,7 +251,7 @@ def test_host_static_library(testing, cross_toolchain, generator, c_compiler_lis
 @PARAM_C_COMPILERS
 def test_host_executable(testing, cross_toolchain, generator, c_compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list)
-    testing.cmake("HOST-unittest").check_returncode()
+    testing.cmake("HOST-unity_test").check_returncode()
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS

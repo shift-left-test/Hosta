@@ -25,20 +25,16 @@ cmake_print_variables(OUTPUT)
 
 def test_unknown_target_name(testing):
     testing.write("CMakeLists.txt", content.format(target="unknown", key="HOST_SOURCES", value="abc"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'set_host_target_property() called with non-existent target "unknown".' in testing.configure_internal(options).stderr
+    assert 'set_host_target_property() called with non-existent target "unknown".' in testing.configure_internal().stderr
 
 def test_set_anonymous_property(testing):
     testing.write("CMakeLists.txt", content.format(target="hello", key="UNKNOWN", value="abc"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT="abc"' in testing.configure_internal(options).stdout
+    assert 'OUTPUT="abc"' in testing.configure_internal().stdout
 
 def test_set_property_single_value(testing):
     testing.write("CMakeLists.txt", content.format(target="hello", key="HOST_SOURCES", value="abc"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT="abc"' in testing.configure_internal(options).stdout
+    assert 'OUTPUT="abc"' in testing.configure_internal().stdout
 
 def test_set_property_multi_values(testing):
     testing.write("CMakeLists.txt", content.format(target="hello", key="HOST_SOURCES", value="a;b;c"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT="a;b;c"' in testing.configure_internal(options).stdout
+    assert 'OUTPUT="a;b;c"' in testing.configure_internal().stdout

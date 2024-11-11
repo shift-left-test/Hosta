@@ -24,10 +24,8 @@ cmake_print_variables(CMAKE_HOSTX_COMPILER)
 
 def test_unknown_host_compiler(testing):
     testing.write("CMakeLists.txt", content.format(compiler="unknown"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'CMAKE_HOSTX_COMPILER="CMAKE_HOSTX_COMPILER-NOTFOUND' in testing.configure_internal(options).stdout
+    assert 'CMAKE_HOSTX_COMPILER="CMAKE_HOSTX_COMPILER-NOTFOUND' in testing.configure_internal().stdout
 
 def test_known_host_compiler(testing):
     testing.write("CMakeLists.txt", content.format(compiler="clang"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'CMAKE_HOSTX_COMPILER="/usr/bin/clang' in testing.configure_internal(options).stdout
+    assert 'CMAKE_HOSTX_COMPILER="/usr/bin/clang' in testing.configure_internal().stdout

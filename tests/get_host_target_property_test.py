@@ -23,30 +23,24 @@ cmake_print_variables(OUTPUT)
 
 def test_unknown_target_name(testing):
     testing.write("CMakeLists.txt", content.format(key="HOST_SOURCES", value="aaa", target="unknown", property="HOST_SOURCES"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'get_host_target_property() called with non-existent target "unknown".' in testing.configure_internal(options).stderr
+    assert 'get_host_target_property() called with non-existent target "unknown".' in testing.configure_internal().stderr
 
 def test_unknown_property_name(testing):
     testing.write("CMakeLists.txt", content.format(key="HOST_SOURCES", value="aaa", target="hello", property="unknown"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT=""' in testing.configure_internal(options).stdout
+    assert 'OUTPUT=""' in testing.configure_internal().stdout
 
 def test_get_original_property(testing):
     testing.write("CMakeLists.txt", content.format(key="HOST_SOURCES", value="aaa", target="hello", property="NAME"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT="hello"' in testing.configure_internal(options).stdout
+    assert 'OUTPUT="hello"' in testing.configure_internal().stdout
 
 def test_get_empty_host_property(testing):
     testing.write("CMakeLists.txt", content.format(key="HOST_SOURCES", value="aaa", target="hello", property="HOST_TYPE"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT=""' in testing.configure_internal(options).stdout
+    assert 'OUTPUT=""' in testing.configure_internal().stdout
 
 def test_get_host_property_single_value(testing):
     testing.write("CMakeLists.txt", content.format(key="HOST_SOURCES", value="abc", target="hello", property="HOST_SOURCES"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT="abc"' in testing.configure_internal(options).stdout
+    assert 'OUTPUT="abc"' in testing.configure_internal().stdout
 
 def test_get_host_property_multi_values(testing):
     testing.write("CMakeLists.txt", content.format(key="HOST_SOURCES", value="a;b;c", target="hello", property="HOST_SOURCES"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT="a;b;c"' in testing.configure_internal(options).stdout
+    assert 'OUTPUT="a;b;c"' in testing.configure_internal().stdout

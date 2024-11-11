@@ -1,0 +1,15 @@
+add_host_executable(no_unity_fixture_test
+  SOURCES ../calculator/calc.c unity_test_main.c
+  INCLUDE_DIRECTORIES PRIVATE ../calculator
+  LINK_LIBRARIES PRIVATE Host::unity Host::coverage Host::hostc_options
+)
+
+unity_fixture_add_host_tests(no_unity_fixture_test)
+
+add_host_executable(unity_fixture_test
+  SOURCES ../calculator/calc.c unity_fixture_test_main.c
+  INCLUDE_DIRECTORIES PRIVATE ../calculator
+  LINK_LIBRARIES PRIVATE Host::unity-fixture Host::unity Host::coverage Host::hostc_options
+)
+
+unity_fixture_add_host_tests(unity_fixture_test)

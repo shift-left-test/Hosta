@@ -21,30 +21,24 @@ cmake_print_variables(OUTPUT)
 
 def test_empty_target_name(testing):
     testing.write("CMakeLists.txt", content.format(target=""))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT=""' in testing.configure_internal(options).stdout
+    assert 'OUTPUT=""' in testing.configure_internal().stdout
 
 def test_target_name_with_unknown_namespace(testing):
     testing.write("CMakeLists.txt", content.format(target="ABC::hello"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT="ABC::hello"' in testing.configure_internal(options).stdout
+    assert 'OUTPUT="ABC::hello"' in testing.configure_internal().stdout
 
 def test_target_name_with_long_unknown_namespace(testing):
     testing.write("CMakeLists.txt", content.format(target="ABC::Host::hello"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT="ABC::Host::hello"' in testing.configure_internal(options).stdout
+    assert 'OUTPUT="ABC::Host::hello"' in testing.configure_internal().stdout
 
 def test_plain_target_name(testing):
     testing.write("CMakeLists.txt", content.format(target="hello"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT="hello"' in testing.configure_internal(options).stdout
+    assert 'OUTPUT="hello"' in testing.configure_internal().stdout
 
 def test_target_name_with_host_namespace(testing):
     testing.write("CMakeLists.txt", content.format(target="Host::hello"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT="HOST-hello"' in testing.configure_internal(options).stdout
+    assert 'OUTPUT="HOST-hello"' in testing.configure_internal().stdout
 
 def test_target_name_with_nested_host_namespace(testing):
     testing.write("CMakeLists.txt", content.format(target="Host::Host::hello"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT="HOST-Host::hello"' in testing.configure_internal(options).stdout
+    assert 'OUTPUT="HOST-Host::hello"' in testing.configure_internal().stdout

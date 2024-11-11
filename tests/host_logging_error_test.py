@@ -19,16 +19,13 @@ host_logging_error({messages})
 
 def test_failure(testing):
     testing.write("CMakeLists.txt", content.format(messages='"hello"'))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert testing.configure_internal(options).returncode != 0
+    assert testing.configure_internal().returncode != 0
 
 def test_messages_on_console(testing):
     testing.write("CMakeLists.txt", content.format(messages='"hello" "world"'))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert '  hello\n\n  world' in testing.configure_internal(options).stderr
+    assert '  hello\n\n  world' in testing.configure_internal().stderr
 
 def test_messages_on_file(testing):
     testing.write("CMakeLists.txt", content.format(messages='"hello" "world"'))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    testing.configure_internal(options)
+    testing.configure_internal()
     assert 'hello\nworld\n\n' in testing.read("CMakeFiles/CMakeError.log")

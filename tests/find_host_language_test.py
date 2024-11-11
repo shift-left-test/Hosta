@@ -22,20 +22,16 @@ cmake_print_variables(OUTPUT)
 
 def test_empty_source_file(testing):
     testing.write("CMakeLists.txt", content.format(sources=""))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT=""' in testing.configure_internal(options).stdout
+    assert 'OUTPUT=""' in testing.configure_internal().stdout
 
 def test_unknown_source_file_extension(testing):
     testing.write("CMakeLists.txt", content.format(sources="world.x"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT=""' in testing.configure_internal(options).stdout
+    assert 'OUTPUT=""' in testing.configure_internal().stdout
 
 def test_unknown_source_file_extensions(testing):
     testing.write("CMakeLists.txt", content.format(sources="hello.c world.x"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT=""' in testing.configure_internal(options).stdout
+    assert 'OUTPUT=""' in testing.configure_internal().stdout
 
 def test_c_source_file_extensions(testing):
     testing.write("CMakeLists.txt", content.format(sources="hello.c world.m"))
-    options = [f'-DCMAKE_BINARY_DIR={testing.workspace}']
-    assert 'OUTPUT="C"' in testing.configure_internal(options).stdout
+    assert 'OUTPUT="C"' in testing.configure_internal().stdout

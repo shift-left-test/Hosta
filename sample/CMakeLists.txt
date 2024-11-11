@@ -27,7 +27,7 @@ include(../cmake/HostTest.cmake)
 # Enable CTest
 enable_testing()
 
-add_subdirectory(src)
-add_subdirectory(test)
 add_subdirectory(external/unity)
 add_subdirectory(external/fff)
+add_subdirectory(calculator)
+add_subdirectory(test)
