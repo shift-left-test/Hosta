@@ -57,7 +57,7 @@ add_host_executable(unity_test
   DEPENDS hello
 )
 
-add_host_test(Host::unity_test)
+add_host_test(Host::unity_test PREFIX ${HOST_TEST_PREFIX})
 
 add_subdirectory(calculator)
 add_subdirectory(test)

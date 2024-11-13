@@ -12,7 +12,7 @@ add_host_executable(unity_fixture_test
   LINK_LIBRARIES PRIVATE Host::unity-fixture Host::unity Host::coverage Host::hostc_options
 )
 
-unity_fixture_add_host_tests(unity_fixture_test)
+unity_fixture_add_host_tests(unity_fixture_test PREFIX ${HOST_TEST_PREFIX})
 
 add_host_executable(google_test
   SOURCES ../calculator/calc.cpp google_test_main.cpp
@@ -21,4 +21,4 @@ add_host_executable(google_test
   DEPENDS hello
 )
 
-gtest_add_host_tests(google_test)
+gtest_add_host_tests(google_test PREFIX ${HOST_TEST_PREFIX})

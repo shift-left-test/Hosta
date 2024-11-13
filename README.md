@@ -130,10 +130,11 @@ Only direct dependencies between host targets are allowed. Indirect dependencies
 To add an executable target as a test with CTest, use the `add_host_test` function:
 
 ```cmake
-add_host_test(<target> [EXTRA_ARGS <extra_args>])
+add_host_test(<target> [PREFIX <prefix>] [EXTRA_ARGS <extra_args>])
 
 # Parameters:
 # - target: Specifies the name of the executable target created with `add_host_executable`
+# - prefix: Specifies a prefix to be prepended to the test case name
 # - extra_args: Any additional arguments to pass on the command line
 ```
 
@@ -142,10 +143,11 @@ add_host_test(<target> [EXTRA_ARGS <extra_args>])
 To automatically add an executable target as tests with CTest by scanning the source code for Unity test macros, use the `unity_fixture_add_host_tests` function:
 
 ```cmake
-unity_fixture_add_host_tests(<target> [EXTRA_ARGS <extra_args>])
+unity_fixture_add_host_tests(<target> [PREFIX <prefix>] [EXTRA_ARGS <extra_args>])
 
 # Parameters:
 # - target: Specifies the name of the executable target created with `add_host_executable`
+# - prefix: Specifies a prefix to be prepended to the name of each test case
 # - extra_args: Any additional arguments to pass on the command line
 ```
 
@@ -154,10 +156,11 @@ unity_fixture_add_host_tests(<target> [EXTRA_ARGS <extra_args>])
 To automatically add an executable target as tests with CTest by scanning the source code for Google test macros, use the `gtest_add_host_tests` function:
 
 ```cmake
-gtest_add_host_tests(<target> [EXTRA_ARGS <extra_args>])
+gtest_add_host_tests(<target> [PREFIX <prefix>] [EXTRA_ARGS <extra_args>])
 
 # Parameters:
 # - target: Specifies the name of the executable target created with `add_host_executable`
+# - prefix: Specifies a prefix to be prepended to the name of each test case
 # - extra_args: Any additional arguments to pass on the command line
 ```
 

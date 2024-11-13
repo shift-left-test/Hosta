@@ -17,8 +17,9 @@ function(add_host_test TARGET)
     return()
   endif()
 
+  set(oneValueArgs PREFIX)
   set(multiValueArgs EXTRA_ARGS)
-  cmake_parse_arguments(ARG "" "" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   # Remove the host namespace prefix if exists
   remove_host_namespace_prefix(TARGET "${TARGET}")
@@ -28,7 +29,7 @@ function(add_host_test TARGET)
     OUTPUT_NAME _output
   )
 
-  add_test(NAME ${TARGET} COMMAND ${_output} ${ARG_EXTRA_ARGS})
+  add_test(NAME ${ARG_PREFIX}${TARGET} COMMAND ${_output} ${ARG_EXTRA_ARGS})
 endfunction(add_host_test)
 
 function(unity_fixture_add_host_tests TARGET)
@@ -37,8 +38,9 @@ function(unity_fixture_add_host_tests TARGET)
     return()
   endif()
 
+  set(oneValueArgs PREFIX)
   set(multiValueArgs EXTRA_ARGS)
-  cmake_parse_arguments(ARG "" "" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   # Remove the host namespace prefix if exists
   remove_host_namespace_prefix(TARGET "${TARGET}")
@@ -73,7 +75,7 @@ function(unity_fixture_add_host_tests TARGET)
       string(REGEX REPLACE ${unity_test_name_regex} "\\1" unity_test_group ${hit})
       string(REGEX REPLACE ${unity_test_name_regex} "\\2" unity_test_case ${hit})
 
-      set(ctest_test_name ${TARGET}.${unity_test_name})
+      set(ctest_test_name ${ARG_PREFIX}${unity_test_name})
       add_test(NAME ${ctest_test_name} COMMAND ${_output} -g ${unity_test_group} -n ${unity_test_case} -v ${ARG_EXTRA_ARGS})
 
       # Make sure ignored unity tests get disabled in CTest
@@ -93,7 +95,8 @@ function(gtest_add_host_tests TARGET)
   endif()
 
   set(multiValueArgs EXTRA_ARGS)
-  cmake_parse_arguments(ARG "" "" "${multiValueArgs}" ${ARGN})
+  set(oneValueArgs PREFIX)
+  cmake_parse_arguments(ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   # Remove the host namespace prefix if exists
   remove_host_namespace_prefix(TARGET "${TARGET}")
@@ -117,5 +120,10 @@ function(gtest_add_host_tests TARGET)
 
   # Use gtest_add_tests
   include(GoogleTest)
-  gtest_add_tests(${TARGET} ${ARG_EXTRA_ARGS} ${sources})
+  gtest_add_tests(
+    TARGET ${TARGET}
+    SOURCES ${sources}
+    EXTRA_ARGS ${ARG_EXTRA_ARGS}
+    TEST_PREFIX ${ARG_PREFIX}
+  )
 endfunction(gtest_add_host_tests)

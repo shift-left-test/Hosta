@@ -53,7 +53,7 @@ def test_ctest_works(testing, cross_toolchain, generator, cpp_compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, cpp_compiler_list=cpp_compiler_list)
     testing.cmake("host-targets")
     if cpp_compiler_list not in ["i686-w64-mingw32-g++"]:
-        assert "GoogleTest.test_plus ...........................   Passed" in testing.ctest().stdout
+        assert "GoogleTest.test_plus .............   Passed" in testing.ctest().stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -217,7 +217,7 @@ def test_gtest_add_host_tests_with_ignored_test(testing, cross_toolchain, genera
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, cpp_compiler_list=cpp_compiler_list)
     testing.cmake("host-targets").check_returncode()
     if cpp_compiler_list not in ["i686-w64-mingw32-g++"]:
-        assert 'GoogleTest.test_minus ..........................***Not Run (Disabled)' in testing.ctest().stdout
+        assert 'GoogleTest.test_minus ............***Not Run (Disabled)' in testing.ctest().stdout
 
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
@@ -245,3 +245,16 @@ def test_host_executable(testing, cross_toolchain, generator, cpp_compiler_list)
 @pytest.mark.parametrize("cpp_compiler_list", ["cc", "gcc", "clang", "i686-w64-mingw32-gcc"])
 def test_with_c_compiler(testing, cross_toolchain, generator, cpp_compiler_list):
     testing.configure(cross_toolchain=cross_toolchain, generator=generator, cpp_compiler_list=cpp_compiler_list).check_returncode()
+
+@PARAM_CROSS_TOOLCHAIN
+@PARAM_GENERATORS
+@PARAM_CPP_COMPILERS
+def test_with_prefix(testing, cross_toolchain, generator, cpp_compiler_list):
+    testing.configure(cross_toolchain=cross_toolchain, generator=generator, cpp_compiler_list=cpp_compiler_list, extra_options=['-DHOST_TEST_PREFIX="Hello."'])
+    testing.cmake("host-targets").check_returncode()
+    if cpp_compiler_list not in ["i686-w64-mingw32-g++"]:
+        stdout = testing.ctest().stdout
+        assert "Hello.GoogleTest.test_plus" in stdout
+        assert "Hello.GoogleTest.test_minus" in stdout
+        assert "Hello.GoogleTest.test_multiply" in stdout
+        assert "Hello.GoogleTest.test_divide" in stdout
