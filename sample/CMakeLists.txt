@@ -12,15 +12,15 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-project(sample LANGUAGES C)
+project(sample LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_EXTENSIONS ON)
-
 set(CMAKE_HOSTC_STANDARD 11)
 set(CMAKE_HOSTC_EXTENSIONS ON)
+
+set(CMAKE_HOSTCXX_STANDARD 14)
+set(CMAKE_HOSTCXX_EXTENSIONS ON)
 
 include(../cmake/HostTest.cmake)
 
@@ -29,5 +29,6 @@ enable_testing()
 
 add_subdirectory(external/unity)
 add_subdirectory(external/fff)
+add_subdirectory(external/gtest)
 add_subdirectory(calculator)
 add_subdirectory(test)

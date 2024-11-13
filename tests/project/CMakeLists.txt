@@ -25,7 +25,7 @@ if(WITH_CROSS_TOOLCHAIN)
   set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 endif()
 
-project(host-test LANGUAGES C)
+project(host-test LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -45,6 +45,11 @@ add_host_library(hostc_options INTERFACE
   LINK_OPTIONS PUBLIC ${EXTRA_HOSTC_LINK_OPTIONS}
 )
 
+add_host_library(hostcxx_options INTERFACE
+  COMPILE_OPTIONS PUBLIC ${EXTRA_HOSTCXX_COMPILE_OPTIONS}
+  LINK_OPTIONS PUBLIC ${EXTRA_HOSTCXX_LINK_OPTIONS}
+)
+
 add_host_executable(unity_test
   SOURCES calculator/calc.c test/unity_test_main.c
   INCLUDE_DIRECTORIES PRIVATE ${CMAKE_CURRENT_LIST_DIR}/calculator ${CMAKE_CURRENT_LIST_DIR}/test
@@ -58,3 +63,4 @@ add_subdirectory(calculator)
 add_subdirectory(test)
 add_subdirectory(relative_path_test)
 add_subdirectory(external/unity)
+add_subdirectory(external/gtest)

@@ -1,10 +1,10 @@
 # Hosta
 
-> Host based test automation for C
+> Host based test automation for C/C++
 
 ## About
 
-Hosta is a comprehensive solution for building and executing unit tests for C programs using the host build toolchain. It leverages CMake scripts to facilitate the creation of test programs and their execution on the host platform via CTest, even within a cross-build toolchain environment.
+Hosta is a comprehensive solution for building and executing unit tests for C/C++ programs using the host build toolchain. It leverages CMake scripts to facilitate the creation of test programs and their execution on the host platform via CTest, even within a cross-build toolchain environment.
 
 ## Prerequisites
 
@@ -12,12 +12,16 @@ Ensure the following software packages are installed on your host environment:
 
 - CMake (3.16 or higher)
 - C Compiler Toolchain (e.g. GCC, clang)
+- C++ Compiler Toolchain (e.g. G++, clang++)
 
 The following additional packages are required for testing this project:
 
 - build-essential
-- docker
 - clang
+- docker
+- g++
+- g++-mingw-w64
+- gcc
 - gcc-mingw-w64
 - gcovr
 - ninja-build
@@ -133,12 +137,24 @@ add_host_test(<target> [EXTRA_ARGS <extra_args>])
 # - extra_args: Any additional arguments to pass on the command line
 ```
 
-### Adding Executable Tests by Scanning Source Code for Unity Test Macros
+### Adding an Executable as Tests with CTest by Scanning Source Code for Unity Test Macros
 
-To automatically add executable tests by scanning the source code for Unity test macros, use the `unity_fixture_add_host_tests` function:
+To automatically add an executable target as tests with CTest by scanning the source code for Unity test macros, use the `unity_fixture_add_host_tests` function:
 
 ```cmake
 unity_fixture_add_host_tests(<target> [EXTRA_ARGS <extra_args>])
+
+# Parameters:
+# - target: Specifies the name of the executable target created with `add_host_executable`
+# - extra_args: Any additional arguments to pass on the command line
+```
+
+### Adding an Executable as Tests with CTest by Scanning Source Code for Google Test Macros
+
+To automatically add an executable target as tests with CTest by scanning the source code for Google test macros, use the `gtest_add_host_tests` function:
+
+```cmake
+gtest_add_host_tests(<target> [EXTRA_ARGS <extra_args>])
 
 # Parameters:
 # - target: Specifies the name of the executable target created with `add_host_executable`

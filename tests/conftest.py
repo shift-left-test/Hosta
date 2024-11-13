@@ -27,7 +27,7 @@ class CMakeFixture(object):
         command = [f'cmake -S {self.workspace} -B {self.build} -DCMAKE_BINARY_DIR={self.workspace}']
         return self.execute(command + options)
 
-    def configure(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", c_compiler_list=None, extra_options=[]):
+    def configure(self, build="build", testing_enabled=True, cross_toolchain=True, generator="Unix Makefiles", c_compiler_list=None, cpp_compiler_list=None, extra_options=[]):
         self.build = os.path.join(self.workspace, build)
 
         # Copy source files to workspace
@@ -38,6 +38,7 @@ class CMakeFixture(object):
             f'-DCMAKE_TESTING_ENABLED={testing_enabled}',
             f'-DWITH_CROSS_TOOLCHAIN={cross_toolchain}',
             f'-DCMAKE_HOSTC_COMPILER_LIST="{c_compiler_list}"' if c_compiler_list else '',
+            f'-DCMAKE_HOSTCXX_COMPILER_LIST="{cpp_compiler_list}"' if cpp_compiler_list else '',
         ] + extra_options
         return self.configure_internal(options)
 
@@ -116,4 +117,24 @@ def testing_clang(testing):
 @pytest.fixture
 def testing_mingw_gcc(testing):
     testing.configure(c_compiler_list="i686-w64-mingw32-gcc")
+    return testing
+
+@pytest.fixture
+def testing_cpp(testing):
+    testing.configure()
+    return testing
+
+@pytest.fixture
+def testing_gpp(testing):
+    testing.configure(cpp_compiler_list="g++")
+    return testing
+
+@pytest.fixture
+def testing_clangpp(testing):
+    testing.configure(cpp_compiler_list="clang++")
+    return testing
+
+@pytest.fixture
+def testing_mingw_gpp(testing):
+    testing.configure(cpp_compiler_list="i686-w64-mingw32-g++")
     return testing

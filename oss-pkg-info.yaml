@@ -12,3 +12,7 @@ Open Source Software Package:
   source: https://github.com/meekrosoft/fff
   license: MIT
   copyright: Copyright (c) 2010 Michael Long
+- name: GoogleTest
+  source: https://github.com/google/googletest.git
+  license: BSD-3-Clause
+  copyright: Copyright 2008, Google Inc.

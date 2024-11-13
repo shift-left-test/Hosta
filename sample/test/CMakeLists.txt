@@ -21,3 +21,11 @@ add_host_executable(unity_fixture_test
 )
 
 unity_fixture_add_host_tests(Host::unity_fixture_test)
+
+add_host_executable(google_test
+  SOURCES ../calculator/calc.c googletest_main.cpp
+  INCLUDE_DIRECTORIES PRIVATE ../calculator
+  LINK_LIBRARIES PRIVATE Host::gtest Host::coverage
+)
+
+gtest_add_host_tests(Host::google_test)

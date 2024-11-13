@@ -256,6 +256,6 @@ def test_host_executable(testing, cross_toolchain, generator, c_compiler_list):
 @PARAM_CROSS_TOOLCHAIN
 @PARAM_GENERATORS
 @pytest.mark.parametrize("c_compiler_list", ["c++", "g++", "clang++", "i686-w64-mingw32-g++"])
-def test_with_unsupported_compiler(testing, cross_toolchain, generator, c_compiler_list):
+def test_with_cpp_compiler(testing, cross_toolchain, generator, c_compiler_list):
     stderr = testing.configure(cross_toolchain=cross_toolchain, generator=generator, c_compiler_list=c_compiler_list).stderr
     assert "is not able to compile a simple test program" in stderr

@@ -85,3 +85,37 @@ function(unity_fixture_add_host_tests TARGET)
     endforeach()
   endforeach()
 endfunction(unity_fixture_add_host_tests)
+
+function(gtest_add_host_tests TARGET)
+  # Assume that enable_testing() is called
+  if(NOT CMAKE_TESTING_ENABLED)
+    return()
+  endif()
+
+  set(multiValueArgs EXTRA_ARGS)
+  cmake_parse_arguments(ARG "" "" "${multiValueArgs}" ${ARGN})
+
+  # Remove the host namespace prefix if exists
+  remove_host_namespace_prefix(TARGET "${TARGET}")
+
+  # Path to the executable and source files
+  get_host_target_properties(${CMAKE_HOST_NAMESPACE_PREFIX}${TARGET}
+    SOURCES _sources
+    SOURCE_DIR _source_dir
+    OUTPUT_NAME _output
+  )
+
+  # Convert relative source paths to absolute ones
+  unset(sources)
+  foreach(source IN LISTS _sources)
+    if(IS_ABSOLUTE "${source}")
+      list(APPEND sources "${source}")
+    else()
+      list(APPEND sources "${_source_dir}/${source}")
+    endif()
+  endforeach()
+
+  # Use gtest_add_tests
+  include(GoogleTest)
+  gtest_add_tests(${TARGET} ${ARG_EXTRA_ARGS} ${sources})
+endfunction(gtest_add_host_tests)

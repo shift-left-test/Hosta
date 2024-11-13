@@ -13,5 +13,5 @@ int multiply(int x, int y) {
 }
 
 double divide(int x, int y) {
-  return (double)x / (double) y;
+  return (double)x / (double)y;
 }

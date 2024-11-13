@@ -285,7 +285,7 @@ function(find_host_binutils lang)
 
   # Identify host compiler prefix if exists
   get_filename_component(compiler_basename "${CMAKE_HOST${lang}_COMPILER}" NAME)
-  if(compiler_basename MATCHES "^(.+-)(clang|g?cc)(\\.exe)?$")
+  if(compiler_basename MATCHES "^(.+-)((clang|g?cc)|(clan)?[gc]\\+\\+)(\\.exe)?$")
     set(toolchain_prefix ${CMAKE_MATCH_1})
   endif()
 
