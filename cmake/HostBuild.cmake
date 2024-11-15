@@ -455,16 +455,23 @@ function(add_host_executable TARGET)
   unset(_extra_compile_options)
   unset(_extra_link_options)
   unset(_extra_dependencies)
-  foreach(_lib IN LISTS BUILD_LINK_LIBRARIES)
-    list(APPEND _extra_include_directories "$<$<AND:$<BOOL:${_lib}>,$<BOOL:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>>>:${CMAKE_INCLUDE_FLAG_HOSTC}$<JOIN:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>,$<SEMICOLON>${CMAKE_INCLUDE_FLAG_HOSTC}>>")
-    list(APPEND _extra_compile_options "$<$<BOOL:${_lib}>:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_COMPILE_OPTIONS>>")
-    list(APPEND _extra_link_options "$<$<BOOL:${_lib}>:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_LINK_OPTIONS>>")
-    list(APPEND _extra_dependencies "$<$<BOOL:${_lib}>:${CMAKE_HOST_TARGET_PREFIX}$<TARGET_PROPERTY:${_lib},HOST_NAME>>")
-  endforeach()
 
-  # Add static library paths as link option
+  # Ensure only host libraries are given
+  set(remaining ${BUILD_LINK_LIBRARIES})
+  list(FILTER remaining EXCLUDE REGEX "^${CMAKE_HOST_TARGET_PREFIX}.*$")
+  list(JOIN remaining ", " remaining)
+  if(remaining)
+    host_logging_error("add_host_executable LINK_LIBRARIES requires the name of host libraries starting with the host namespace prefix.\nUnsupported libraries: ${remaining}")
+  endif()
+
   foreach(_lib IN LISTS BUILD_LINK_LIBRARIES)
-    list(APPEND _extra_link_options "$<$<AND:$<BOOL:${_lib}>,$<STREQUAL:$<TARGET_PROPERTY:${_lib},HOST_TYPE>,HOST_STATIC>>:$<TARGET_PROPERTY:${_lib},HOST_OUTPUT_NAME>>")
+    list(APPEND _extra_include_directories "$<$<BOOL:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>>:${CMAKE_INCLUDE_FLAG_HOSTC}>$<JOIN:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>,$<SEMICOLON>${CMAKE_INCLUDE_FLAG_HOSTC}>")
+    list(APPEND _extra_compile_options "$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_COMPILE_OPTIONS>")
+    list(APPEND _extra_link_options "$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_LINK_OPTIONS>")
+    list(APPEND _extra_dependencies "${CMAKE_HOST_TARGET_PREFIX}$<TARGET_PROPERTY:${_lib},HOST_NAME>")
+    # Add static library paths as link option
+    # Note: $<TARGET_PROPERTY:tgt,prop>: Non-existing libraries cause build failures
+    list(APPEND _extra_link_options "$<$<BOOL:$<STREQUAL:$<TARGET_PROPERTY:${_lib},HOST_TYPE>,HOST_STATIC>>:$<TARGET_PROPERTY:${_lib},HOST_OUTPUT_NAME>>")
   endforeach()
 
   if(NOT BUILD_SOURCES)

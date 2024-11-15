@@ -123,7 +123,8 @@ add_host_library(world STATIC
 
 #### Limitations
 
-Only direct dependencies between host targets are allowed. Indirect dependencies are not properly reflected.
+- Only direct dependencies between host targets are allowed. Indirect dependencies are not properly reflected.
+- Only host libraries are allowed for LINK_LIBRARIES. Non-host libraries are not permitted even if they are host-compatible. Non-existing host libraries cause build failures.
 
 ### Adding an Executable as a Test with CTest
 

@@ -117,10 +117,12 @@ def test_link_static_libraries(testing):
     testing.write("world/world.c", "void world() { }")
 
     testing.configure_internal().check_returncode()
-    stdout = testing.cmake("host-targets", verbose=True).stdout
+    process = testing.cmake("host-targets", verbose=True)
+    process.check_returncode()
+    stdout = process.stdout
     assert f'-I{testing.workspace}/hello -I{testing.workspace}/world' in stdout
     assert '-DHELLO -DWORLD' in stdout
-    assert '-fprofile-arcs -lm' in stdout
+    assert f'-fprofile-arcs {testing.build}/libhello.a -lm' in stdout
 
 def test_link_interface_libraries(testing):
     content = '''
@@ -140,6 +142,25 @@ def test_link_interface_libraries(testing):
     assert f'-I{testing.workspace}/hello -I{testing.workspace}/world' in stdout
     assert '-DHELLO -DWORLD' in stdout
     assert '-fprofile-arcs -lm' in stdout
+
+def test_link_libraries_with_private_options(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_executable(main SOURCES main.c LINK_LIBRARIES PRIVATE Host::hello)
+    add_host_library(hello INTERFACE INCLUDE_DIRECTORIES PRIVATE aaa COMPILE_OPTIONS PRIVATE bbb LINK_OPTIONS PRIVATE ccc)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.write("main.c", "int main() { return 0; }")
+    testing.configure_internal().check_returncode()
+    process = testing.cmake("host-targets", verbose=True)
+    process.check_returncode()
+    stdout = process.stdout
+    assert '-I' not in stdout
+    assert 'aaa' not in stdout
+    assert 'bbb' not in stdout
+    assert 'ccc' not in stdout
 
 def test_executable_rebuild(testing):
     content = '''
@@ -185,3 +206,54 @@ def test_generator_expression_options(testing):
     testing.write("main.c", '#ifdef HELLO \n int main() { return 0; } \n #endif')
     testing.configure_internal().check_returncode()
     testing.cmake("host-targets", verbose=True).check_returncode()
+
+def test_with_unknown_host_libraries(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_executable(main SOURCES main.c LINK_LIBRARIES PRIVATE Host::unknown)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.write("main.c", 'int main() { return 0; }')
+    assert 'Error evaluating generator expression' in testing.configure_internal().stderr
+
+def test_with_normal_libraries(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_executable(main SOURCES main.c LINK_LIBRARIES PRIVATE hello)
+    add_library(hello STATIC hello/hello.c)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.write("main.c", '#include "hello.h" \n int main() { hello(); return 0; }')
+    testing.write("hello/hello.h", "void hello();")
+    testing.write("hello/hello.c", "void hello() { }")
+    assert 'Unsupported libraries: hello' in testing.configure_internal().stderr
+
+def test_with_unknown_libraries(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_executable(main SOURCES main.c LINK_LIBRARIES PRIVATE hello world)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.write("main.c", 'int main() { return 0; }')
+    assert 'Unsupported libraries: hello, world' in testing.configure_internal().stderr
+
+def test_with_host_executable_as_libraries(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_executable(main SOURCES main.c LINK_LIBRARIES PRIVATE Host::hello)
+    add_host_executable(hello SOURCES hello/hello.c)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.write("main.c", "int main() { return 0; }")
+    testing.write("hello/hello.c", "int main() { return 0; }")
+    testing.configure_internal().check_returncode()
+    testing.cmake("HOST-hello").check_returncode()
+    assert not 'libhello.a' in testing.cmake("HOST-main", verbose=True).stdout
