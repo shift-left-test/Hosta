@@ -257,3 +257,15 @@ def test_with_host_executable_as_libraries(testing):
     testing.configure_internal().check_returncode()
     testing.cmake("HOST-hello").check_returncode()
     assert not 'libhello.a' in testing.cmake("HOST-main", verbose=True).stdout
+
+def test_replace_special_characters_in_path(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_executable(hello SOURCES "{filename}")
+    '''
+    testing.write("CMakeLists.txt", content.format(filename='\\":*?<>| .c'))
+    testing.write('":*?<>| .c', "int main() { return 0; }")
+    testing.configure_internal().check_returncode()
+    assert 'CMakeFiles/HOST-hello.dir/________.c.o' in testing.cmake("host-targets", verbose=True).stdout
