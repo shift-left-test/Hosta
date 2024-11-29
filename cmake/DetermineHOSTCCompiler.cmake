@@ -46,9 +46,7 @@ if(NOT CMAKE_HOSTC_COMPILER)
 endif()
 
 # Build a small source file to identify the compiler.
-find_host_compiler_id(C
-  FLAGS "-c" "-Aa" "-D__CLASSIC_C__" "--target=arm-arm-none-eabi -mcpu=cortex-m3"
-)
+find_host_compiler_id(C FLAGS "-D__CLASSIC_C__")
 
 # Test if the host compiler can compile the most basic of programs.
 # If not, a fatal error is set and stops processing commands.

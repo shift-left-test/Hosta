@@ -46,9 +46,7 @@ if(NOT CMAKE_HOSTCXX_COMPILER)
 endif()
 
 # Build a small source file to identify the compiler.
-find_host_compiler_id(CXX
-  FLAGS "-c" "--c++" "--ec++" "--target=arm-arm-none-eabi -mcpu=cortex-m3"
-)
+find_host_compiler_id(CXX)
 
 # Test if the host compiler can compile the most basic of programs.
 # If not, a fatal error is set and stops processing commands.
