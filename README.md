@@ -177,6 +177,7 @@ The following CMake variables can be used to configure internal behaviors:
 - `CMAKE_HOST_STATIC_LIBRARY_PREFIX`: Defines the prefix for static libraries
 - `CMAKE_HOST_STATIC_LIBRARY_SUFFIX`: Defines the extension for static libraries
 - `CMAKE_HOST_BUILD_TARGET`: Defines the target name to be used when building host targets (default: host-targets)
+- `ENABLE_HOST_LANGUAGES`: Defines preferred host languages (default: C CXX)
 
 ## Building the Project
 

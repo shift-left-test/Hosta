@@ -14,12 +14,27 @@ if(NOT _HOSTA_BASE_DIR)
 endif()
 
 include(CMakeParseArguments)
+include(${_HOSTA_BASE_DIR}/HostCompilerUtilities.cmake)
+
+# Set the default preferred host languages
+if(NOT ENABLE_HOST_LANGUAGES)
+  set(ENABLE_HOST_LANGUAGES C CXX)
+endif()
+list(TRANSFORM ENABLE_HOST_LANGUAGES TOUPPER)
+list(REMOVE_DUPLICATES ENABLE_HOST_LANGUAGES)
+list(SORT ENABLE_HOST_LANGUAGES)
 
 # Set the list of enabled host languages
 unset(ENABLED_HOST_LANGUAGES)
-include(${_HOSTA_BASE_DIR}/DetermineHOSTCCompiler.cmake)
-include(${_HOSTA_BASE_DIR}/DetermineHOSTCXXCompiler.cmake)
-list(REMOVE_DUPLICATES ENABLED_HOST_LANGUAGES)
+foreach(lang IN LISTS ENABLE_HOST_LANGUAGES)
+  if(lang STREQUAL NONE)
+    continue()
+  elseif(NOT EXISTS "${_HOSTA_BASE_DIR}/DetermineHOST${lang}Compiler.cmake")
+    host_logging_error("No CMAKE_HOST${lang}_COMPILER could be found.")
+  else()
+    include(${_HOSTA_BASE_DIR}/DetermineHOST${lang}Compiler.cmake)
+  endif()
+endforeach()
 
 # Set default host build target name
 if(NOT CMAKE_HOST_BUILD_TARGET)
@@ -441,7 +456,7 @@ function(add_host_executable TARGET)
   # Set include directories
   separate_host_scoped_arguments("${BUILD_INCLUDE_DIRECTORIES}" BUILD_INCLUDE_DIRECTORIES BUILD_INTERFACE_INCLUDE_DIRECTORIES)
   get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
-  transform_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_HOSTC}")
+  transform_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "-I")
 
   # Set compile options
   separate_host_scoped_arguments("${BUILD_COMPILE_OPTIONS}" BUILD_COMPILE_OPTIONS BUILD_INTERFACE_COMPILE_OPTIONS)
@@ -468,7 +483,7 @@ function(add_host_executable TARGET)
   endif()
 
   foreach(_lib IN LISTS BUILD_LINK_LIBRARIES)
-    list(APPEND _extra_include_directories "$<$<BOOL:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>>:${CMAKE_INCLUDE_FLAG_HOSTC}>$<JOIN:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>,$<SEMICOLON>${CMAKE_INCLUDE_FLAG_HOSTC}>")
+    list(APPEND _extra_include_directories "$<$<BOOL:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>>:-I>$<JOIN:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>,$<SEMICOLON>-I>")
     list(APPEND _extra_compile_options "$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_COMPILE_OPTIONS>")
     list(APPEND _extra_link_options "$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_LINK_OPTIONS>")
     list(APPEND _extra_dependencies "${CMAKE_HOST_TARGET_PREFIX}$<TARGET_PROPERTY:${_lib},HOST_NAME>")
@@ -545,7 +560,7 @@ function(add_host_library TARGET TYPE)
   # Set include directories
   separate_host_scoped_arguments("${BUILD_INCLUDE_DIRECTORIES}" BUILD_INCLUDE_DIRECTORIES BUILD_INTERFACE_INCLUDE_DIRECTORIES)
   get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
-  transform_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_FLAG_HOSTC}")
+  transform_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "-I")
   get_host_absolute_paths(BUILD_INTERFACE_INCLUDE_DIRECTORIES "${BUILD_INTERFACE_INCLUDE_DIRECTORIES}")
 
   # Set compile options
