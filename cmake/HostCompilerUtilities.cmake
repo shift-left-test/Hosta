@@ -154,9 +154,9 @@ function(find_host_compiler_id lang)
 endfunction(find_host_compiler_id)
 
 function(set_host_platform_default_options lang)
-  # Check if it is a supported compiler
-  if(CMAKE_HOST${lang}_COMPILER_ID MATCHES "MSVC")
-    host_logging_error("Builds based on '${CMAKE_HOST${lang}_COMPILER_ID}' compiler not supported.")
+  # Check if it is a supported generator
+  if(CMAKE_GENERATOR MATCHES "Visual Studio")
+    host_logging_error("Builds based on '${CMAKE_GENERATOR}' generator not supported.")
   endif()
 
   # Check if it is a supported platform
@@ -164,9 +164,9 @@ function(set_host_platform_default_options lang)
     host_logging_error("Builds hosted on '${CMAKE_HOST${lang}_PLATFORM_ID}' not supported.")
   endif()
 
-  # Check if it is a supported generator
-  if(CMAKE_GENERATOR MATCHES "Visual Studio")
-    host_logging_error("Builds based on '${CMAKE_GENERATOR}' generator not supported.")
+  # Check if it is a supported compiler
+  if(CMAKE_HOST${lang}_COMPILER_ID MATCHES "MSVC")
+    host_logging_error("Builds based on '${CMAKE_HOST${lang}_COMPILER_ID}' compiler not supported.")
   endif()
 
   # Set default object file extension
