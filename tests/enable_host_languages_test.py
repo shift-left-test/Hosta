@@ -50,9 +50,27 @@ def test_enable_host_languages_none(testing):
     include(cmake/HostBuild.cmake)
     '''
     testing.write("CMakeLists.txt", content)
-    stdout = testing.configure_internal().stdout
+    process = testing.configure_internal()
+    stdout = process.stdout
+    stderr = process.stderr
     assert not 'Check for working HOSTC compiler: /usr/bin/cc -- works' in stdout
     assert not 'Check for working HOSTCXX compiler: /usr/bin/c++ -- works' in stdout
+    assert not 'No CMAKE_HOSTNONE_COMPILER could be found.' in stderr
+
+def test_enable_host_languages_none_mixed(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    set(ENABLE_HOST_LANGUAGES C NONE CXX)
+    include(cmake/HostBuild.cmake)
+    '''
+    testing.write("CMakeLists.txt", content)
+    process = testing.configure_internal()
+    stdout = process.stdout
+    stderr = process.stderr
+    assert 'Check for working HOSTC compiler: /usr/bin/cc -- works' in stdout
+    assert 'Check for working HOSTCXX compiler: /usr/bin/c++ -- works' in stdout
+    assert not 'No CMAKE_HOSTNONE_COMPILER could be found.' in stderr
 
 def test_enable_host_languages_unknown(testing):
     content = '''
