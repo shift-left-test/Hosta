@@ -120,10 +120,19 @@ function(gtest_add_host_tests TARGET)
 
   # Use gtest_add_tests
   include(GoogleTest)
-  gtest_add_tests(
-    TARGET ${TARGET}
-    SOURCES ${sources}
-    EXTRA_ARGS ${ARG_EXTRA_ARGS}
-    TEST_PREFIX ${ARG_PREFIX}
-  )
+  # Set TEST_PREFIX conditionally to avoid warnings on CMake 3.31.0 or later
+  if(ARG_PREFIX)
+    gtest_add_tests(
+      TARGET ${TARGET}
+      SOURCES ${sources}
+      EXTRA_ARGS ${ARG_EXTRA_ARGS}
+      TEST_PREFIX ${ARG_PREFIX}
+    )
+  else()
+    gtest_add_tests(
+      TARGET ${TARGET}
+      SOURCES ${sources}
+      EXTRA_ARGS ${ARG_EXTRA_ARGS}
+    )
+  endif()
 endfunction(gtest_add_host_tests)
