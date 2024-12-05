@@ -42,6 +42,18 @@ def test_enable_host_languages_cxx(testing):
     assert not 'Check for working HOSTC compiler: /usr/bin/cc -- works' in stdout
     assert 'Check for working HOSTCXX compiler: /usr/bin/c++ -- works' in stdout
 
+def test_enable_host_languages_c_cxx(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    set(ENABLE_HOST_LANGUAGES C CXX)
+    include(cmake/HostBuild.cmake)
+    '''
+    testing.write("CMakeLists.txt", content)
+    stdout = testing.configure_internal().stdout
+    assert 'Check for working HOSTC compiler: /usr/bin/cc -- works' in stdout
+    assert 'Check for working HOSTCXX compiler: /usr/bin/c++ -- works' in stdout
+
 def test_enable_host_languages_none(testing):
     content = '''
     cmake_minimum_required(VERSION 3.16)

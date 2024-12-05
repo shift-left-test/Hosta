@@ -333,6 +333,16 @@ function(find_host_language OUTPUT SOURCES)
   unset(${OUTPUT} PARENT_SCOPE)
 endfunction(find_host_language)
 
+function(get_host_include_flag OUTPUT)
+  foreach(lang IN LISTS ENABLED_HOST_LANGUAGES)
+    if(CMAKE_INCLUDE_FLAG_HOST${lang})
+      set(${OUTPUT} "${CMAKE_INCLUDE_FLAG_HOST${lang}}" PARENT_SCOPE)
+      return()
+    endif()
+  endforeach()
+  set(${OUTPUT} "-I" PARENT_SCOPE)
+endfunction(get_host_include_flag)
+
 function(do_host_compile lang OUTPUT)
   set(oneValueArgs SOURCE TARGET)
   set(multiValueArgs INCLUDE_DIRECTORIES COMPILE_OPTIONS DEPENDS)
@@ -454,9 +464,10 @@ function(add_host_executable TARGET)
   remove_host_namespace_prefix(TARGET "${TARGET}")
 
   # Set include directories
+  get_host_include_flag(include_flag)
   separate_host_scoped_arguments("${BUILD_INCLUDE_DIRECTORIES}" BUILD_INCLUDE_DIRECTORIES BUILD_INTERFACE_INCLUDE_DIRECTORIES)
   get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
-  transform_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "-I")
+  transform_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${include_flag}")
 
   # Set compile options
   separate_host_scoped_arguments("${BUILD_COMPILE_OPTIONS}" BUILD_COMPILE_OPTIONS BUILD_INTERFACE_COMPILE_OPTIONS)
@@ -483,7 +494,7 @@ function(add_host_executable TARGET)
   endif()
 
   foreach(_lib IN LISTS BUILD_LINK_LIBRARIES)
-    list(APPEND _extra_include_directories "$<$<BOOL:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>>:-I>$<JOIN:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>,$<SEMICOLON>-I>")
+    list(APPEND _extra_include_directories "$<$<BOOL:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>>:${include_flag}>$<JOIN:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>,$<SEMICOLON>${include_flag}>")
     list(APPEND _extra_compile_options "$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_COMPILE_OPTIONS>")
     list(APPEND _extra_link_options "$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_LINK_OPTIONS>")
     list(APPEND _extra_dependencies "${CMAKE_HOST_TARGET_PREFIX}$<TARGET_PROPERTY:${_lib},HOST_NAME>")
@@ -558,9 +569,10 @@ function(add_host_library TARGET TYPE)
   remove_host_namespace_prefix(TARGET "${TARGET}")
 
   # Set include directories
+  get_host_include_flag(include_flag)
   separate_host_scoped_arguments("${BUILD_INCLUDE_DIRECTORIES}" BUILD_INCLUDE_DIRECTORIES BUILD_INTERFACE_INCLUDE_DIRECTORIES)
   get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
-  transform_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "-I")
+  transform_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${include_flag}")
   get_host_absolute_paths(BUILD_INTERFACE_INCLUDE_DIRECTORIES "${BUILD_INTERFACE_INCLUDE_DIRECTORIES}")
 
   # Set compile options
