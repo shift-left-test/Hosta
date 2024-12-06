@@ -6,6 +6,14 @@
 
 Hosta is a comprehensive solution for building and executing unit tests for C/C++ programs using the host build toolchain. It leverages CMake scripts to facilitate the creation of test programs and their execution on the host platform via CTest, even within a cross-build toolchain environment.
 
+## Features
+
+- Comprehensive solution for building and running unit tests for C/C++ projects
+- Uses CMake scripts for test execution on the host platform via CTest
+- Supports dual-targeting in cross-build toolchain environments
+- Provides functions to define host executables and libraries with ease
+- Integrates with popular testing frameworks such as Unity and Google Test
+
 ## Prerequisites
 
 Ensure the following software packages are installed on your host environment:
