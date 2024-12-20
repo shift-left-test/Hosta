@@ -7,8 +7,9 @@ SPDX-License-Identifier: MIT
 
 import pytest
 
-def test_host_compiler_info(testing_mingw_gpp):
-    compiler_info = testing_mingw_gpp.read("CMakeFiles/3.16.3-hosta.internal/CMakeHOSTCXXCompiler.cmake")
+def test_host_compiler_info(testing):
+    testing.configure(cpp_compiler_list="i686-w64-mingw32-g++")
+    compiler_info = testing.read("CMakeFiles/3.16.3-hosta.internal/CMakeHOSTCXXCompiler.cmake")
     assert 'set(CMAKE_HOSTCXX_COMPILER "/usr/bin/i686-w64-mingw32-g++")' in compiler_info
     assert 'set(CMAKE_HOSTCXX_COMPILER_ID "GNU")' in compiler_info
     assert 'set(CMAKE_HOSTCXX_COMPILER_VERSION "9.3.0")' in compiler_info

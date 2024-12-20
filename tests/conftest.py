@@ -88,7 +88,6 @@ class CMakeFixture(object):
         os.makedirs(f'{self.workspace}/{path}', exist_ok=True)
 
     def rmtree(self, path):
-
         shutil.rmtree(f'{self.workspace}/{path}', ignore_errors=True)
 
 @pytest.fixture
@@ -98,43 +97,3 @@ def testing(request, tmpdir_factory):
         shutil.rmtree(directory)
     request.addfinalizer(cleanup)
     return CMakeFixture(request.config.rootdir, directory)
-
-@pytest.fixture
-def testing_cc(testing):
-    testing.configure()
-    return testing
-
-@pytest.fixture
-def testing_gcc(testing):
-    testing.configure(c_compiler_list="gcc")
-    return testing
-
-@pytest.fixture
-def testing_clang(testing):
-    testing.configure(c_compiler_list="clang")
-    return testing
-
-@pytest.fixture
-def testing_mingw_gcc(testing):
-    testing.configure(c_compiler_list="i686-w64-mingw32-gcc")
-    return testing
-
-@pytest.fixture
-def testing_cpp(testing):
-    testing.configure()
-    return testing
-
-@pytest.fixture
-def testing_gpp(testing):
-    testing.configure(cpp_compiler_list="g++")
-    return testing
-
-@pytest.fixture
-def testing_clangpp(testing):
-    testing.configure(cpp_compiler_list="clang++")
-    return testing
-
-@pytest.fixture
-def testing_mingw_gpp(testing):
-    testing.configure(cpp_compiler_list="i686-w64-mingw32-g++")
-    return testing
