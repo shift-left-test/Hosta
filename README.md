@@ -147,9 +147,9 @@ add_host_test(<target> [PREFIX <prefix>] [EXTRA_ARGS <extra_args>])
 # - extra_args: Any additional arguments to pass on the command line
 ```
 
-### Adding an Executable as Tests with CTest by Scanning Source Code for Unity Test Macros
+### Adding an Executable as Tests with CTest by Scanning Source Code for Unity Fixture Test Macros
 
-To automatically add an executable target as tests with CTest by scanning the source code for Unity test macros, use the `unity_fixture_add_host_tests` function:
+To automatically add an executable target as tests with CTest by scanning the source code for Unity fixture test macros, use the `unity_fixture_add_host_tests` function:
 
 ```cmake
 unity_fixture_add_host_tests(<target> [PREFIX <prefix>] [EXTRA_ARGS <extra_args>])
@@ -159,6 +159,8 @@ unity_fixture_add_host_tests(<target> [PREFIX <prefix>] [EXTRA_ARGS <extra_args>
 # - prefix: Specifies a prefix to be prepended to the name of each test case
 # - extra_args: Any additional arguments to pass on the command line
 ```
+
+You may refer to [this link](https://github.com/ThrowTheSwitch/Unity/tree/master/extras/fixture) for more information about the Unity fixture.
 
 ### Adding an Executable as Tests with CTest by Scanning Source Code for Google Test Macros
 
