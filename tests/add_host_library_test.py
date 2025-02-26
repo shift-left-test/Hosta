@@ -111,6 +111,68 @@ def test_static_link_options(testing):
     testing.configure_internal().check_returncode()
     testing.cmake("host-targets").check_returncode()
 
+def test_static_link_static_libraries(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(main STATIC SOURCES main.c LINK_LIBRARIES PRIVATE Host::hello Host::world)
+    add_host_library(hello STATIC SOURCES hello/hello.c INCLUDE_DIRECTORIES PUBLIC hello COMPILE_OPTIONS PUBLIC -DHELLO LINK_OPTIONS PUBLIC -fprofile-arcs)
+    add_host_library(world STATIC SOURCES world/world.c INCLUDE_DIRECTORIES PUBLIC world COMPILE_OPTIONS PUBLIC -DWORLD LINK_OPTIONS PUBLIC -lm)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.write("main.c", '#include "hello.h" \n #include "world.h" \n int main() { hello(); world(); return 0; }')
+    testing.write("hello/hello.h", "void hello();")
+    testing.write("hello/hello.c", "void hello() { }")
+    testing.write("world/world.h", "void world();")
+    testing.write("world/world.c", "void world() { }")
+
+    testing.configure_internal().check_returncode()
+    process = testing.cmake("host-targets", verbose=True)
+    process.check_returncode()
+    stdout = process.stdout
+    assert f'-I{testing.workspace}/hello -I{testing.workspace}/world' in stdout
+    assert '-DHELLO -DWORLD' in stdout
+    assert f'-fprofile-arcs {testing.build}/libhello.a -lm' not in stdout  # No link options
+
+def test_static_link_interface_libraries(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(main STATIC SOURCES main.c LINK_LIBRARIES PRIVATE Host::hello Host::world)
+    add_host_library(hello INTERFACE INCLUDE_DIRECTORIES PUBLIC hello COMPILE_OPTIONS PUBLIC -DHELLO LINK_OPTIONS PUBLIC -fprofile-arcs)
+    add_host_library(world INTERFACE INCLUDE_DIRECTORIES PUBLIC world COMPILE_OPTIONS PUBLIC -DWORLD LINK_OPTIONS PUBLIC -lm)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.write("main.c", 'int main() { return 0; }')
+    testing.configure_internal().check_returncode()
+    process = testing.cmake("host-targets", verbose=True)
+    process.check_returncode()
+    stdout = process.stdout
+    assert f'-I{testing.workspace}/hello -I{testing.workspace}/world' in stdout
+    assert '-DHELLO -DWORLD' in stdout
+    assert '-fprofile-arcs -lm' not in stdout  # No link options
+
+def test_static_link_libraries_with_private_options(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(main STATIC SOURCES main.c LINK_LIBRARIES PRIVATE Host::hello)
+    add_host_library(hello INTERFACE INCLUDE_DIRECTORIES PRIVATE aaa COMPILE_OPTIONS PRIVATE bbb LINK_OPTIONS PRIVATE ccc)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.write("main.c", "int main() { return 0; }")
+    testing.configure_internal().check_returncode()
+    process = testing.cmake("host-targets", verbose=True)
+    process.check_returncode()
+    stdout = process.stdout
+    assert '-I' not in stdout
+    assert 'aaa' not in stdout
+    assert 'bbb' not in stdout
+    assert 'ccc' not in stdout
+
 def test_static_rebuild(testing):
     content = '''
     cmake_minimum_required(VERSION 3.16)
@@ -182,6 +244,65 @@ def test_interface_link_options(testing):
     '''
     testing.write("CMakeLists.txt", content)
     assert f'A="" ; B="b"' in testing.configure_internal().stdout
+
+def test_interface_link_static_libraries(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(main INTERFACE LINK_LIBRARIES PRIVATE Host::hello Host::world)
+    add_host_library(hello STATIC SOURCES hello/hello.c INCLUDE_DIRECTORIES PUBLIC hello COMPILE_OPTIONS PUBLIC -DHELLO LINK_OPTIONS PUBLIC -fprofile-arcs)
+    add_host_library(world STATIC SOURCES world/world.c INCLUDE_DIRECTORIES PUBLIC world COMPILE_OPTIONS PUBLIC -DWORLD LINK_OPTIONS PUBLIC -lm)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.write("hello/hello.h", "void hello();")
+    testing.write("hello/hello.c", "void hello() { }")
+    testing.write("world/world.h", "void world();")
+    testing.write("world/world.c", "void world() { }")
+
+    testing.configure_internal().check_returncode()
+    process = testing.cmake("host-targets", verbose=True)
+    process.check_returncode()
+    stdout = process.stdout
+    assert f'-I{testing.workspace}/hello -I{testing.workspace}/world' not in stdout  # No include directories
+    assert '-DHELLO -DWORLD' not in stdout  # No compile options
+    assert f'-fprofile-arcs {testing.build}/libhello.a -lm' not in stdout  # No link options
+
+def test_interface_link_interface_libraries(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(main INTERFACE LINK_LIBRARIES PRIVATE Host::hello Host::world)
+    add_host_library(hello INTERFACE INCLUDE_DIRECTORIES PUBLIC hello COMPILE_OPTIONS PUBLIC -DHELLO LINK_OPTIONS PUBLIC -fprofile-arcs)
+    add_host_library(world INTERFACE INCLUDE_DIRECTORIES PUBLIC world COMPILE_OPTIONS PUBLIC -DWORLD LINK_OPTIONS PUBLIC -lm)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.configure_internal().check_returncode()
+    process = testing.cmake("host-targets", verbose=True)
+    process.check_returncode()
+    stdout = process.stdout
+    assert f'-I{testing.workspace}/hello -I{testing.workspace}/world' not in stdout  # No include directories
+    assert '-DHELLO -DWORLD' not in stdout  # No compile options
+    assert '-fprofile-arcs -lm' not in stdout  # No link options
+
+def test_interface_link_libraries_with_private_options(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+    include(cmake/HostBuild.cmake)
+    add_host_library(main INTERFACE LINK_LIBRARIES PRIVATE Host::hello)
+    add_host_library(hello INTERFACE INCLUDE_DIRECTORIES PRIVATE aaa COMPILE_OPTIONS PRIVATE bbb LINK_OPTIONS PRIVATE ccc)
+    '''
+    testing.write("CMakeLists.txt", content)
+    testing.configure_internal().check_returncode()
+    process = testing.cmake("host-targets", verbose=True)
+    process.check_returncode()
+    stdout = process.stdout
+    assert '-I' not in stdout
+    assert 'aaa' not in stdout
+    assert 'bbb' not in stdout
+    assert 'ccc' not in stdout
 
 def test_interface_rebuild(testing):
     content = '''

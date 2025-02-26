@@ -562,7 +562,7 @@ function(add_host_executable TARGET)
 endfunction(add_host_executable)
 
 function(add_host_library TARGET TYPE)
-  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS DEPENDS)
+  set(multiValueArgs SOURCES INCLUDE_DIRECTORIES COMPILE_OPTIONS LINK_OPTIONS LINK_LIBRARIES DEPENDS)
   cmake_parse_arguments(BUILD "" "" "${multiValueArgs}" ${ARGN})
 
   # Remove host namespace prefix if exists
@@ -580,6 +580,31 @@ function(add_host_library TARGET TYPE)
 
   # Set link options
   separate_host_scoped_arguments("${BUILD_LINK_OPTIONS}" BUILD_LINK_OPTIONS BUILD_INTERFACE_LINK_OPTIONS)
+
+  # Set link libraries
+  separate_host_scoped_arguments("${BUILD_LINK_LIBRARIES}" BUILD_LINK_LIBRARIES BUILD_INTERFACE_LINK_LIBRARIES)
+  get_host_target_names(BUILD_LINK_LIBRARIES "${BUILD_LINK_LIBRARIES}")
+
+  # Get interface properties of linking libraries
+  unset(_extra_include_directories)
+  unset(_extra_compile_options)
+  unset(_extra_link_options)
+  unset(_extra_dependencies)
+
+  # Ensure only host libraries are given
+  set(remaining ${BUILD_LINK_LIBRARIES})
+  list(FILTER remaining EXCLUDE REGEX "^${CMAKE_HOST_TARGET_PREFIX}.*$")
+  list(JOIN remaining ", " remaining)
+  if(remaining)
+    host_logging_error("add_host_library LINK_LIBRARIES requires the name of host libraries starting with the host namespace prefix.\nUnsupported libraries: ${remaining}")
+  endif()
+
+  foreach(_lib IN LISTS BUILD_LINK_LIBRARIES)
+    list(APPEND _extra_include_directories "$<$<BOOL:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>>:${include_flag}>$<JOIN:$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_INCLUDE_DIRECTORIES>,$<SEMICOLON>${include_flag}>")
+    list(APPEND _extra_compile_options "$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_COMPILE_OPTIONS>")
+    list(APPEND _extra_link_options "$<TARGET_PROPERTY:${_lib},HOST_INTERFACE_LINK_OPTIONS>")
+    list(APPEND _extra_dependencies "${CMAKE_HOST_TARGET_PREFIX}$<TARGET_PROPERTY:${_lib},HOST_NAME>")
+  endforeach()
 
   set(BUILD_TYPE "HOST_${TYPE}")
 
@@ -624,9 +649,9 @@ function(add_host_library TARGET TYPE)
       do_host_compile(${lang} _output
         SOURCE "${_source}"
         TARGET "${CMAKE_HOST_STATIC_LIBRARY_PREFIX}${TARGET}${CMAKE_HOST_STATIC_LIBRARY_SUFFIX}"
-        INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}"
-        COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}"
-        DEPENDS "${BUILD_DEPENDS}"
+        INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" "${_extra_include_directories}"
+        COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" "${_extra_compile_options}"
+        DEPENDS "${BUILD_DEPENDS}" "${_file_dependencies}" "${_extra_dependencies}"
       )
       list(APPEND _objects ${_output})
     endforeach()
