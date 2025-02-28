@@ -97,6 +97,7 @@ add_host_library(<target> <type>
   [INCLUDE_DIRECTORIES <PRIVATE|PUBLIC> <include_directory>...]
   [COMPILE_OPTIONS <PRIVATE|PUBLIC> <compile_option>...]
   [LINK_OPTIONS <PRIVATE|PUBLIC> <link_option>...]
+  [LINK_LIBRARIES <PRIVATE|PUBLIC> <library>...]
   [DEPENDS <depend>...]
 )
 
@@ -107,6 +108,7 @@ add_host_library(<target> <type>
 # - include_directories: List of include directories
 # - compile_options: List of compile options
 # - link_options: List of link options
+# - libraries: List of host libraries
 # - depends: List of dependencies
 
 # Scope:
