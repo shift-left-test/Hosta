@@ -182,13 +182,16 @@ gtest_add_host_tests(<target> [PREFIX <prefix>] [EXTRA_ARGS <extra_args>])
 The following CMake variables can be used to configure internal behaviors:
 
 - `CMAKE_HOST${lang}_COMPILER_LIST`: This variable is used to find the host compiler
+- `CMAKE_HOST${lang}_EXTENSIONS`: Specifies whether compiler-specific extensions are required
+- `CMAKE_HOST${lang}_FLAGS`: Specifies global compiler flags
 - `CMAKE_HOST${lang}_OUTPUT_EXTENSION`: Defines the extension for object files
 - `CMAKE_HOST${lang}_STANDARD`: Defines the language standard version
-- `CMAKE_HOST${lang}_EXTENSIONS`: Specifies whether compiler-specific extensions are required
+- `CMAKE_HOST_BUILD_TARGET`: Defines the target name to be used when building host targets (default: host-targets)
 - `CMAKE_HOST_EXECUTABLE_SUFFIX`: Defines the extension for executable files
+- `CMAKE_HOST_EXE_LINKER_FLAGS`: Defines global linker flags for executables
 - `CMAKE_HOST_STATIC_LIBRARY_PREFIX`: Defines the prefix for static libraries
 - `CMAKE_HOST_STATIC_LIBRARY_SUFFIX`: Defines the extension for static libraries
-- `CMAKE_HOST_BUILD_TARGET`: Defines the target name to be used when building host targets (default: host-targets)
+- `CMAKE_HOST_STATIC_LINKER_FLAGS`: Specifies global linker flags for static libraries
 - `ENABLE_HOST_LANGUAGES`: Defines preferred host languages (default: C CXX)
 
 ## Building the Project

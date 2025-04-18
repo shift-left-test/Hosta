@@ -351,6 +351,9 @@ function(do_host_compile lang OUTPUT)
   # Reset the appropriate host language for each source file
   find_host_language(lang "${BUILD_SOURCE}")
 
+  # Set global compile flags
+  list(PREPEND BUILD_COMPILE_OPTIONS "${CMAKE_HOST${lang}_FLAGS}")
+
   # Set standard compile option
   get_host_standard_compile_option(${lang} _option)
   list(PREPEND BUILD_COMPILE_OPTIONS "${_option}")
@@ -425,6 +428,9 @@ function(do_host_link lang TARGET OUTPUT)
   # Set libraries
   transform_host_arguments(BUILD_LINK_LIBRARIES "${BUILD_LINK_LIBRARIES}" PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
 
+  # Set global linker flags
+  list(PREPEND BUILD_LINK_OPTIONS "${CMAKE_HOST_EXE_LINKER_FLAGS}")
+
   if(NOT CMAKE_HOST_EXECUTABLE_SUFFIX)
     set(CMAKE_HOST_EXECUTABLE_SUFFIX "${CMAKE_HOST${lang}_EXECUTABLE_SUFFIX}")
   endif()
@@ -468,6 +474,10 @@ function(add_host_executable TARGET)
   separate_host_scoped_arguments("${BUILD_INCLUDE_DIRECTORIES}" BUILD_INCLUDE_DIRECTORIES BUILD_INTERFACE_INCLUDE_DIRECTORIES)
   get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
   transform_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${include_flag}")
+
+  # Set global include directories
+  unset(_global_include_directories)
+  transform_host_arguments(_global_include_directories "${CMAKE_HOST_INCLUDE_PATH}" PREPEND "${include_flag}")
 
   # Set compile options
   separate_host_scoped_arguments("${BUILD_COMPILE_OPTIONS}" BUILD_COMPILE_OPTIONS BUILD_INTERFACE_COMPILE_OPTIONS)
@@ -536,7 +546,7 @@ function(add_host_executable TARGET)
     do_host_compile(${lang} _output
       SOURCE "${_source}"
       TARGET "${TARGET}"
-      INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" "${_extra_include_directories}"
+      INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" "${_global_include_directories}" "${_extra_include_directories}"
       COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" "${_extra_compile_options}"
       DEPENDS "${BUILD_DEPENDS}" "${_file_dependencies}" "${_extra_dependencies}"
     )
@@ -574,6 +584,10 @@ function(add_host_library TARGET TYPE)
   get_host_absolute_paths(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}")
   transform_host_arguments(BUILD_INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" PREPEND "${include_flag}")
   get_host_absolute_paths(BUILD_INTERFACE_INCLUDE_DIRECTORIES "${BUILD_INTERFACE_INCLUDE_DIRECTORIES}")
+
+  # Set global include directories
+  unset(_global_include_directories)
+  transform_host_arguments(_global_include_directories "${CMAKE_HOST_INCLUDE_PATH}" PREPEND "${include_flag}")
 
   # Set compile options
   separate_host_scoped_arguments("${BUILD_COMPILE_OPTIONS}" BUILD_COMPILE_OPTIONS BUILD_INTERFACE_COMPILE_OPTIONS)
@@ -649,7 +663,7 @@ function(add_host_library TARGET TYPE)
       do_host_compile(${lang} _output
         SOURCE "${_source}"
         TARGET "${CMAKE_HOST_STATIC_LIBRARY_PREFIX}${TARGET}${CMAKE_HOST_STATIC_LIBRARY_SUFFIX}"
-        INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" "${_extra_include_directories}"
+        INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" "${_global_include_directories}" "${_extra_include_directories}"
         COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" "${_extra_compile_options}"
         DEPENDS "${BUILD_DEPENDS}" "${_file_dependencies}" "${_extra_dependencies}"
       )

@@ -315,3 +315,56 @@ def test_interface_rebuild(testing):
     testing.configure_internal().check_returncode()
     assert 'Scanning dependencies of target HOST-hello' in testing.cmake("host-targets").stdout
     assert not 'Scanning dependencies of target HOST-hello' in testing.cmake("host-targets").stdout
+
+def test_cmake_host_flags(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+
+    set(CMAKE_HOSTC_FLAGS "-DHOSTC_FLAGS_1;-DHOSTC_FLAGS_2")
+    set(CMAKE_HOSTCXX_FLAGS "-DHOSTCXX_FLAGS_1;-DHOSTCXX_FLAGS_2")
+
+    include(cmake/HostBuild.cmake)
+    add_host_library(hello STATIC SOURCES "{c_file}" "{cxx_file}")
+    '''
+    testing.write("CMakeLists.txt", content.format(c_file="c.c", cxx_file="cxx.cc"))
+    testing.write("c.c", "int c() { return 0; }")
+    testing.write("cxx.cc", "int cxx() { return 0; }")
+    testing.configure_internal().check_returncode()
+    stdout = testing.cmake("host-targets", verbose=True).stdout
+    assert '-DHOSTC_FLAGS_1 -DHOSTC_FLAGS_2' in stdout
+    assert '-DHOSTCXX_FLAGS_1 -DHOSTCXX_FLAGS_2' in stdout
+
+def test_cmake_host_static_linker_flags(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+
+    set(CMAKE_HOST_STATIC_LINKER_FLAGS "-fno-common -fno-builtin")
+
+    include(cmake/HostBuild.cmake)
+    add_host_library(hello STATIC SOURCES "{c_file}" "{cxx_file}")
+    '''
+    testing.write("CMakeLists.txt", content.format(c_file="c.c", cxx_file="cxx.cc"))
+    testing.write("c.c", "int c() { return 0; }")
+    testing.write("cxx.cc", "int cxx() { return 0; }")
+    testing.configure_internal().check_returncode()
+    stdout = testing.cmake("host-targets", verbose=True).stdout
+    assert not '-fno-common -fno-builtin' in stdout  # static linker (ar) does not use the flags
+
+def test_cmake_host_include_path(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+
+    set(CMAKE_HOST_INCLUDE_PATH "/include/first;/include/second")
+
+    include(cmake/HostBuild.cmake)
+    add_host_library(hello STATIC SOURCES "{c_file}" "{cxx_file}")
+    '''
+    testing.write("CMakeLists.txt", content.format(c_file="c.c", cxx_file="cxx.cc"))
+    testing.write("c.c", "int c() { return 0; }")
+    testing.write("cxx.cc", "int cxx() { return 0; }")
+    testing.configure_internal().check_returncode()
+    stdout = testing.cmake("host-targets", verbose=True).stdout
+    assert '-I/include/first -I/include/second' in stdout

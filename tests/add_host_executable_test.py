@@ -269,3 +269,56 @@ def test_replace_special_characters_in_path(testing):
     testing.write('":*?<>| .c', "int main() { return 0; }")
     testing.configure_internal().check_returncode()
     assert 'CMakeFiles/HOST-hello.dir/________.c.o' in testing.cmake("host-targets", verbose=True).stdout
+
+def test_cmake_host_flags(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+
+    set(CMAKE_HOSTC_FLAGS "-DHOSTC_FLAGS_1;-DHOSTC_FLAGS_2")
+    set(CMAKE_HOSTCXX_FLAGS "-DHOSTCXX_FLAGS_1;-DHOSTCXX_FLAGS_2")
+
+    include(cmake/HostBuild.cmake)
+    add_host_executable(hello SOURCES "{c_file}" "{cxx_file}")
+    '''
+    testing.write("CMakeLists.txt", content.format(c_file="c.c", cxx_file="cxx.cc"))
+    testing.write("c.c", "int main() { return 0; }")
+    testing.write("cxx.cc", "int main() { return 0; }")
+    testing.configure_internal().check_returncode()
+    stdout = testing.cmake("host-targets", verbose=True).stdout
+    assert '-DHOSTC_FLAGS_1 -DHOSTC_FLAGS_2' in stdout
+    assert '-DHOSTCXX_FLAGS_1 -DHOSTCXX_FLAGS_2' in stdout
+
+def test_cmake_host_exe_linker_flags(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+
+    set(CMAKE_HOST_EXE_LINKER_FLAGS "-fno-common -fno-builtin")
+
+    include(cmake/HostBuild.cmake)
+    add_host_executable(hello SOURCES "{c_file}" "{cxx_file}")
+    '''
+    testing.write("CMakeLists.txt", content.format(c_file="c.c", cxx_file="cxx.cc"))
+    testing.write("c.c", "int main() { return 0; }")
+    testing.write("cxx.cc", "int main() { return 0; }")
+    testing.configure_internal().check_returncode()
+    stdout = testing.cmake("host-targets", verbose=True).stdout
+    assert '-fno-common -fno-builtin' in stdout
+
+def test_cmake_host_include_path(testing):
+    content = '''
+    cmake_minimum_required(VERSION 3.16)
+    project(CMakeTest LANGUAGES NONE)
+
+    set(CMAKE_HOST_INCLUDE_PATH "/include/first;/include/second")
+
+    include(cmake/HostBuild.cmake)
+    add_host_executable(hello SOURCES "{c_file}" "{cxx_file}")
+    '''
+    testing.write("CMakeLists.txt", content.format(c_file="c.c", cxx_file="cxx.cc"))
+    testing.write("c.c", "int main() { return 0; }")
+    testing.write("cxx.cc", "int main() { return 0; }")
+    testing.configure_internal().check_returncode()
+    stdout = testing.cmake("host-targets", verbose=True).stdout
+    assert '-I/include/first -I/include/second' in stdout
