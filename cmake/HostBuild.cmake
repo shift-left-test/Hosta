@@ -358,19 +358,6 @@ function(do_host_compile lang OUTPUT)
   get_host_standard_compile_option(${lang} _option)
   list(PREPEND BUILD_COMPILE_OPTIONS "${_option}")
 
-  # Set system include directories
-  if(CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang} MATCHES ".*[ ]+$")
-    # Remove trailing whitespaces to prevent arguments from being quoted in command line
-    string(STRIP "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}" CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang})
-    set(BUILD_IMPLICIT_INCLUDE_DIRECTORIES )
-    foreach(dir IN LISTS CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES)
-      list(APPEND BUILD_IMPLICIT_INCLUDE_DIRECTORIES "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}")
-      list(APPEND BUILD_IMPLICIT_INCLUDE_DIRECTORIES "${dir}")
-    endforeach()
-  else()
-    transform_host_arguments(BUILD_IMPLICIT_INCLUDE_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_INCLUDE_DIRECTORIES}" PREPEND "${CMAKE_INCLUDE_SYSTEM_FLAG_HOST${lang}}")
-  endif()
-
   # Set path to the output file
   if(IS_ABSOLUTE "${BUILD_SOURCE}")
     file(RELATIVE_PATH BUILD_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} "${BUILD_SOURCE}")
@@ -392,7 +379,6 @@ function(do_host_compile lang OUTPUT)
   # Compile source file
   set(BUILD_COMMAND
     ${CMAKE_HOST${lang}_COMPILER}
-    ${BUILD_IMPLICIT_INCLUDE_DIRECTORIES}
     ${BUILD_INCLUDE_DIRECTORIES}
     ${BUILD_COMPILE_OPTIONS}
     -o ${_relative_output}
@@ -419,12 +405,6 @@ function(do_host_link lang TARGET OUTPUT)
   # Set object files
   separate_arguments(BUILD_OBJECTS NATIVE_COMMAND "${BUILD_OBJECTS}")
 
-  # Set system library directories
-  transform_host_arguments(BUILD_IMPLICIT_LINK_DIRECTORIES "${CMAKE_HOST${lang}_IMPLICIT_LINK_DIRECTORIES}" PREPEND "${CMAKE_LIBRARY_PATH_FLAG}")
-
-  # Set system libraries
-  transform_host_arguments(BUILD_IMPLICIT_LINK_LIBRARIES "${CMAKE_HOST${lang}_IMPLICIT_LINK_LIBRARIES}" PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
-
   # Set libraries
   transform_host_arguments(BUILD_LINK_LIBRARIES "${BUILD_LINK_LIBRARIES}" PREPEND "${CMAKE_LINK_LIBRARY_FLAG}")
 
@@ -443,8 +423,6 @@ function(do_host_link lang TARGET OUTPUT)
     ${CMAKE_HOST${lang}_COMPILER}
     -o ${_output}
     ${BUILD_OBJECTS}
-    ${BUILD_IMPLICIT_LINK_DIRECTORIES}
-    ${BUILD_IMPLICIT_LINK_LIBRARIES}
     ${BUILD_LINK_LIBRARIES}
     ${BUILD_LINK_OPTIONS}
   )
