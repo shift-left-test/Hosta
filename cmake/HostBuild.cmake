@@ -524,7 +524,7 @@ function(add_host_executable TARGET)
     do_host_compile(${lang} _output
       SOURCE "${_source}"
       TARGET "${TARGET}"
-      INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" "${_global_include_directories}" "${_extra_include_directories}"
+      INCLUDE_DIRECTORIES "${_global_include_directories}" "${BUILD_INCLUDE_DIRECTORIES}" "${_extra_include_directories}"
       COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" "${_extra_compile_options}"
       DEPENDS "${BUILD_DEPENDS}" "${_file_dependencies}" "${_extra_dependencies}"
     )
@@ -641,7 +641,7 @@ function(add_host_library TARGET TYPE)
       do_host_compile(${lang} _output
         SOURCE "${_source}"
         TARGET "${CMAKE_HOST_STATIC_LIBRARY_PREFIX}${TARGET}${CMAKE_HOST_STATIC_LIBRARY_SUFFIX}"
-        INCLUDE_DIRECTORIES "${BUILD_INCLUDE_DIRECTORIES}" "${_global_include_directories}" "${_extra_include_directories}"
+        INCLUDE_DIRECTORIES "${_global_include_directories}" "${BUILD_INCLUDE_DIRECTORIES}" "${_extra_include_directories}"
         COMPILE_OPTIONS "${BUILD_COMPILE_OPTIONS}" "${_extra_compile_options}"
         DEPENDS "${BUILD_DEPENDS}" "${_file_dependencies}" "${_extra_dependencies}"
       )
