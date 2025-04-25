@@ -189,6 +189,7 @@ The following CMake variables can be used to configure internal behaviors:
 - `CMAKE_HOST_BUILD_TARGET`: Defines the target name to be used when building host targets (default: host-targets)
 - `CMAKE_HOST_EXECUTABLE_SUFFIX`: Defines the extension for executable files
 - `CMAKE_HOST_EXE_LINKER_FLAGS`: Defines global linker flags for executables
+- `CMAKE_HOST_INCLUDE_PATH`: Specifies additional directories to search for header files for host targets
 - `CMAKE_HOST_STATIC_LIBRARY_PREFIX`: Defines the prefix for static libraries
 - `CMAKE_HOST_STATIC_LIBRARY_SUFFIX`: Defines the extension for static libraries
 - `CMAKE_HOST_STATIC_LINKER_FLAGS`: Specifies global linker flags for static libraries
